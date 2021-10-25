@@ -12,8 +12,7 @@
         <result column="isFaceValid" jdbcType="INTEGER" property="isfacevalid"/>
     </resultMap>
     <sql id="Base_Column_List">
-        `name`
-        , id, pwd, createdatetime, lastmodifytime, roleid, userlog, isFaceValid
+        `name`, id, pwd, createdatetime, lastmodifytime, roleid, userlog, isFaceValid
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
         select
