@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.bsm.dao.TmovieDao">
+  <resultMap id="BaseResultMap" type="org.bsm.model.Tmovie">
+    <id column="serial_number" jdbcType="VARCHAR" property="serialNumber" />
+    <result column="picture_address" jdbcType="VARCHAR" property="pictureAddress" />
+    <result column="movie_name" jdbcType="VARCHAR" property="movieName" />
+    <result column="star" jdbcType="REAL" property="star" />
+    <result column="evaluate" jdbcType="VARCHAR" property="evaluate" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="org.bsm.model.TmovieWithBLOBs">
+    <result column="introduce" jdbcType="LONGVARCHAR" property="introduce" />
+    <result column="describetion" jdbcType="LONGVARCHAR" property="describetion" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    serial_number, picture_address, movie_name, star, evaluate
+  </sql>
+  <sql id="Blob_Column_List">
+    introduce, describetion
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tmovie
+    where serial_number = #{serialNumber,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from tmovie
+    where serial_number = #{serialNumber,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" keyColumn="serial_number" keyProperty="serialNumber" parameterType="org.bsm.model.TmovieWithBLOBs" useGeneratedKeys="true">
+    insert into tmovie (picture_address, movie_name, star, 
+      evaluate, introduce, describetion
+      )
+    values (#{pictureAddress,jdbcType=VARCHAR}, #{movieName,jdbcType=VARCHAR}, #{star,jdbcType=REAL}, 
+      #{evaluate,jdbcType=VARCHAR}, #{introduce,jdbcType=LONGVARCHAR}, #{describetion,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="serial_number" keyProperty="serialNumber" parameterType="org.bsm.model.TmovieWithBLOBs" useGeneratedKeys="true">
+    insert into tmovie
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pictureAddress != null">
+        picture_address,
+      </if>
+      <if test="movieName != null">
+        movie_name,
+      </if>
+      <if test="star != null">
+        star,
+      </if>
+      <if test="evaluate != null">
+        evaluate,
+      </if>
+      <if test="introduce != null">
+        introduce,
+      </if>
+      <if test="describetion != null">
+        describetion,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pictureAddress != null">
+        #{pictureAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="movieName != null">
+        #{movieName,jdbcType=VARCHAR},
+      </if>
+      <if test="star != null">
+        #{star,jdbcType=REAL},
+      </if>
+      <if test="evaluate != null">
+        #{evaluate,jdbcType=VARCHAR},
+      </if>
+      <if test="introduce != null">
+        #{introduce,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="describetion != null">
+        #{describetion,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.bsm.model.TmovieWithBLOBs">
+    update tmovie
+    <set>
+      <if test="pictureAddress != null">
+        picture_address = #{pictureAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="movieName != null">
+        movie_name = #{movieName,jdbcType=VARCHAR},
+      </if>
+      <if test="star != null">
+        star = #{star,jdbcType=REAL},
+      </if>
+      <if test="evaluate != null">
+        evaluate = #{evaluate,jdbcType=VARCHAR},
+      </if>
+      <if test="introduce != null">
+        introduce = #{introduce,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="describetion != null">
+        describetion = #{describetion,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where serial_number = #{serialNumber,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.bsm.model.TmovieWithBLOBs">
+    update tmovie
+    set picture_address = #{pictureAddress,jdbcType=VARCHAR},
+      movie_name = #{movieName,jdbcType=VARCHAR},
+      star = #{star,jdbcType=REAL},
+      evaluate = #{evaluate,jdbcType=VARCHAR},
+      introduce = #{introduce,jdbcType=LONGVARCHAR},
+      describetion = #{describetion,jdbcType=LONGVARCHAR}
+    where serial_number = #{serialNumber,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.bsm.model.Tmovie">
+    update tmovie
+    set picture_address = #{pictureAddress,jdbcType=VARCHAR},
+      movie_name = #{movieName,jdbcType=VARCHAR},
+      star = #{star,jdbcType=REAL},
+      evaluate = #{evaluate,jdbcType=VARCHAR}
+    where serial_number = #{serialNumber,jdbcType=VARCHAR}
+  </update>
+</mapper>

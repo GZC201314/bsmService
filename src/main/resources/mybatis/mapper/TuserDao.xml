@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.bsm.dao.TuserDao">
+    <resultMap id="BaseResultMap" type="org.bsm.model.Tuser">
+        <id column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="pwd" jdbcType="VARCHAR" property="pwd"/>
+        <result column="createdatetime" jdbcType="TIMESTAMP" property="createdatetime"/>
+        <result column="lastmodifytime" jdbcType="TIMESTAMP" property="lastmodifytime"/>
+        <result column="roleid" jdbcType="INTEGER" property="roleid"/>
+        <result column="userlog" jdbcType="VARCHAR" property="userlog"/>
+        <result column="isFaceValid" jdbcType="INTEGER" property="isfacevalid"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        `name`
+        , id, pwd, createdatetime, lastmodifytime, roleid, userlog, isFaceValid
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tuser
+        where `name` = #{name,jdbcType=VARCHAR}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from tuser
+        where `name` = #{name,jdbcType=VARCHAR}
+    </delete>
+    <insert id="insert" keyColumn="name" keyProperty="name" parameterType="org.bsm.model.Tuser" useGeneratedKeys="true">
+        insert into tuser (id, pwd, createdatetime,
+                           lastmodifytime, roleid, userlog,
+                           isFaceValid)
+        values (#{id,jdbcType=VARCHAR}, #{pwd,jdbcType=VARCHAR}, #{createdatetime,jdbcType=TIMESTAMP},
+                #{lastmodifytime,jdbcType=TIMESTAMP}, #{roleid,jdbcType=INTEGER}, #{userlog,jdbcType=VARCHAR},
+                #{isfacevalid,jdbcType=INTEGER})
+    </insert>
+    <insert id="insertSelective" keyColumn="name" keyProperty="name" parameterType="org.bsm.model.Tuser"
+            useGeneratedKeys="true">
+        insert into tuser
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="pwd != null">
+                pwd,
+            </if>
+            <if test="createdatetime != null">
+                createdatetime,
+            </if>
+            <if test="lastmodifytime != null">
+                lastmodifytime,
+            </if>
+            <if test="roleid != null">
+                roleid,
+            </if>
+            <if test="userlog != null">
+                userlog,
+            </if>
+            <if test="isfacevalid != null">
+                isFaceValid,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="pwd != null">
+                #{pwd,jdbcType=VARCHAR},
+            </if>
+            <if test="createdatetime != null">
+                #{createdatetime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastmodifytime != null">
+                #{lastmodifytime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="roleid != null">
+                #{roleid,jdbcType=INTEGER},
+            </if>
+            <if test="userlog != null">
+                #{userlog,jdbcType=VARCHAR},
+            </if>
+            <if test="isfacevalid != null">
+                #{isfacevalid,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="org.bsm.model.Tuser">
+        update tuser
+        <set>
+            <if test="id != null">
+                id = #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="pwd != null">
+                pwd = #{pwd,jdbcType=VARCHAR},
+            </if>
+            <if test="createdatetime != null">
+                createdatetime = #{createdatetime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastmodifytime != null">
+                lastmodifytime = #{lastmodifytime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="roleid != null">
+                roleid = #{roleid,jdbcType=INTEGER},
+            </if>
+            <if test="userlog != null">
+                userlog = #{userlog,jdbcType=VARCHAR},
+            </if>
+            <if test="isfacevalid != null">
+                isFaceValid = #{isfacevalid,jdbcType=INTEGER},
+            </if>
+        </set>
+        where `name` = #{name,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.bsm.model.Tuser">
+        update tuser
+        set id             = #{id,jdbcType=VARCHAR},
+            pwd            = #{pwd,jdbcType=VARCHAR},
+            createdatetime = #{createdatetime,jdbcType=TIMESTAMP},
+            lastmodifytime = #{lastmodifytime,jdbcType=TIMESTAMP},
+            roleid         = #{roleid,jdbcType=INTEGER},
+            userlog        = #{userlog,jdbcType=VARCHAR},
+            isFaceValid    = #{isfacevalid,jdbcType=INTEGER}
+        where `name` = #{name,jdbcType=VARCHAR}
+    </update>
+</mapper>

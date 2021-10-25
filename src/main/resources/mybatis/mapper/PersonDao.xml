@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.bsm.dao.PersonDao">
+  <resultMap id="BaseResultMap" type="org.bsm.model.Person">
+    <result column="person_PersonId" jdbcType="INTEGER" property="personid" />
+    <result column="person_FirstName" jdbcType="VARCHAR" property="firstname" />
+    <result column="person_LastName" jdbcType="VARCHAR" property="lastname" />
+  </resultMap>
+  <insert id="insert" parameterType="org.bsm.model.Person">
+    insert into person (PersonId, FirstName, LastName
+      )
+    values (#{personid,jdbcType=INTEGER}, #{firstname,jdbcType=VARCHAR}, #{lastname,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="org.bsm.model.Person">
+    insert into person
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="personid != null">
+        PersonId,
+      </if>
+      <if test="firstname != null">
+        FirstName,
+      </if>
+      <if test="lastname != null">
+        LastName,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="personid != null">
+        #{personid,jdbcType=INTEGER},
+      </if>
+      <if test="firstname != null">
+        #{firstname,jdbcType=VARCHAR},
+      </if>
+      <if test="lastname != null">
+        #{lastname,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>
