@@ -1,8 +1,10 @@
 package org.bsm.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author GZC
@@ -11,26 +13,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 public class RouterController {
-    @RequestMapping({"/","index","index.html"})
+    @GetMapping({"/","index","index.html"})
     public String index(){
-        return "index";
+        return "views/index";
     }
 
-    @RequestMapping("/toLogin")
+    @GetMapping("/toLogin")
     public String toLogin(){
-        return "views/logon";
+        return "login";
     }
 
-    @RequestMapping("/level1/{id}")
+    @GetMapping("/login")
+    public String login(){
+        return "login";
+    }
+
+    @GetMapping("/level1/{id}")
     public String level1(@PathVariable("id") int id){
         return "views/level1/"+id;
     }
-    @RequestMapping("/level2/{id}")
+    @GetMapping("/level2/{id}")
     public String level2(@PathVariable("id") int id){
         return "views/level2/"+id;
     }
-    @RequestMapping("/level3/{id}")
+    @GetMapping("/level3/{id}")
     public String level3(@PathVariable("id") int id){
         return "views/level3/"+id;
     }
+
 }

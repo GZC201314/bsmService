@@ -1,13 +1,45 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5" >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Index</title>
 </head>
 <body>
-<h1>
-  Index
-</h1>
+<div style="display: inline">
+
+    <ul>
+        <li>
+            <a th:href="@{/level1/1}">level1-1</a>
+        </li>
+        <li>
+            <a th:href="@{/level1/2}">level1-2</a>
+        </li>
+        <li>
+            <a th:href="@{/level1/3}">level1-3</a>
+        </li>
+    </ul>
+    <ul>
+        <li>
+            <a th:href="@{/level2/1}">level2-1</a>
+        </li>
+        <li>
+            <a th:href="@{/level2/2}">level2-2</a>
+        </li>
+        <li>
+            <a th:href="@{/level2/3}">level2-3</a>
+        </li>
+    </ul>
+    <ul>
+        <li>
+            <a th:href="@{/level3/1}">level3-1</a>
+        </li>
+        <li>
+            <a th:href="@{/level3/2}">level3-2</a>
+        </li>
+        <li>
+            <a th:href="@{/level3/3}">level3-3</a>
+        </li>
+    </ul>
+</div>
 </body>
 </html>
