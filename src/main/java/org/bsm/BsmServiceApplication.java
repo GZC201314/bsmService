@@ -10,7 +10,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @MapperScan("org.bsm.mapper")
 public class BsmServiceApplication {
-
   public static void main(String[] args) {
     SpringApplication.run(BsmServiceApplication.class, args);
   }

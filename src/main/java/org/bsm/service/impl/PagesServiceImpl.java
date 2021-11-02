@@ -1,9 +1,9 @@
 package org.bsm.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.bsm.entity.Role;
-import org.bsm.mapper.RoleMapper;
-import org.bsm.service.IRoleService;
+import org.bsm.entity.Pages;
+import org.bsm.mapper.PagesMapper;
+import org.bsm.service.IPagesService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * @author 作者
  * @since 2021-10-29
  */
-@Service("roleService")
-public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IRoleService {
+@Service
+public class PagesServiceImpl extends ServiceImpl<PagesMapper, Pages> implements IPagesService {
 
 }
