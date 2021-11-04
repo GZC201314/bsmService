@@ -47,10 +47,14 @@ public class ValidateController {
     }
 
     private ImageCode createImageCode() {
-        int width = 100; // 验证码图片宽度
-        int height = 36; // 验证码图片长度
-        int length = 4; // 验证码位数
-        int expireIn = 60; // 验证码有效时间 60s
+        // 验证码图片宽度
+        int width = 100;
+        // 验证码图片长度
+        int height = 36;
+        // 验证码位数
+        int length = 4;
+        // 验证码有效时间 60s
+        int expireIn = 60;
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 

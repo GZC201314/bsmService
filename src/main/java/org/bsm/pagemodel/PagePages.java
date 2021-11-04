@@ -1,4 +1,4 @@
-package org.bsm.entity;
+package org.bsm.pagemodel;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,18 +7,14 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * <p>
- *
- * </p>
- *
- * @author 作者
- * @since 2021-10-29
+ * @author GZC
+ * @create 2021-11-03 0:29
+ * @desc 和前台页面相关的实体类
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Pages implements Serializable {
-
+public class PagePages implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String pageid;
@@ -30,4 +26,10 @@ public class Pages implements Serializable {
     private String parentkey;
 
     private String pagepath;
+
+    /**
+     * 分页 参数
+     */
+    private Integer current;
+    private Integer size;
 }

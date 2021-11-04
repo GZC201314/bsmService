@@ -31,7 +31,9 @@ public class UserDetailServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("未找到当前用户.");
         }
         QueryWrapper<org.bsm.entity.User> wrapper = new QueryWrapper<>();
+        /*可以找到当前的用户,并且当前的用户没有被禁用*/
         wrapper.eq("username", username);
+        wrapper.eq("enabled", true);
         org.bsm.entity.User user = userService.getOne(wrapper);
         if (user == null) {
             log.error("未找到当前用户.");

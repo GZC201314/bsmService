@@ -33,7 +33,6 @@ class BsmServiceApplicationTests {
 
     @Value("${spring.mail.username}")
     private String from;
-
     @Autowired
     private TemplateEngine templateEngine;
 

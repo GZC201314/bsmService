@@ -13,10 +13,8 @@ public class Response {
 
     private final static String SUCCESS = "success";
 
-    private final static String FAIL = "fail";
-
     public static <T> ResponseResult<T> makeOKRsp() {
-    return new ResponseResult<T>().setCode(Constants.ResultCode.SUCCESS).setMsg(SUCCESS);
+        return new ResponseResult<T>().setCode(Constants.ResultCode.SUCCESS).setMsg(SUCCESS);
     }
 
     public static <T> ResponseResult<T> makeOKRsp(String message) {

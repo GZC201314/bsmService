@@ -1,7 +1,5 @@
-package org.bsm.entity;
+package org.bsm.pagemodel;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,24 +7,29 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * @author 作者
- * @since 2021-10-29
+ * @author GZC
+ * @create 2021-11-03 0:29
+ * @desc 和前台页面相关的实体类
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Role implements Serializable {
-
+public class PageRole implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String remark;
 
     private Boolean disabled;
 
-    @TableId(value = "roleid", type = IdType.AUTO)
     private Integer roleid;
 
     private String rolename;
 
     private String rolecname;
+
+    /**
+     * 分页 参数
+     */
+    private Integer current;
+    private Integer size;
 }

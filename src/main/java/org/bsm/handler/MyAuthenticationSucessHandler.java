@@ -41,7 +41,7 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
                 .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS512, Constants.SECRET)
                 .compact();
-        redisUtils.set(user.getUsername(), token);
+        redisUtils.set(user.getUsername(), token, 60 * 10);
         response.setHeader("token", token);
         redirectStrategy.sendRedirect(request, response, "/index");
     }

@@ -86,6 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
         for (String key :
                 authorizationMap.keySet()) {
+            redisUtils.del(key);
             redisUtils.lSet(key, authorizationMap.get(key));
         }
         http.exceptionHandling().accessDeniedPage("/noauth");

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 作者
@@ -22,11 +22,13 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-      private String userid;
+    private String userid;
 
     private String username;
 
     private String password;
+
+    private String emailaddress;
 
     private LocalDateTime createtime;
 
