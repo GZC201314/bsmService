@@ -181,14 +181,14 @@
         <appender-ref ref="WARN_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
     </logger><!-- 修改此处扫描包名 -->
-    <logger name="org.bsm.mapper" level="debug">
+    <logger name="org.bsm.mapper" level="info">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="DEBUG_FILE"/>
         <appender-ref ref="INFO_FILE"/>
         <appender-ref ref="WARN_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
     </logger><!-- 修改此处扫描包名 -->
-    <logger name="org.bsm.service" level="debug">
+    <logger name="org.bsm.service" level="info">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="DEBUG_FILE"/>
         <appender-ref ref="INFO_FILE"/>
@@ -206,7 +206,7 @@
         <appender-ref ref="ERROR_FILE"/>
     </logger><!-- 修改此处扫描包名 -->
 
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="DEBUG_FILE"/>
         <appender-ref ref="INFO_FILE"/>

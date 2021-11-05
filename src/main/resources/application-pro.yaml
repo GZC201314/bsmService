@@ -10,9 +10,10 @@ spring:
   datasource:
     druid:
       db-type: mysql
-      username: XXX
-      password: XXX
-      url: jdbc:mysql://localhost:3306/bsm?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+      username: BSM:uHqOZVe2JrjJQT7KTCLImA==
+      password: BSM:VMdY+m3qH+xaTIhPNcYkjg==
+      #      url: jdbc:mysql://127.0.0.1:3306/bsm?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+      url: BSM:xKb8dKZzE7E9xygKB0B7Hwb7PduGnUVtG8hQGJgJEaSd3aeb83+0Ts3ecbpo8cyLgbSp4ot/Big7BWgyL3eQubCiStDaZwuO6Nkk5WfYeVbYyDOWiiIIrR2YBLyEsJq1
       driver-class-name: com.mysql.cj.jdbc.Driver
 
       # 连接池配置
@@ -59,7 +60,7 @@ spring:
         reset-enable: false
         # 需要账号密码才能访问控制台
         login-username: druid
-        login-password: druid123
+        login-password: BSM:r3C7wGTbjzTAHBBRzPovtQ==
         # IP白名单
         # allow: 127.0.0.1
         #　IP黑名单（共同存在时，deny优先于allow）
@@ -74,15 +75,16 @@ spring:
     # Redis数据库索引（默认为0）
     database: 1
     # Redis服务器地址
-    host: localhost
+    host: 127.0.0.1
     # Redis服务器连接端口
     port: 6379
     timeout: 0
-    password: XXX
+    password: BSM:OHwX2T52VbuzIp4egZ/srQ==
+  #    password: gzcabc123
   mail:
     host: smtp.163.com
-    username: XXX@163.com
-    password: XXX
+    username: gzc201314@163.com
+    password: BSM:C5n6OyjAGumTB61X5d7ygQ==
     properties:
       mail:
         smtp:
