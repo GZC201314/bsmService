@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.File;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -54,4 +55,13 @@ public class PageUser implements Serializable {
      */
     private Integer current;
     private Integer size;
+
+    // 上传的头像图像
+    private File uploadImg;
+    private String uploadFileName;
+    private String userlog;
+    //人脸校验
+    private Integer isFaceValid = 0;
+
+    private String base;
 }

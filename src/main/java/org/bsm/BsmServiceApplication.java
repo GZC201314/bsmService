@@ -5,6 +5,8 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.Arrays;
+
 
 /**
  * @author GZC
@@ -14,6 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableEncryptableProperties
 public class BsmServiceApplication {
     public static void main(String[] args) {
+        System.out.println("args  ===:" + Arrays.toString(args));
         SpringApplication.run(BsmServiceApplication.class, args);
     }
 }

@@ -10,10 +10,9 @@ spring:
   datasource:
     druid:
       db-type: mysql
-      username: BSM:uHqOZVe2JrjJQT7KTCLImA==
-      password: BSM:VMdY+m3qH+xaTIhPNcYkjg==
-      #      url: jdbc:mysql://127.0.0.1:3306/bsm?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
-      url: BSM:xKb8dKZzE7E9xygKB0B7Hwb7PduGnUVtG8hQGJgJEaSd3aeb83+0Ts3ecbpo8cyLgbSp4ot/Big7BWgyL3eQubCiStDaZwuO6Nkk5WfYeVbYyDOWiiIIrR2YBLyEsJq1
+      username: mpw:uHqOZVe2JrjJQT7KTCLImA==
+      password: mpw:VMdY+m3qH+xaTIhPNcYkjg==
+      url: mpw:xKb8dKZzE7E9xygKB0B7Hwb7PduGnUVtG8hQGJgJEaSd3aeb83+0Ts3ecbpo8cyLgbSp4ot/Big7BWgyL3eQubCiStDaZwuO6Nkk5WfYeVbYyDOWiiIIrR2YBLyEsJq1
       driver-class-name: com.mysql.cj.jdbc.Driver
 
       # 连接池配置

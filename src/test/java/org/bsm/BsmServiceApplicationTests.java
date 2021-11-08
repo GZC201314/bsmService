@@ -17,8 +17,6 @@ import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 import java.io.File;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 @SpringBootTest
 @Slf4j
@@ -38,18 +36,18 @@ class BsmServiceApplicationTests {
 
     @Test
     void contextLoads() throws SQLException {
-        log.info("开始执行数据源加载测试类");
-        System.out.println(dataSource.getClass());
-        System.out.println(dataSource.getConnection());
-        log.info("结束执行数据源加载测试类");
-
-        log.info("开始执行redis加载测试");
-        Map<String, Object> map = new HashMap<>();
-        map.put("test1", "test1");
-        map.put("test2", "test2");
-        redisUtils.hmset("GZC", map);
-        log.info("开始执行email加载测试");
-        sendTemplateEmail("123456");
+//        log.info("开始执行数据源加载测试类");
+//        System.out.println(dataSource.getClass());
+//        System.out.println(dataSource.getConnection());
+//        log.info("结束执行数据源加载测试类");
+//
+//        log.info("开始执行redis加载测试");
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("test1", "test1");
+//        map.put("test2", "test2");
+//        redisUtils.hmset("GZC", map);
+//        log.info("开始执行email加载测试");
+//        sendTemplateEmail("123456");
     }
 
     public void sendSimpleEmail() {

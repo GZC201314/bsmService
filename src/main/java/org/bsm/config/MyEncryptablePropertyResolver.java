@@ -14,20 +14,17 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class MyEncryptablePropertyResolver implements EncryptablePropertyResolver {
 
-    /*bsm.key=ef33af9dea1958f4*/
-    @Value("${bsm.key}")
+    @Value("${mpw.key}")
     private String bsmKey;
 
 
     @Override
     public String resolvePropertyValue(String s) {
         if (!StringUtils.hasText(bsmKey)) {
-            log.error("你没有设置启动命令行参数 bsm.key!");
+            log.error("你没有设置启动命令行参数 mpw.key!");
         }
         if (StringUtils.hasText(s) && s.startsWith(MyEncryptablePropertyDetector.ENCODED_PASSWORD_HINT)) {
-            String decodeValue = AES.decrypt(s.substring(MyEncryptablePropertyDetector.ENCODED_PASSWORD_HINT.length()), bsmKey);
-            System.out.println("解压后的yaml配置值======= :" + decodeValue);
-            return decodeValue;
+            return AES.decrypt(s.substring(MyEncryptablePropertyDetector.ENCODED_PASSWORD_HINT.length()), bsmKey);
         }
         return s;
     }
