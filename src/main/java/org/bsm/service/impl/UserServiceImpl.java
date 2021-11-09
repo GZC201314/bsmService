@@ -6,7 +6,7 @@ import org.bsm.mapper.UserMapper;
 import org.bsm.pagemodel.PageUser;
 import org.bsm.service.IUserService;
 import org.bsm.utils.Md5Utils;
-import org.bsm.utils.RedisUtils;
+import org.bsm.utils.RedisUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,12 +30,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     UserMapper userMapper;
 
     @Autowired
-    RedisUtils redisUtils;
+    RedisUtil redisUtil;
 
     @Override
     public Integer registerUser(PageUser pageUser) {
         /*首先判断验证码是否正确*/
-        String redisValidCode = (String) redisUtils.get(pageUser.getEmailaddress());
+        String redisValidCode = (String) redisUtil.get(pageUser.getEmailaddress());
         if (!StringUtils.hasText(redisValidCode)) {
             return 0;
         }

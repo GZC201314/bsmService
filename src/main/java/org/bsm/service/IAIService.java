@@ -6,7 +6,7 @@ import org.bsm.pagemodel.PageUser;
 
 public interface IAIService {
 
-    public String uploadHeadIcon(PageUpload pageUpload);
+    public String ocr(PageUpload pageUpload);
 
     public AipFaceResult facelogin(PageUser pageUser);
 

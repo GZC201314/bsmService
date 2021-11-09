@@ -2,7 +2,7 @@ package org.bsm.service.impl;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bsm.service.ISendEmailService;
-import org.bsm.utils.RedisUtils;
+import org.bsm.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -33,7 +33,7 @@ public class SendEmailServiceImpl implements ISendEmailService {
 
 
     @Autowired
-    private RedisUtils redisUtils;
+    private RedisUtil redisUtil;
 
     @Override
     public boolean sendRegisterEmail(String emailaddress) {
@@ -52,7 +52,7 @@ public class SendEmailServiceImpl implements ISendEmailService {
             helper.setText(template, true);
             javaMailSender.send(message);
             /*把验证码存到redis中,并设置有效期是2分钟*/
-            redisUtils.set(emailaddress, code, 2 * 60);
+            redisUtil.set(emailaddress, code, 2 * 60);
             return true;
         } catch (Exception e) {
             e.printStackTrace();

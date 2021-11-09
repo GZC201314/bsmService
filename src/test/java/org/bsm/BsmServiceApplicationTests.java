@@ -1,7 +1,7 @@
 package org.bsm;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bsm.utils.RedisUtils;
+import org.bsm.utils.RedisUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +25,7 @@ class BsmServiceApplicationTests {
     @Autowired
     DataSource dataSource;
     @Autowired
-    RedisUtils redisUtils;
+    RedisUtil redisUtil;
     @Autowired
     private JavaMailSender jms;
 

@@ -14,7 +14,7 @@
 ///**
 // * H2 代码生成
 // *
-// * @author hubin,lanjerry
+// * @author hubin, lanjerry
 // * @since 1.0
 // */
 //public class GenerateCode {
@@ -30,7 +30,7 @@
 ////        scriptRunner.setAutoCommit(true);
 ////        scriptRunner.runScript(new InputStreamReader(inputStream));
 ////        conn.close();
-////    }h
+////    }
 //
 //    /**
 //     * 数据源配置
@@ -43,7 +43,7 @@
 //     * 策略配置
 //     */
 //    private StrategyConfig.Builder strategyConfig() {
-//        return new StrategyConfig.Builder().addInclude("user","role","pages","authorize"); // 设置需要生成的表名
+//        return new StrategyConfig.Builder().addInclude("config"); // 设置需要生成的表名
 //    }
 //
 //    /**
@@ -57,7 +57,7 @@
 //     * 包配置
 //     */
 //    private PackageConfig.Builder packageConfig() {
-//        return new PackageConfig.Builder();
+//        return new PackageConfig.Builder("org.bsm", "");
 //    }
 //
 //    /**
@@ -82,8 +82,17 @@
 //     */
 //    @Test
 //    public void testSimple() {
+//        // 设置自定义路径
+//        Map<OutputFile, String> pathInfo = new HashMap<>();
+//        pathInfo.put(OutputFile.mapperXml, "D://Code//JAVA//BSM//bsmService");
+//        pathInfo.put(OutputFile.entity, "D:\\Code\\JAVA\\BSM\\bsmService\\src\\main\\java\\org\\bsm\\entity");
+//        pathInfo.put(OutputFile.controller, "D:\\Code\\JAVA\\BSM\\bsmService\\src\\main\\java\\org\\bsm\\controller");
+//        pathInfo.put(OutputFile.mapper, "D:\\Code\\JAVA\\BSM\\bsmService\\src\\main\\java\\org\\bsm\\mapper");
+//        pathInfo.put(OutputFile.service, "D:\\Code\\JAVA\\BSM\\bsmService\\src\\main\\java\\org\\bsm\\service");
+//        pathInfo.put(OutputFile.serviceImpl, "D:\\Code\\JAVA\\BSM\\bsmService\\src\\main\\java\\org\\bsm\\service\\impl");
 //        AutoGenerator generator = new AutoGenerator(DATA_SOURCE_CONFIG);
 //        generator.strategy(strategyConfig().entityBuilder().naming(NamingStrategy.no_change).columnNaming(NamingStrategy.no_change).build());
+//        generator.packageInfo(packageConfig().pathInfo(pathInfo).build());
 //        generator.global(globalConfig().build());
 //        generator.execute();
 //    }

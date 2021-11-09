@@ -12,7 +12,7 @@ import org.bsm.handler.MyAuthenticationFailureHandler;
 import org.bsm.handler.MyAuthenticationSucessHandler;
 import org.bsm.service.impl.AuthorizeServiceImpl;
 import org.bsm.service.impl.UserDetailServiceImpl;
-import org.bsm.utils.RedisUtils;
+import org.bsm.utils.RedisUtil;
 import org.bsm.utils.validateCode.ValidateCodeFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -51,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthorizeServiceImpl authorizeService;
 
     @Autowired
-    private RedisUtils redisUtils;
+    private RedisUtil redisUtil;
 
     /*设置记住密码*/
     @Autowired
@@ -86,8 +86,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
         for (String key :
                 authorizationMap.keySet()) {
-            redisUtils.del(key);
-            redisUtils.lSet(key, authorizationMap.get(key));
+            List<String> paths = authorizationMap.get(key);
+            for (String path : paths) {
+                redisUtil.lSet(key, path);
+            }
         }
         http.exceptionHandling().accessDeniedPage("/noauth");
         // 添加验证码校验过滤器

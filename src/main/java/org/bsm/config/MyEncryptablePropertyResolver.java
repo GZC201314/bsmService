@@ -20,9 +20,9 @@ public class MyEncryptablePropertyResolver implements EncryptablePropertyResolve
 
     @Override
     public String resolvePropertyValue(String s) {
-        if (!StringUtils.hasText(bsmKey)) {
-            log.error("你没有设置启动命令行参数 mpw.key!");
-        }
+//        if (!StringUtils.hasText(bsmKey)) {
+//            log.error("你没有设置启动命令行参数 mpw.key!");
+//        }
         if (StringUtils.hasText(s) && s.startsWith(MyEncryptablePropertyDetector.ENCODED_PASSWORD_HINT)) {
             return AES.decrypt(s.substring(MyEncryptablePropertyDetector.ENCODED_PASSWORD_HINT.length()), bsmKey);
         }

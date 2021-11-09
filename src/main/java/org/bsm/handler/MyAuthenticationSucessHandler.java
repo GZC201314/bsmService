@@ -3,7 +3,7 @@ package org.bsm.handler;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.bsm.utils.Constants;
-import org.bsm.utils.RedisUtils;
+import org.bsm.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -22,13 +22,10 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
 
     // private RequestCache requestCache = new HttpSessionRequestCache();
 
-    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
-    //
-    // @Autowired
-    // private ObjectMapper mapper;
+    private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     @Autowired
-    RedisUtils redisUtils;
+    RedisUtil redisUtil;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -41,7 +38,7 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
                 .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS512, Constants.SECRET)
                 .compact();
-        redisUtils.set(user.getUsername(), token, 60 * 10);
+        redisUtil.set(user.getUsername(), token, 60 * 10);
         response.setHeader("token", token);
         redirectStrategy.sendRedirect(request, response, "/index");
     }
