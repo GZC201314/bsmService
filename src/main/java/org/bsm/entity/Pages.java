@@ -30,4 +30,8 @@ public class Pages implements Serializable {
     private String parentkey;
 
     private String pagepath;
+
+    private String icontype;
+
+    private String icon;
 }

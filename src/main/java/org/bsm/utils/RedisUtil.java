@@ -324,7 +324,6 @@ public final class RedisUtil {
         try {
             return redisTemplate.opsForSet().members(key);
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }
@@ -341,7 +340,6 @@ public final class RedisUtil {
         try {
             return redisTemplate.opsForSet().isMember(key, value);
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
@@ -358,7 +356,6 @@ public final class RedisUtil {
         try {
             return redisTemplate.opsForSet().add(key, values);
         } catch (Exception e) {
-            e.printStackTrace();
             return 0;
         }
     }

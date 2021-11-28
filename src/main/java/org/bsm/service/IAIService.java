@@ -2,13 +2,14 @@ package org.bsm.service;
 
 import org.bsm.pagemodel.AipFaceResult;
 import org.bsm.pagemodel.PageUpload;
-import org.bsm.pagemodel.PageUser;
+
+import java.io.IOException;
 
 public interface IAIService {
 
     public String ocr(PageUpload pageUpload);
 
-    public AipFaceResult facelogin(PageUser pageUser);
+    public AipFaceResult facelogin(PageUpload pageUpload) throws IOException;
 
-    public AipFaceResult faceReg(PageUser pageUser);
+    public AipFaceResult faceReg(PageUpload pageUpload) throws IOException;
 }

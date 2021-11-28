@@ -40,7 +40,7 @@ public class UserController {
 
     @ApiOperation("用户注册接口")
     @PostMapping("/register")
-    public ResponseResult<String> register(PageUser user) {
+    public ResponseResult<String> register(@RequestBody PageUser user) {
         log.info("用户开始注册,用户信息是 :" + user);
         user.setCreatetime(LocalDateTime.now());
         user.setLastmodifytime(LocalDateTime.now());

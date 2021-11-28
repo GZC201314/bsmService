@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -72,23 +73,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         log.info("进入鉴权配置------");
         /*在这边查询数据库进行角色鉴权,然后把鉴权信息放到redis中*/
         List<Authorize> authorizes = authorizeService.list();
-        Map<String, List<String>> authorizationMap = new HashMap<>();
+        Map<String, List<Authorize>> authorizationMap = new HashMap<>();
         for (Authorize authorize :
                 authorizes) {
             if (!authorizationMap.containsKey(authorize.getRolename())) {
-                List<String> pages = new ArrayList<>();
-                pages.add(authorize.getPagepath());
+                List<Authorize> pages = new ArrayList<>();
+                pages.add(authorize);
                 authorizationMap.put(authorize.getRolename(), pages);
             } else {
-                authorizationMap.get(authorize.getRolename()).add(authorize.getPagepath());
+                authorizationMap.get(authorize.getRolename()).add(authorize);
             }
-            http.authorizeRequests().antMatchers(authorize.getPagepath()).hasRole(authorize.getRolename());
+            if (StringUtils.hasText(authorize.getPagepath())) {
+                http.authorizeRequests().antMatchers(authorize.getPagepath()).hasRole(authorize.getRolename());
+            }
         }
         for (String key :
                 authorizationMap.keySet()) {
-            List<String> paths = authorizationMap.get(key);
-            for (String path : paths) {
-                redisUtil.lSet(key, path);
+            List<Authorize> paths = authorizationMap.get(key);
+            for (Authorize path : paths) {
+                redisUtil.sSet(key, path);
             }
         }
         http.exceptionHandling().accessDeniedPage("/noauth");
@@ -109,7 +112,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 // 授权配置 无需认证的请求路径
-                .antMatchers("/toLogin", "/userAdd",
+                .antMatchers("/toLogin", "/user/register", "/user/sendRegisterEmail", "/valid/userinfo", "/ai/faceLogin", "/userAdd",
                         "/login.html", "/code/image", "/code/sms", "/**/login.css", "**/*.js").permitAll()
                 .anyRequest()  // 所有请求
                 .authenticated() // 都需要认证

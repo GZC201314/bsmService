@@ -2,7 +2,9 @@ package org.bsm.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.Config;
+import org.bsm.service.impl.AuthorizeServiceImpl;
 import org.bsm.service.impl.ConfigServiceImpl;
+import org.bsm.service.impl.PagesServiceImpl;
 import org.bsm.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -24,6 +26,11 @@ public class MyStartupRunnerHandler implements CommandLineRunner {
     @Autowired
     ConfigServiceImpl configService;
 
+    @Autowired
+    PagesServiceImpl pagesService;
+    @Autowired
+    AuthorizeServiceImpl authorizeService;
+
     @Override
     public void run(String... args) throws Exception {
         log.info("开始执行项目初始化后的数据加载");
@@ -31,6 +38,7 @@ public class MyStartupRunnerHandler implements CommandLineRunner {
         List<Config> configs = configService.list();
         for (Config config :
                 configs) {
+            redisUtil.del(config.getName());
             redisUtil.set(config.getName(), config.getValue());
         }
     }

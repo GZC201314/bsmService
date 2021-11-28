@@ -1,9 +1,13 @@
 package org.bsm.utils.validateCode;
 
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class ImageCode {
+/**
+ * @author GZC
+ */
+public class ImageCode implements Serializable {
 
     private BufferedImage image;
 

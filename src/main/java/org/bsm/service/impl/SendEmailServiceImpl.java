@@ -52,7 +52,7 @@ public class SendEmailServiceImpl implements ISendEmailService {
             helper.setText(template, true);
             javaMailSender.send(message);
             /*把验证码存到redis中,并设置有效期是2分钟*/
-            redisUtil.set(emailaddress, code, 2 * 60);
+            redisUtil.set(emailaddress, code, 30 * 60);
             return true;
         } catch (Exception e) {
             e.printStackTrace();

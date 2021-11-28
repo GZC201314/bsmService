@@ -27,6 +27,10 @@ public class PagePages implements Serializable {
 
     private String pagepath;
 
+    private String icontype;
+
+    private String icon;
+
     /**
      * 分页 参数
      */

@@ -8,7 +8,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.User;
-import org.bsm.pagemodel.*;
+import org.bsm.pagemodel.AipFaceResult;
+import org.bsm.pagemodel.PageUpload;
+import org.bsm.pagemodel.Tpsbresult;
+import org.bsm.pagemodel.Words_result;
 import org.bsm.service.IAIService;
 import org.bsm.utils.AIInstance;
 import org.bsm.utils.RedisUtil;
@@ -16,10 +19,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * @author GZC
+ */
 @Slf4j
 @Service
 public class AIServiceImpl implements IAIService {
@@ -67,19 +76,19 @@ public class AIServiceImpl implements IAIService {
 
 
     @Override
-    public AipFaceResult facelogin(PageUser pageUser) {
+    public AipFaceResult facelogin(PageUpload pageUpload) throws IOException {
         String FACE_APP_ID = (String) redisUtil.get("FACE_APP_ID");
         String FACE_API_KEY = (String) redisUtil.get("FACE_API_KEY");
         String FACE_SECRET_KEY = (String) redisUtil.get("FACE_SECRET_KEY");
-
+        Encoder encoder = Base64.getEncoder();
         AipFace aipFace = AIInstance.getFaceInstance(FACE_APP_ID, FACE_API_KEY, FACE_SECRET_KEY);
-        org.json.JSONObject resultJson = aipFace.search(pageUser.getBase(), "BASE64", "test", null);
+        org.json.JSONObject resultJson = aipFace.search(encoder.encodeToString(pageUpload.getFile().getBytes()), "BASE64", "test", null);
         return JSONObject.parseObject(resultJson.toString(), AipFaceResult.class);
     }
 
 
     @Override
-    public AipFaceResult faceReg(PageUser pageUser) {
+    public AipFaceResult faceReg(PageUpload pageUpload) throws IOException {
 
         String FACE_APP_ID = (String) redisUtil.get("FACE_APP_ID");
         String FACE_API_KEY = (String) redisUtil.get("FACE_API_KEY");
@@ -93,8 +102,10 @@ public class AIServiceImpl implements IAIService {
         reUser.setIsfacevalid(true);
         reUser.setLastmodifytime(LocalDateTime.now());
 
+        Encoder encoder = Base64.getEncoder();
+
         //获取登录的用户名
-        org.json.JSONObject resultJson = aipFace.addUser(pageUser.getBase(), "BASE64", "test", pageUser.getUsername(), null);
+        org.json.JSONObject resultJson = aipFace.addUser(encoder.encodeToString(pageUpload.getFile().getBytes()), "BASE64", "test", reUser.getUsername(), null);
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("username", reUser.getUsername());
         userService.update(reUser, updateWrapper);

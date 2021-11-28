@@ -19,6 +19,8 @@ public class Authorize implements Serializable {
 
     private String authorizeid;
 
+    private String pageid;
+
     private String pagepath;
 
     private String rolename;

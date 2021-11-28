@@ -44,8 +44,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
 
         BASE64Encoder encode = new BASE64Encoder();
-        String userName = pageUser.getUsername();
-        String password = pageUser.getPassword();
         byte[] saltBytes = Md5Utils.getSalt(32);
         String salt = encode.encode(saltBytes);
         pageUser.setSalt(salt);

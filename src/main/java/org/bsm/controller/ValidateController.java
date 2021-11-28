@@ -1,10 +1,21 @@
 package org.bsm.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.bsm.entity.User;
+import org.bsm.pagemodel.PageUser;
+import org.bsm.service.impl.UserServiceImpl;
+import org.bsm.utils.Response;
+import org.bsm.utils.ResponseResult;
 import org.bsm.utils.smscode.SmsCode;
 import org.bsm.utils.validateCode.ImageCode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
 import org.springframework.social.connect.web.SessionStrategy;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -17,6 +28,11 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Random;
 
+/**
+ * @author GZC
+ */
+@Api(tags = "校验接口类")
+@Slf4j
 @RestController
 public class ValidateController {
 
@@ -26,6 +42,10 @@ public class ValidateController {
 
     private final SessionStrategy sessionStrategy = new HttpSessionSessionStrategy();
 
+    @Autowired
+    UserServiceImpl userService;
+
+    @ApiOperation("验证码生成接口 ")
     @GetMapping("/code/image")
     public void createCode(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ImageCode imageCode = createImageCode();
@@ -33,6 +53,7 @@ public class ValidateController {
         ImageIO.write(imageCode.getImage(), "jpeg", response.getOutputStream());
     }
 
+    @ApiOperation("短信验证码生成接口")
     @GetMapping("/code/sms")
     public void createSmsCode(HttpServletRequest request, String mobile) {
         SmsCode smsCode = createSMSCode();
@@ -40,6 +61,35 @@ public class ValidateController {
         // 输出验证码到控制台代替短信发送服务
         System.out.println("您的登录验证码为：" + smsCode.getCode() + "，有效时间为60秒");
     }
+
+    @ApiOperation("校验用户信息接口")
+    @GetMapping("/valid/userinfo")
+    public ResponseResult<Object> validEmailAddress(PageUser pageUser) {
+        if (StringUtils.hasText(pageUser.getEmailaddress())) {
+            log.info("校验用户邮箱接口,传入的邮箱地址是：" + pageUser.getEmailaddress());
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("emailaddress", pageUser.getEmailaddress());
+            int userCount = userService.count(queryWrapper);
+            if (userCount > 0) {
+                return Response.makeOKRsp("邮箱已存在").setData(false);
+            } else {
+                return Response.makeOKRsp("校验成功").setData(true);
+            }
+        }
+        if (StringUtils.hasText(pageUser.getUsername())) {
+            log.info("校验用户名称接口,传入的用户名称是：" + pageUser.getUsername());
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("username", pageUser.getUsername());
+            int userCount = userService.count(queryWrapper);
+            if (userCount > 0) {
+                return Response.makeOKRsp("用户名已存在").setData(false);
+            } else {
+                return Response.makeOKRsp("校验成功").setData(true);
+            }
+        }
+        return Response.makeErrRsp("校验失败").setData(false);
+    }
+
 
     private SmsCode createSMSCode() {
         String code = RandomStringUtils.randomNumeric(6);
