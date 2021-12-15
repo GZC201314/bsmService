@@ -5,7 +5,7 @@ import org.bsm.entity.User;
 import org.bsm.mapper.UserMapper;
 import org.bsm.pagemodel.PageUser;
 import org.bsm.service.IUserService;
-import org.bsm.utils.Md5Utils;
+import org.bsm.utils.Md5Util;
 import org.bsm.utils.RedisUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
 
         BASE64Encoder encode = new BASE64Encoder();
-        byte[] saltBytes = Md5Utils.getSalt(32);
+        byte[] saltBytes = Md5Util.getSalt(32);
         String salt = encode.encode(saltBytes);
         pageUser.setSalt(salt);
         /*线程安全的*/
@@ -54,7 +54,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         pageUser.setUserid(UUID.randomUUID().toString());
         pageUser.setEnabled(true);
         pageUser.setRoleid(4);
-        pageUser.setPassword(Md5Utils.toPasswd(pageUser.getPassword(), saltBytes));
+        pageUser.setPassword(Md5Util.toPasswd(pageUser.getPassword(), saltBytes));
         User user = new User();
         BeanUtils.copyProperties(pageUser, user);
         return userMapper.insert(user);

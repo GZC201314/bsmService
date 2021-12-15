@@ -11,6 +11,7 @@ import org.bsm.entity.User;
 import org.bsm.pagemodel.PageUser;
 import org.bsm.service.impl.SendEmailServiceImpl;
 import org.bsm.service.impl.UserServiceImpl;
+import org.bsm.utils.RedisUtil;
 import org.bsm.utils.Response;
 import org.bsm.utils.ResponseResult;
 import org.springframework.beans.BeanUtils;
@@ -18,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * <p>
@@ -37,6 +40,9 @@ public class UserController {
     UserServiceImpl userService;
     @Autowired
     SendEmailServiceImpl sendEmailService;
+
+    @Autowired
+    RedisUtil redisUtil;
 
     @ApiOperation("用户注册接口")
     @PostMapping("/register")
@@ -106,7 +112,7 @@ public class UserController {
         }
     }
 
-    @ApiOperation("查询单个用户的详细信息")
+    @ApiOperation("查询单个用户的详细信息，根据用户名")
     @GetMapping("/getUserInfo")
     public ResponseResult<Object> getUserInfo(String username) {
         log.info("查询用户的详细信息,查询的用户名是:  " + username);
@@ -114,6 +120,16 @@ public class UserController {
         queryWrapper.eq("username", username);
         User user = userService.getOne(queryWrapper);
         return Response.makeOKRsp("查询用户信息成功").setData(user);
+    }
+
+    @ApiOperation("查询单个用户的详细信息，根据sessionId")
+    @GetMapping("/getUserInfoBySession")
+    public ResponseResult<Object> getUserInfoBySessionId(HttpServletRequest request) {
+        String sessionId = request.getSession().getId();
+        log.info("查询用户的详细信息,查询的sessionId是:  " + sessionId);
+        /*查询缓存中的用户信息*/
+        Map<Object, Object> userInfo = redisUtil.hmget(sessionId);
+        return Response.makeOKRsp("查询用户信息成功").setData(userInfo);
     }
 
     @ApiOperation("删除用户接口(逻辑删除)")
@@ -133,5 +149,19 @@ public class UserController {
             return Response.makeOKRsp("删除用户失败");
         }
     }
+
+
+//    @ApiOperation("用户头像上传接口")
+//    @PostMapping(value = "ocr", consumes = "multipart/*", headers = "content-type=multipart/form-data")
+//    public ResponseResult<Object> orc(PageUpload pageUpload) {
+//        log.info("into the ocr function");
+//        try {
+//            String result = aiService.ocr(pageUpload);
+//            return Response.makeOKRsp("图片识别成功").setData(result);
+//        } catch (Exception e) {
+//            log.error(e.getMessage());
+//            return Response.makeErrRsp("图片识别失败");
+//        }
+//    }
 
 }

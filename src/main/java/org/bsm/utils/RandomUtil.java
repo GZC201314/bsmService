@@ -8,7 +8,7 @@ import java.util.*;
  * @create 2021-11-02 23:44
  * @desc 随机字符串工具类
  */
-class RandomUtils {
+class RandomUtil {
     /**
      * 所有字符
      */

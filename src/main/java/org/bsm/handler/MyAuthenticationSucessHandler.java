@@ -63,11 +63,12 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
                 roleName = roleName.replace("ROLE_", "");
             }
         }
-        redisUtil.del(user.getUsername());
-        redisUtil.hset(user.getUsername(), "token", token, 60 * 10);
-        redisUtil.hset(user.getUsername(), "role", roleName, 60 * 10);
-        redisUtil.hset(user.getUsername(), "isFaceValid", false, 60 * 10);
-        /*TODO*/
+        String sessionId = request.getSession().getId();
+        redisUtil.del(sessionId);
+        redisUtil.hset(sessionId, "token", token, 60 * 10);
+        redisUtil.hset(sessionId, "username", user.getUsername(), 60 * 10);
+        redisUtil.hset(sessionId, "role", roleName, 60 * 10);
+        redisUtil.hset(sessionId, "isFaceValid", false, 60 * 10);
 
         org.bsm.entity.User reUser = new org.bsm.entity.User();
         reUser.setUsername(user.getUsername());
@@ -75,7 +76,6 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
         reJson.put("userinfo", reUser);
         JSONObject menuJson = new JSONObject();
         Set<Object> authorizeds = redisUtil.sGet(roleName);
-        Set<PageMenu> pageMenuSet = new HashSet<>();
         List<PageMenu> parentList = new ArrayList<>();
         Map<String, List<PageMenu>> map = new HashMap<>();
         assert authorizeds != null;

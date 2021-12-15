@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.Authorize;
 import org.bsm.handler.MyAuthenticationFailureHandler;
 import org.bsm.handler.MyAuthenticationSucessHandler;
+import org.bsm.handler.MyCustomLogoutHandler;
+import org.bsm.handler.MyCustomLogoutSuccessHandler;
 import org.bsm.service.impl.AuthorizeServiceImpl;
 import org.bsm.service.impl.UserDetailServiceImpl;
 import org.bsm.utils.RedisUtil;
@@ -40,6 +42,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private MyAuthenticationFailureHandler authenticationFailureHandler;
+
+    @Autowired
+    private MyCustomLogoutHandler myCustomLogoutHandler;
+
+    @Autowired
+    private MyCustomLogoutSuccessHandler myCustomLogoutSuccessHandler;
 
     @Autowired
     private ValidateCodeFilter validateCodeFilter;
@@ -102,7 +110,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin() // 表单登录
                 // http.httpBasic() // HTTP Basic
                 // 登录跳转 URL
-                .loginPage("/toLogin")
+                .loginPage("/home")
                 // 处理表单登录 URL
                 .loginProcessingUrl("/login")
                 // 处理登录成功
@@ -121,8 +129,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .rememberMe().tokenRepository(persistentTokenRepository()).tokenValiditySeconds(3600 * 24 * 14).userDetailsService(userDetailService)
         ;
         http.csrf().disable();
-        /*设置登录注销*/
-        http.logout().logoutUrl("/logout");
+        /*设置登录注销,以及自定义登出处理类*/
+        http.logout().addLogoutHandler(myCustomLogoutHandler).logoutSuccessHandler(myCustomLogoutSuccessHandler);
         // 将短信验证码认证配置加到 Spring Security 中
 //            .apply(smsAuthenticationConfig);
     }

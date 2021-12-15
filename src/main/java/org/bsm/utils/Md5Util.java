@@ -10,7 +10,7 @@ import java.util.Random;
  *
  * @author GZC
  */
-public class Md5Utils {
+public class Md5Util {
     private static final MessageDigest md;
     private static final BASE64Encoder b64Encoder;
 

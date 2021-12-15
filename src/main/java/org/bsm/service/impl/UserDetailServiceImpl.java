@@ -25,7 +25,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 模拟一个用户，替代数据库获取逻辑
         if (StringUtils.isBlank(username)) {
             log.error("未找到当前用户.");
             throw new UsernameNotFoundException("未找到当前用户.");
@@ -43,7 +42,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         QueryWrapper<Role> roleQueryWrapper = new QueryWrapper<>();
         roleQueryWrapper.eq("roleId", user.getRoleid());
         Role role = roleService.getOne(roleQueryWrapper);
-        /*这里把加密后的免密和盐值一起传入,用于后面的免密校验*/
+        /*这里把加密后的免密和盐值一起传入,用于后面的密码校验*/
         return new User(username, user.getPassword() + "&" + user.getSalt(), user.getEnabled(),
                 true, true,
                 true, AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_" + role.getRolename()));
