@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.User;
+import org.bsm.pagemodel.PageUpload;
 import org.bsm.pagemodel.PageUser;
 import org.bsm.service.impl.SendEmailServiceImpl;
 import org.bsm.service.impl.UserServiceImpl;
@@ -151,17 +152,51 @@ public class UserController {
     }
 
 
-//    @ApiOperation("用户头像上传接口")
-//    @PostMapping(value = "ocr", consumes = "multipart/*", headers = "content-type=multipart/form-data")
-//    public ResponseResult<Object> orc(PageUpload pageUpload) {
-//        log.info("into the ocr function");
-//        try {
+    @ApiOperation("用户头像上传接口")
+    @PostMapping(value = "editAvatar", consumes = "multipart/*", headers = "content-type=multipart/form-data")
+    public ResponseResult<Object> editAvatar(PageUpload pageUpload, HttpServletRequest req) {
+        log.info("into the editAvatar function");
+        try {
+            String sessionId = req.getSession().getId();
+            pageUpload.setSessionId(sessionId);
+            String newAvatarUrl = userService.editAvatar(pageUpload);
 //            String result = aiService.ocr(pageUpload);
-//            return Response.makeOKRsp("图片识别成功").setData(result);
-//        } catch (Exception e) {
-//            log.error(e.getMessage());
-//            return Response.makeErrRsp("图片识别失败");
-//        }
-//    }
+//            return Response.makeOKRsp("图片识别成功").setData('result');
+            if (StringUtils.hasText(newAvatarUrl)) {
+                return Response.makeOKRsp("修改用户头像成功").setData(newAvatarUrl);
+            } else {
+                return Response.makeErrRsp("修改用户头像失败");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Response.makeErrRsp("修改用户头像失败");
+        }
+    }
+
+    @ApiOperation("用户名修改接口")
+    @PostMapping("/updateUserName")
+    public ResponseResult<String> updateUserName(PageUser pageUser, HttpServletRequest request) {
+        if (!StringUtils.hasText(pageUser.getUsername())) {
+            return Response.makeErrRsp("用户名修改失败,参数错误.");
+        }
+        String sessionId = request.getSession().getId();
+        log.info("执行用户名修改接口,修改的用户sessionId是 :" + sessionId);
+        Map<Object, Object> userInfoMap = redisUtil.hmget(sessionId);
+        String username = (String) userInfoMap.get("username");
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        User oldUser = userService.getOne(queryWrapper);
+        /*因为用户名是唯一的,这边需要写一些校验类用于判断用户名是否修改过,如果修改过,新的用户名是否在表中出现过,这边就不做判断了*/
+        oldUser.setUsername(pageUser.getUsername());
+        oldUser.setLastmodifytime(LocalDateTime.now());
+        boolean result = userService.update(oldUser, queryWrapper);
+        if (result) {
+            log.info("用户修改成功.");
+            return Response.makeOKRsp("用户名修改成功");
+        } else {
+            log.error("用户名修改失败,用户信息是 :" + pageUser);
+            return Response.makeErrRsp("用户名修改失败.");
+        }
+    }
 
 }

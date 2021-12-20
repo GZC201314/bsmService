@@ -11,5 +11,5 @@ public interface IGiteeService {
     /**
      * 向gitee 图床上传图片
      */
-    public boolean addFile(PageGiteeApiCaller pageGiteeApiCaller);
+    public String addFile(PageGiteeApiCaller pageGiteeApiCaller);
 }

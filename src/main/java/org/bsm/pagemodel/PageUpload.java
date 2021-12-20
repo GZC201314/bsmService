@@ -15,6 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class PageUpload {
     /**
+     * 用户的sessionId
+     */
+    private String sessionId;
+    /**
      * 上传文件的mimeType类型
      */
     private String uploadContentType;

@@ -32,6 +32,8 @@ public class PageUser implements Serializable {
 
     private String emailaddress;
 
+    private String sessionId;
+
     @ApiModelProperty(value = "用户创建时间", example = "2020-02-05 13:30:41")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime createtime;

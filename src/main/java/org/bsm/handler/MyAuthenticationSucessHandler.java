@@ -65,13 +65,18 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
         }
         String sessionId = request.getSession().getId();
         redisUtil.del(sessionId);
-        redisUtil.hset(sessionId, "token", token, 60 * 10);
-        redisUtil.hset(sessionId, "username", user.getUsername(), 60 * 10);
-        redisUtil.hset(sessionId, "role", roleName, 60 * 10);
-        redisUtil.hset(sessionId, "isFaceValid", false, 60 * 10);
+        redisUtil.hset(sessionId, "token", token, 60 * 300);
+        redisUtil.hset(sessionId, "username", user.getUsername(), 60 * 300);
+        redisUtil.hset(sessionId, "role", roleName, 60 * 300);
+        redisUtil.hset(sessionId, "isFaceValid", false, 60 * 300);
 
         org.bsm.entity.User reUser = new org.bsm.entity.User();
+        /*获取用户详细信息*/
+        QueryWrapper<org.bsm.entity.User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", user.getUsername());
+        org.bsm.entity.User userInfo = userService.getOne(queryWrapper);
         reUser.setUsername(user.getUsername());
+        reUser.setUsericon(userInfo.getUsericon());
         JSONObject reJson = new JSONObject();
         reJson.put("userinfo", reUser);
         JSONObject menuJson = new JSONObject();

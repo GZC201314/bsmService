@@ -110,7 +110,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin() // 表单登录
                 // http.httpBasic() // HTTP Basic
                 // 登录跳转 URL
-                .loginPage("/home")
+                .loginPage("http://localhost:3000/#/login")
                 // 处理表单登录 URL
                 .loginProcessingUrl("/login")
                 // 处理登录成功

@@ -25,6 +25,9 @@ public class MyCustomLogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        if (authentication == null) {
+            return;
+        }
         User user = (User) authentication.getPrincipal();
         String username = user.getUsername();
         //清空redis中的session信息

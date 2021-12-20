@@ -7,7 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bsm.entity.User;
 import org.bsm.pagemodel.PageUser;
-import org.bsm.service.impl.UserServiceImpl;
+import org.bsm.service.IUserService;
+import org.bsm.utils.RedisUtil;
 import org.bsm.utils.Response;
 import org.bsm.utils.ResponseResult;
 import org.bsm.utils.smscode.SmsCode;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -43,7 +45,11 @@ public class ValidateController {
     private final SessionStrategy sessionStrategy = new HttpSessionSessionStrategy();
 
     @Autowired
-    UserServiceImpl userService;
+    IUserService userService;
+
+    @Autowired
+    RedisUtil redisUtil;
+
 
     @ApiOperation("验证码生成接口 ")
     @GetMapping("/code/image")
@@ -64,7 +70,7 @@ public class ValidateController {
 
     @ApiOperation("校验用户信息接口")
     @GetMapping("/valid/userinfo")
-    public ResponseResult<Object> validEmailAddress(PageUser pageUser) {
+    public ResponseResult<Object> validEmailAddress(PageUser pageUser, HttpServletRequest request) throws IOException {
         if (StringUtils.hasText(pageUser.getEmailaddress())) {
             log.info("校验用户邮箱接口,传入的邮箱地址是：" + pageUser.getEmailaddress());
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -87,6 +93,22 @@ public class ValidateController {
                 return Response.makeOKRsp("校验成功").setData(true);
             }
         }
+
+        if (StringUtils.hasText(pageUser.getPassword())) {
+            log.info("校验用户名称接口,传入的用户密码是：" + pageUser.getPassword());
+
+            String sessionId = request.getSession().getId();
+            if (!StringUtils.hasText(sessionId)) {
+                return Response.makeErrRsp("校验失败,未登录。").setData(false);
+            }
+            Map<Object, Object> userInfo = redisUtil.hmget(sessionId);
+            String userName = (String) userInfo.get(sessionId);
+            pageUser.setUsername(userName);
+            userService.editUserPassword(pageUser);
+
+
+        }
+
         return Response.makeErrRsp("校验失败").setData(false);
     }
 
