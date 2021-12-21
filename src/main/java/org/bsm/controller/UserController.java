@@ -7,11 +7,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.entity.Role;
 import org.bsm.entity.User;
 import org.bsm.pagemodel.PageUpload;
 import org.bsm.pagemodel.PageUser;
-import org.bsm.service.impl.SendEmailServiceImpl;
-import org.bsm.service.impl.UserServiceImpl;
+import org.bsm.service.IRoleService;
+import org.bsm.service.ISendEmailService;
+import org.bsm.service.IUserService;
 import org.bsm.utils.RedisUtil;
 import org.bsm.utils.Response;
 import org.bsm.utils.ResponseResult;
@@ -21,6 +23,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -38,9 +41,12 @@ import java.util.Map;
 @RequestMapping("/user")
 public class UserController {
     @Autowired
-    UserServiceImpl userService;
+    IUserService userService;
     @Autowired
-    SendEmailServiceImpl sendEmailService;
+    ISendEmailService sendEmailService;
+
+    @Autowired
+    IRoleService roleService;
 
     @Autowired
     RedisUtil redisUtil;
@@ -93,25 +99,6 @@ public class UserController {
         }
     }
 
-    @ApiOperation("用户修改接口")
-    @PostMapping("/update")
-    public ResponseResult<String> update(PageUser pageUser) {
-        log.info("还是执行用户修改接口,修改的用户信息是 :" + pageUser);
-        UpdateWrapper<User> queryWrapper = new UpdateWrapper<>();
-        queryWrapper.eq("userid", pageUser.getUserid());
-        /*因为用户名是唯一的,这边需要写一些校验类用于判断用户名是否修改过,如果修改过,新的用户名是否在表中出现过,这边就不做判断了*/
-        User user = new User();
-        BeanUtils.copyProperties(pageUser, user);
-        user.setLastmodifytime(LocalDateTime.now());
-        boolean result = userService.update(user, queryWrapper);
-        if (result) {
-            log.info("用户修改成功.");
-            return Response.makeOKRsp("");
-        } else {
-            log.error("用户修改失败,用户信息是 :" + pageUser);
-            return Response.makeErrRsp("用户修改失败.");
-        }
-    }
 
     @ApiOperation("查询单个用户的详细信息，根据用户名")
     @GetMapping("/getUserInfo")
@@ -123,7 +110,7 @@ public class UserController {
         return Response.makeOKRsp("查询用户信息成功").setData(user);
     }
 
-    @ApiOperation("查询单个用户的详细信息，根据sessionId")
+    @ApiOperation("查询单个用户的信息，根据sessionId")
     @GetMapping("/getUserInfoBySession")
     public ResponseResult<Object> getUserInfoBySessionId(HttpServletRequest request) {
         String sessionId = request.getSession().getId();
@@ -131,6 +118,31 @@ public class UserController {
         /*查询缓存中的用户信息*/
         Map<Object, Object> userInfo = redisUtil.hmget(sessionId);
         return Response.makeOKRsp("查询用户信息成功").setData(userInfo);
+    }
+
+    @ApiOperation("查询单个用户的详细信息，根据sessionId")
+    @GetMapping("/getUserDetailInfo")
+    public ResponseResult<Object> getUserDetailInfo(HttpServletRequest request) {
+        String sessionId = request.getSession().getId();
+        log.info("查询用户的详细信息,查询的sessionId是:  " + sessionId);
+        /*查询缓存中的用户信息*/
+        Map<Object, Object> userInfo = redisUtil.hmget(sessionId);
+        String username = (String) userInfo.get("username");
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        User user = userService.getOne(queryWrapper);
+        PageUser pageUser = new PageUser();
+        BeanUtils.copyProperties(user, pageUser);
+        if (user.getRoleid() != null) {
+            QueryWrapper<Role> roleQueryWrapper = new QueryWrapper<>();
+            roleQueryWrapper.eq("disabled", 0);
+            roleQueryWrapper.eq("roleid", user.getRoleid());
+            Role role = roleService.getOne(roleQueryWrapper);
+            if (role != null) {
+                pageUser.setRoleName(role.getRolecname());
+            }
+        }
+        return Response.makeOKRsp("查询用户详细信息成功").setData(pageUser);
     }
 
     @ApiOperation("删除用户接口(逻辑删除)")
@@ -175,9 +187,9 @@ public class UserController {
 
     @ApiOperation("用户名修改接口")
     @PostMapping("/updateUserName")
-    public ResponseResult<String> updateUserName(PageUser pageUser, HttpServletRequest request) {
+    public ResponseResult<Object> updateUserName(PageUser pageUser, HttpServletRequest request) {
         if (!StringUtils.hasText(pageUser.getUsername())) {
-            return Response.makeErrRsp("用户名修改失败,参数错误.");
+            return Response.makeErrRsp("用户名修改失败,参数错误.").setData("");
         }
         String sessionId = request.getSession().getId();
         log.info("执行用户名修改接口,修改的用户sessionId是 :" + sessionId);
@@ -189,13 +201,38 @@ public class UserController {
         /*因为用户名是唯一的,这边需要写一些校验类用于判断用户名是否修改过,如果修改过,新的用户名是否在表中出现过,这边就不做判断了*/
         oldUser.setUsername(pageUser.getUsername());
         oldUser.setLastmodifytime(LocalDateTime.now());
+        /*修改缓存中的用户信息*/
+        redisUtil.hset(sessionId, "username", pageUser.getUsername(), 60 * 300);
         boolean result = userService.update(oldUser, queryWrapper);
         if (result) {
             log.info("用户修改成功.");
-            return Response.makeOKRsp("用户名修改成功");
+            return Response.makeOKRsp("用户名修改成功").setData(pageUser.getUsername());
         } else {
             log.error("用户名修改失败,用户信息是 :" + pageUser);
-            return Response.makeErrRsp("用户名修改失败.");
+            return Response.makeErrRsp("用户名修改失败.").setData("");
+        }
+    }
+
+    @ApiOperation("用户密码修改接口")
+    @PostMapping("/updateUserPassword")
+    public ResponseResult<Object> updateUserPassword(PageUser pageUser, HttpServletRequest request) throws IOException {
+        if (!StringUtils.hasText(pageUser.getPassword())) {
+            return Response.makeErrRsp("用户密码修改失败,参数错误.").setData(false);
+        }
+        String sessionId = request.getSession().getId();
+        log.info("执行用户密码修改接口,修改的用户sessionId是 :" + sessionId);
+        Map<Object, Object> userInfoMap = redisUtil.hmget(sessionId);
+        String username = (String) userInfoMap.get("username");
+
+        pageUser.setUsername(username);
+        /*更新用户密码*/
+        boolean result = userService.editUserPassword(pageUser);
+        if (result) {
+            log.info("用户密码修改成功.");
+            return Response.makeOKRsp("用户密码修改成功").setData(true);
+        } else {
+            log.error("用户密码修改失败,用户信息是 :" + pageUser);
+            return Response.makeErrRsp("用户密码修改失败.").setData(false);
         }
     }
 

@@ -11,5 +11,5 @@ public interface IAIService {
 
     public AipFaceResult facelogin(PageUpload pageUpload) throws IOException;
 
-    public AipFaceResult faceReg(PageUpload pageUpload) throws IOException;
+    public boolean faceReg(PageUpload pageUpload) throws IOException;
 }

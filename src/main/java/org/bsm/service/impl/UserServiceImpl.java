@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
@@ -58,7 +59,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         BASE64Encoder encode = new BASE64Encoder();
         byte[] saltBytes = Md5Util.getSalt(32);
         String salt = encode.encode(saltBytes);
-        pageUser.setSalt(salt);
         /*线程安全的*/
         pageUser.setCreatetime(LocalDateTime.now());
         pageUser.setIsfacevalid(false);
@@ -66,9 +66,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         pageUser.setUserid(UUID.randomUUID().toString());
         pageUser.setEnabled(true);
         pageUser.setRoleid(4);
-        pageUser.setPassword(Md5Util.toPasswd(pageUser.getPassword(), saltBytes));
         User user = new User();
         BeanUtils.copyProperties(pageUser, user);
+        user.setSalt(salt);
+        user.setPassword(Md5Util.toPasswd(pageUser.getPassword(), saltBytes));
         return userMapper.insert(user);
     }
 
@@ -140,9 +141,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String salt = encode.encode(saltBytes);
         user.setSalt(salt);
         /*加密密码*/
-        user.setPassword(Md5Util.toPasswd(pageUser.getPassword(), saltBytes));
+        user.setPassword(Md5Util.toPasswd(password, saltBytes));
         user.setLastmodifytime(LocalDateTime.now());
         int update = userMapper.update(user, queryWrapper);
         return update == 1;
+    }
+
+    /**
+     * 验证用户密码
+     *
+     * @param pageUser 用户输入
+     */
+    @Override
+    public boolean validateUserPassword(PageUser pageUser) throws IOException {
+        String password = pageUser.getPassword();
+        String username = pageUser.getUsername();
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        User user = userMapper.selectOne(queryWrapper);
+        if (user == null) {
+            return false;
+        }
+        String salt = user.getSalt();
+        BASE64Decoder decode = new BASE64Decoder();
+        byte[] saltBytes = decode.decodeBuffer(salt);
+        String toPasswd = Md5Util.toPasswd(password, saltBytes);
+        return toPasswd.equals(user.getPassword());
     }
 }

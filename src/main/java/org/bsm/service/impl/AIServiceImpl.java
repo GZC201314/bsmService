@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.User;
+import org.bsm.mapper.UserMapper;
 import org.bsm.pagemodel.AipFaceResult;
 import org.bsm.pagemodel.PageUpload;
 import org.bsm.pagemodel.Tpsbresult;
@@ -25,6 +26,7 @@ import java.util.Base64;
 import java.util.Base64.Encoder;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author GZC
@@ -34,7 +36,7 @@ import java.util.List;
 public class AIServiceImpl implements IAIService {
 
     @Autowired
-    UserServiceImpl userService;
+    UserMapper userMapper;
 
     @Autowired
     RedisUtil redisUtil;
@@ -88,7 +90,7 @@ public class AIServiceImpl implements IAIService {
 
 
     @Override
-    public AipFaceResult faceReg(PageUpload pageUpload) throws IOException {
+    public boolean faceReg(PageUpload pageUpload) throws IOException {
 
         String FACE_APP_ID = (String) redisUtil.get("FACE_APP_ID");
         String FACE_API_KEY = (String) redisUtil.get("FACE_API_KEY");
@@ -96,19 +98,26 @@ public class AIServiceImpl implements IAIService {
 
         AipFace aipFace = AIInstance.getFaceInstance(FACE_APP_ID, FACE_API_KEY, FACE_SECRET_KEY);
         //获取用户的人脸识别信息
+        Map<Object, Object> userInfo = redisUtil.hmget(pageUpload.getSessionId());
+        String username = (String) userInfo.get("username");
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        User reUser = userService.getOne(queryWrapper);
-
-        reUser.setIsfacevalid(true);
-        reUser.setLastmodifytime(LocalDateTime.now());
+        queryWrapper.eq("username", username);
+        User reUser = userMapper.selectOne(queryWrapper);
 
         Encoder encoder = Base64.getEncoder();
 
         //获取登录的用户名
         org.json.JSONObject resultJson = aipFace.addUser(encoder.encodeToString(pageUpload.getFile().getBytes()), "BASE64", "test", reUser.getUsername(), null);
-        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("username", reUser.getUsername());
-        userService.update(reUser, updateWrapper);
-        return JSONObject.parseObject(resultJson.toString(), AipFaceResult.class);
+        AipFaceResult aipFaceResult = JSONObject.parseObject(resultJson.toString(), AipFaceResult.class);
+        /*判断人脸注册是否成功*/
+        if (aipFaceResult != null && aipFaceResult.getError_code() == 0) {
+            UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("username", reUser.getUsername());
+            reUser.setIsfacevalid(true);
+            reUser.setLastmodifytime(LocalDateTime.now());
+            int updateCount = userMapper.update(reUser, updateWrapper);
+            return updateCount > 0;
+        }
+        return false;
     }
 }

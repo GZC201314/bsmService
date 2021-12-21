@@ -102,14 +102,17 @@ public class ValidateController {
                 return Response.makeErrRsp("校验失败,未登录。").setData(false);
             }
             Map<Object, Object> userInfo = redisUtil.hmget(sessionId);
-            String userName = (String) userInfo.get(sessionId);
+            String userName = (String) userInfo.get("username");
             pageUser.setUsername(userName);
-            userService.editUserPassword(pageUser);
-
-
+            boolean validateUserPassword = userService.validateUserPassword(pageUser);
+            if (validateUserPassword) {
+                return Response.makeOKRsp("密码认证成功。").setData(true);
+            } else {
+                return Response.makeOKRsp("密码认证失败。").setData(false);
+            }
         }
 
-        return Response.makeErrRsp("校验失败").setData(false);
+        return Response.makeErrRsp("校验失败。").setData(false);
     }
 
 

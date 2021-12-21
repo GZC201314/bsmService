@@ -29,4 +29,9 @@ public interface IUserService extends IService<User> {
      */
     public boolean editUserPassword(PageUser pageUser) throws IOException;
 
+    /**
+     * 修改用户密码
+     */
+    public boolean validateUserPassword(PageUser pageUser) throws IOException;
+
 }

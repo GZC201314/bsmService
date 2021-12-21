@@ -186,12 +186,17 @@ public class AIController {
     }
 
     @ApiOperation("人脸识别注册接口")
-    @PostMapping(value = "faceReg", consumes = "multipart/*", headers = "content-type=multipart/form-data")
-    public ResponseResult<Object> faceReg(PageUpload pageUpload) {
-        log.info("into the faceReg function");
+    @PostMapping(value = "faceRegister", consumes = "multipart/*", headers = "content-type=multipart/form-data")
+    public ResponseResult<Object> faceRegister(PageUpload pageUpload, HttpServletRequest request) {
+        log.info("into the faceRegister function");
+        if (pageUpload.getFile() == null) {
+            return Response.makeErrRsp("人脸注册，参数错误");
+        }
         try {
-            AipFaceResult aipFaceResult = aiService.faceReg(pageUpload);
-            if (aipFaceResult != null && aipFaceResult.getError_code() == 0) {
+            String sessionId = request.getSession().getId();
+            pageUpload.setSessionId(sessionId);
+            boolean aipFaceResult = aiService.faceReg(pageUpload);
+            if (aipFaceResult) {
                 return Response.makeOKRsp("人脸识别注册成功");
             }
         } catch (Exception e) {

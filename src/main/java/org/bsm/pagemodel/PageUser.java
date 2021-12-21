@@ -26,7 +26,7 @@ public class PageUser implements Serializable {
 
     private String username;
 
-    private String password;
+    private transient String password;
 
     private String validCode;
 
@@ -43,12 +43,13 @@ public class PageUser implements Serializable {
     private LocalDateTime lastmodifytime;
 
     private Integer roleid;
+    private String roleName;
 
     private String usericon;
 
     private Boolean isfacevalid;
 
-    private String salt;
+    private transient String salt;
 
     private Boolean enabled;
 
