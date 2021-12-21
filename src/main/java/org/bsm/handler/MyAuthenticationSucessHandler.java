@@ -95,6 +95,7 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
                 pageMenu.setId(pages.getPagekey());
                 pageMenu.setName(pages.getTitle());
                 pageMenu.setPath(pages.getPagepath());
+                pageMenu.setOrderid(pages.getOrderid());
                 parentList.add(pageMenu);
             } else {
                 /*如果是二级菜单,找到他的父节点*/
@@ -119,6 +120,8 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
         for (PageMenu parent : parentList) {
             parent.setChildren(map.get(parent.getId()));
         }
+        parentList.sort((o1, o2) -> o1.getOrderid() - o2.getOrderid());
+
 
         /*在这边拼装menuJson*/
         reJson.put("menulist", JSONObject.toJSON(parentList).toString());

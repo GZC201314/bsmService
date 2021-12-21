@@ -21,6 +21,7 @@ public class PageMenu {
     private String name;
     private String icontype;
     private String icon;
+    private Integer orderid;
     private Map<String, Object> query;
     private List<PageMenu> children;
 }

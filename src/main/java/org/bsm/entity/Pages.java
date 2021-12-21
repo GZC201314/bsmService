@@ -34,4 +34,6 @@ public class Pages implements Serializable {
     private String icontype;
 
     private String icon;
+    private Integer orderid;
+
 }
