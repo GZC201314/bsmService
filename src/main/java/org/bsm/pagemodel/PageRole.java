@@ -30,6 +30,8 @@ public class PageRole implements Serializable {
     /**
      * 分页 参数
      */
+    private Page page;
+    
     private Integer current;
     private Integer size;
 }
