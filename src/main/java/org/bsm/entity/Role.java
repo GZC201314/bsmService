@@ -29,4 +29,6 @@ public class Role implements Serializable {
     private String rolename;
 
     private String rolecname;
+
+    private Boolean isdeleted;
 }

@@ -16,4 +16,5 @@ public class Page {
     private Integer total = 0;
     private Integer page = 1;
     private Integer pageSize = 10;
+    private String search;
 }

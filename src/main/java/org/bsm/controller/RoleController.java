@@ -2,14 +2,13 @@ package org.bsm.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.Role;
 import org.bsm.pagemodel.PageRole;
-import org.bsm.service.impl.RoleServiceImpl;
+import org.bsm.service.IRoleService;
 import org.bsm.utils.Response;
 import org.bsm.utils.ResponseResult;
 import org.springframework.beans.BeanUtils;
@@ -34,7 +33,7 @@ import java.util.List;
 public class RoleController {
 
     @Autowired
-    RoleServiceImpl roleService;
+    IRoleService roleService;
 
     @ApiOperation("获取所有用户角色接口")
     @GetMapping("/getAllRole")
@@ -51,16 +50,21 @@ public class RoleController {
     }
 
     @ApiOperation("获取所有用户角色接口(分页)")
-    @GetMapping("/getPageRole")
-    public ResponseResult<Object> getPageRole(PageRole pageRole) {
+    @PostMapping("/getPageRole")
+    public ResponseResult<Object> getPageRole(@RequestBody PageRole pageRole) {
         log.info("获取所有的用户角色(分页),使用的查询条件是 :" + pageRole);
         Role role = new Role();
         BeanUtils.copyProperties(pageRole, role);
         QueryWrapper<Role> queryWrapper = new QueryWrapper<>();
-        if (StringUtils.hasText(pageRole.getRolecname())) {
-            queryWrapper.like("rolecname", pageRole.getRolecname());
+        queryWrapper.eq("isdeleted", false);
+        if (StringUtils.hasText(pageRole.getPage().getSearch())) {
+            queryWrapper.like("rolename", pageRole.getPage().getSearch());
         }
-        Page<Role> page = new Page<>(pageRole.getCurrent(), pageRole.getSize());
+
+        if (pageRole.getPage() == null) {
+            return Response.makeErrRsp("参数错误");
+        }
+        Page<Role> page = new Page<>(pageRole.getPage().getPage(), pageRole.getPage().getPageSize());
         Page<Role> rolePage = roleService.page(page, queryWrapper);
         return Response.makeOKRsp("获取所有的用户角色(分页)成功").setData(rolePage);
     }
@@ -81,7 +85,7 @@ public class RoleController {
 
     @ApiOperation("新增用户角色接口")
     @PostMapping("/addRole")
-    public ResponseResult<Object> addRole(Role pageRole) {
+    public ResponseResult<Object> addRole(@RequestBody Role pageRole) {
         log.info("新增用户角色,角色信息是 :" + pageRole);
         boolean result = roleService.save(pageRole);
         if (result) {
@@ -94,7 +98,7 @@ public class RoleController {
     @ApiOperation("修改用户角色接口")
     @PostMapping("/updateRole")
     public ResponseResult<Object> updateRole(Role pageRole) {
-        log.info("新增用户角色,角色信息是 :" + pageRole);
+        log.info("修改用户角色,角色信息是 :" + pageRole);
         boolean result = roleService.saveOrUpdate(pageRole);
         if (result) {
             return Response.makeOKRsp("修改用户角色成功");
@@ -103,21 +107,31 @@ public class RoleController {
         }
     }
 
+    @ApiOperation("修改用户角色启用状态接口")
+    @PostMapping("/updateRoleStatus")
+    public ResponseResult<Object> updateRoleStatus(@RequestBody PageRole pageRole) {
+        log.info("修改用户角色,角色信息是 :" + pageRole);
+        boolean result = roleService.editRoleStatus(pageRole);
+        if (result) {
+            return Response.makeOKRsp("修改用户角色状态成功");
+        } else {
+            return Response.makeOKRsp("修改用户角色状态失败");
+        }
+    }
+
     @ApiOperation("删除用户角色接口(逻辑删除)")
-    @DeleteMapping("/deleteRole")
-    public ResponseResult<Object> deleteRole(Role pageRole) {
-        pageRole.setDisabled(true);
+    @PostMapping("/deleteRoles")
+    public ResponseResult<Object> deleteRoles(@RequestBody PageRole pageRole) {
         log.info("删除用户角色,角色信息是 :" + pageRole);
-        UpdateWrapper<Role> updateWrapper = new UpdateWrapper<>();
-        if (pageRole.getRoleid() != null) {
-            updateWrapper.eq("roleid", pageRole.getRoleid());
+        if (!StringUtils.hasText(pageRole.getDelIds())) {
+            return Response.makeErrRsp("参数错误");
         }
 
-        boolean result = roleService.update(pageRole, updateWrapper);
+        boolean result = roleService.delRoles(pageRole);
         if (result) {
-            return Response.makeOKRsp("修改用户角色成功");
+            return Response.makeOKRsp("删除用户角色成功");
         } else {
-            return Response.makeOKRsp("修改用户角色失败");
+            return Response.makeOKRsp("删除用户角色失败");
         }
     }
 }

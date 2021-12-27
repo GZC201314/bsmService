@@ -21,6 +21,8 @@ public class PageRole implements Serializable {
 
     private Boolean disabled;
 
+    private Boolean isdeleted;
+
     private Integer roleid;
 
     private String rolename;
@@ -31,7 +33,9 @@ public class PageRole implements Serializable {
      * 分页 参数
      */
     private Page page;
-    
+
     private Integer current;
     private Integer size;
+
+    private String delIds;
 }
