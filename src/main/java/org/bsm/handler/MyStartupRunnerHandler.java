@@ -36,8 +36,7 @@ public class MyStartupRunnerHandler implements CommandLineRunner {
         log.info("开始执行项目初始化后的数据加载");
         /*把数据库中的配置信息都初始化到redis中去*/
         List<Config> configs = configService.list();
-        for (Config config :
-                configs) {
+        for (Config config : configs) {
             redisUtil.del(config.getName());
             redisUtil.set(config.getName(), config.getValue());
         }

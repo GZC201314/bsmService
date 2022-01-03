@@ -97,7 +97,7 @@ public class RoleController {
 
     @ApiOperation("修改用户角色接口")
     @PostMapping("/updateRole")
-    public ResponseResult<Object> updateRole(Role pageRole) {
+    public ResponseResult<Object> updateRole(@RequestBody Role pageRole) {
         log.info("修改用户角色,角色信息是 :" + pageRole);
         boolean result = roleService.saveOrUpdate(pageRole);
         if (result) {

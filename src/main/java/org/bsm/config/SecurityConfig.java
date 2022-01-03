@@ -95,8 +95,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 http.authorizeRequests().antMatchers(authorize.getPagepath()).hasRole(authorize.getRolename());
             }
         }
-        for (String key :
-                authorizationMap.keySet()) {
+        for (String key : authorizationMap.keySet()) {
             List<Authorize> paths = authorizationMap.get(key);
             for (Authorize path : paths) {
                 redisUtil.sSet(key, path);

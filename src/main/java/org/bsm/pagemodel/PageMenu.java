@@ -16,12 +16,22 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PageMenu {
+
+
     private String id;
+    /**
+     * tree数据
+     */
+    private String title;
+    private String key;
+
+    private String pageid;
     private String path;
     private String name;
     private String icontype;
     private String icon;
     private Integer orderid;
+    private boolean isGrant = false;
     private Map<String, Object> query;
     private List<PageMenu> children;
 }

@@ -31,9 +31,18 @@ public class PagePages implements Serializable {
 
     private String icon;
 
+    private Integer orderid;
+
+
+    private String delIds;
+    /*修改角色的授权页面Id*/
+    private String pagesIds;
+    private String rolename;
     /**
      * 分页 参数
      */
+    private Page page;
+
     private Integer current;
     private Integer size;
 }

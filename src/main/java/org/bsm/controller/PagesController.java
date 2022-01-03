@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.Pages;
 import org.bsm.pagemodel.PagePages;
-import org.bsm.service.impl.PagesServiceImpl;
+import org.bsm.service.IPagesService;
 import org.bsm.utils.Response;
 import org.bsm.utils.ResponseResult;
 import org.springframework.beans.BeanUtils;
@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ import java.util.UUID;
 public class PagesController {
 
     @Autowired
-    PagesServiceImpl pageService;
+    IPagesService pageService;
 
     @ApiOperation("获取所有页面接口")
     @GetMapping("/getAllPages")
@@ -52,40 +53,64 @@ public class PagesController {
     }
 
     @ApiOperation("获取所有页面接口(分页)")
-    @GetMapping("/getPagePages")
-    public ResponseResult<Object> getPagePages(PagePages pagePages) {
+    @PostMapping("/getPagePages")
+    public ResponseResult<Object> getPagePages(@RequestBody PagePages pagePages) {
         log.info("获取所有页面接口(分页),使用的查询条件是 :" + pagePages);
         Pages pages = new Pages();
         BeanUtils.copyProperties(pagePages, pages);
         QueryWrapper<Pages> queryWrapper = new QueryWrapper<>();
-        if (StringUtils.hasText(pagePages.getTitle())) {
-            queryWrapper.like("title", pagePages.getTitle());
+        if (StringUtils.hasText(pagePages.getPage().getSearch())) {
+            queryWrapper.like("title", pagePages.getPage().getSearch());
         }
-        Page<Pages> page = new Page<>(pagePages.getCurrent(), pagePages.getSize(), true);
-        Page<Pages> rolePage = pageService.page(page, queryWrapper);
-        return Response.makeOKRsp("获取所有页面接口(分页)成功").setData(rolePage);
+        Page<Pages> page = new Page<>(pagePages.getPage().getPage(), pagePages.getPage().getPageSize(), true);
+        Page<Pages> pagesPage = pageService.page(page, queryWrapper);
+        return Response.makeOKRsp("获取所有页面接口(分页)成功").setData(pagesPage);
     }
 
-    @ApiOperation("获取页面详细信息接口")
+    @ApiOperation("根据pageid获取页面详细信息接口")
     @GetMapping("/getPagesInfo")
     public ResponseResult<Object> getPagesInfo(PagePages pagePages) {
-        log.info("获取页面详细信息接口,使用的查询条件是 :" + pagePages);
-        Pages pages = new Pages();
-        BeanUtils.copyProperties(pagePages, pages);
+        log.info("根据pageid获取页面详细信息接口,使用的查询条件是 :" + pagePages);
         QueryWrapper<Pages> queryWrapper = new QueryWrapper<>();
         if (StringUtils.hasText(pagePages.getPageid())) {
             queryWrapper.eq("pageid", pagePages.getPageid());
+        } else {
+            Response.makeErrRsp("根据pageid获取页面详细信息失败，参数错误！");
         }
-        pages = pageService.getOne(queryWrapper);
-        return Response.makeOKRsp("获取页面详细信息成功").setData(pages);
+        Pages pages = pageService.getOne(queryWrapper);
+        return Response.makeOKRsp("根据pageid获取页面详细信息成功").setData(pages);
+    }
+
+    @ApiOperation("校验pageKey的唯一性接口")
+    @GetMapping("/pageKeyUnique")
+    public ResponseResult<Object> pageKeyUnique(PagePages pagePages) {
+        log.info("校验pageKey的唯一性接口,使用的查询条件是 :" + pagePages);
+        QueryWrapper<Pages> queryWrapper = new QueryWrapper<>();
+        if (StringUtils.hasText(pagePages.getPagekey())) {
+            queryWrapper.eq("pagekey", pagePages.getPagekey());
+        } else {
+            Response.makeErrRsp("校验pageKey的唯一性接口失败，参数错误！");
+        }
+        int count = pageService.count(queryWrapper);
+        return Response.makeOKRsp("校验pageKey的唯一性成功").setData(count == 0);
+    }
+
+    @ApiOperation("获取所有的父节点接口")
+    @GetMapping("/getparentNode")
+    public ResponseResult<Object> getparentNode() {
+        log.info("获取所有的父节点接口");
+        QueryWrapper<Pages> pagesQueryWrapper = new QueryWrapper<>();
+        pagesQueryWrapper.eq("parentkey", "0");
+        List<Pages> list = pageService.list(pagesQueryWrapper);
+        return Response.makeOKRsp("所有的父节点信息成功").setData(list);
     }
 
     @ApiOperation("新增页面接口")
     @PostMapping("/addPages")
-    public ResponseResult<Object> addPages(Pages pages) {
+    public ResponseResult<Object> addPages(@RequestBody PagePages pages) {
         pages.setPageid(UUID.randomUUID().toString());
         log.info("新增页面,信息是 :" + pages);
-        boolean result = pageService.save(pages);
+        boolean result = pageService.addPages(pages);
         if (result) {
             return Response.makeOKRsp("新增页面成功");
         } else {
@@ -95,9 +120,27 @@ public class PagesController {
 
     @ApiOperation("修改页面接口")
     @PostMapping("/updatePages")
-    public ResponseResult<Object> updatePages(Pages pages) {
+    public ResponseResult<Object> updatePages(@RequestBody PagePages pages) {
         log.info("修改页面,信息是 :" + pages);
-        boolean result = pageService.saveOrUpdate(pages);
+        Pages page = new Pages();
+        BeanUtils.copyProperties(pages, page);
+        UpdateWrapper<Pages> pagesUpdateWrapper = new UpdateWrapper<>();
+        if (!StringUtils.hasText(page.getPageid())) {
+            return Response.makeErrRsp("修改页面参数错误。");
+        }
+        pagesUpdateWrapper.eq("pageid", page.getPageid());
+        pagesUpdateWrapper.set("icon", page.getIcon());
+        pagesUpdateWrapper.set("pagepath", page.getPagepath());
+        pagesUpdateWrapper.set("title", page.getTitle());
+        pagesUpdateWrapper.set("parentkey", page.getParentkey());
+        if ("0".equals(page.getParentkey())) {
+            pagesUpdateWrapper.set("icontype", "fa");
+
+        } else {
+            pagesUpdateWrapper.set("icontype", "antd");
+            pagesUpdateWrapper.set("icon", "");
+        }
+        boolean result = pageService.update(null, pagesUpdateWrapper);
         if (result) {
             return Response.makeOKRsp("修改页面成功");
         } else {
@@ -106,12 +149,13 @@ public class PagesController {
     }
 
     @ApiOperation("删除页面接口")
-    @DeleteMapping("/deletePages")
-    public ResponseResult<Object> deletePages(PagePages pagePages) {
+    @PostMapping("/deletePages")
+    public ResponseResult<Object> deletePages(@RequestBody PagePages pagePages) {
         log.info("删除页面,信息是 :" + pagePages);
         UpdateWrapper<Pages> deleteWrapper = new UpdateWrapper<>();
-        if (StringUtils.hasText(pagePages.getPageid())) {
-            deleteWrapper.eq("pageid", pagePages.getPageid());
+        if (StringUtils.hasText(pagePages.getDelIds())) {
+            String[] ids = pagePages.getDelIds().split(",");
+            deleteWrapper.in("pageid", Arrays.asList(ids));
         }
 
         boolean result = pageService.remove(deleteWrapper);
