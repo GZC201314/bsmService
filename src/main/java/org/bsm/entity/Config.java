@@ -2,11 +2,12 @@ package org.bsm.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 作者
@@ -16,7 +17,7 @@ public class Config implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-      @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     private String name;
@@ -61,10 +62,10 @@ public class Config implements Serializable {
     @Override
     public String toString() {
         return "Config{" +
-        "id=" + id +
-        ", name=" + name +
-        ", value=" + value +
-        ", type=" + type +
-        "}";
+                "id=" + id +
+                ", name=" + name +
+                ", value=" + value +
+                ", type=" + type +
+                "}";
     }
 }

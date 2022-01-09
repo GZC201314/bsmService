@@ -92,3 +92,7 @@ spring:
             enable: true
             required: true
 
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1

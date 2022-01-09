@@ -3,6 +3,7 @@ package org.bsm.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.Pages;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
  * @author 作者
  * @since 2021-10-29
  */
+@Api(tags = "权限管理控制类")
 @Slf4j
 @RestController
 @RequestMapping("/authorize")

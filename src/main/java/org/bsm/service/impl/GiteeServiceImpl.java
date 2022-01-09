@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.bsm.utils.Constants.CREATE_REPOS_URL;
+import static org.bsm.utils.Constants.GET_REPOSFILE_URL;
 
 /**
  * @author GZC
@@ -31,7 +32,7 @@ public class GiteeServiceImpl implements IGiteeService {
 
     @Override
     public String addFile(PageGiteeApiCaller pageGiteeApiCaller) {
-        log.info("开始向gitee图床上传图片：" + pageGiteeApiCaller);
+        log.info("开始向gitee图床上传文件：" + pageGiteeApiCaller);
         // String | 仓库所属空间地址(企业、组织或个人的地址path)
         String owner = pageGiteeApiCaller.getOwner();
         //String | 仓库路径(path)
@@ -73,8 +74,53 @@ public class GiteeServiceImpl implements IGiteeService {
             JSONObject resultContent = jsonObject.getJSONObject("content");
             String download_url = resultContent.getStr("download_url");
             if (StringUtils.hasText(download_url)) {
-                log.info("图片上传成功，图片的地址是：" + download_url);
+                log.info("文件上传成功，文件的地址是：" + download_url);
                 return download_url;
+            }
+        } catch (ApiException e) {
+            e.printStackTrace();
+            log.error("Exception when calling RepositoriesApi#postV5ReposOwnerRepoContentsPath Error message is:" + e.getMessage());
+        }
+        return "";
+    }
+
+    /**
+     * 判断gitee 图床上是否有对应的文件，如果存在则返回对应文件的Url
+     *
+     * @param pageGiteeApiCaller
+     */
+    @Override
+    public String getFile(PageGiteeApiCaller pageGiteeApiCaller) {
+
+        log.info("获取gitee上的文件：" + pageGiteeApiCaller);
+        // String | 仓库所属空间地址(企业、组织或个人的地址path)
+        String owner = pageGiteeApiCaller.getOwner();
+        //String | 仓库路径(path)
+        String repo = pageGiteeApiCaller.getRepo();
+        // String | 文件的路径
+        String path = pageGiteeApiCaller.getPath();
+        /*为了安全，从redis中获取accessToken*/
+        String accessToken = (String) redisUtil.get("GITEE_ACCESS_TOKEN");
+
+        try {
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("access_token", accessToken);
+
+
+            String requestUrl = String.format(GET_REPOSFILE_URL, owner,
+                    repo, path);
+
+
+            String resultJson = HttpUtil.get(requestUrl, paramMap);
+
+            if ("[]".equals(resultJson)) {
+                return "";
+            }
+            JSONObject jsonObject = JSONUtil.parseObj(resultJson);
+            String downloadUrl = jsonObject.getStr("download_url");
+            if (StringUtils.hasText(downloadUrl)) {
+                log.info("获取文件，文件的地址是：" + downloadUrl);
+                return downloadUrl;
             }
         } catch (ApiException e) {
             e.printStackTrace();

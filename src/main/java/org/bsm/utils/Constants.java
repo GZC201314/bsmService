@@ -12,6 +12,8 @@ public class Constants {
 
     public static String CREATE_REPOS_URL = "https://gitee.com/api/v5/repos/%s/%s/contents/%s";
 
+    public static String GET_REPOSFILE_URL = "https://gitee.com/api/v5/repos/%s/%s/contents/%s";
+
 
     /**
      * 性别

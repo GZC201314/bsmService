@@ -172,8 +172,6 @@ public class UserController {
             String sessionId = req.getSession().getId();
             pageUpload.setSessionId(sessionId);
             String newAvatarUrl = userService.editAvatar(pageUpload);
-//            String result = aiService.ocr(pageUpload);
-//            return Response.makeOKRsp("图片识别成功").setData('result');
             if (StringUtils.hasText(newAvatarUrl)) {
                 return Response.makeOKRsp("修改用户头像成功").setData(newAvatarUrl);
             } else {
