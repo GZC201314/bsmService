@@ -1,12 +1,15 @@
 //package org.bsm;
 //
-//import com.gitee.ApiException;
-//import com.gitee.api.ActivityApi;
+////import com.gitee.ApiException;
+////import com.gitee.api.ActivityApi;
+//
 //import lombok.extern.slf4j.Slf4j;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.boot.test.context.SpringBootTest;
 //
+//import javax.mail.*;
 //import java.sql.SQLException;
+//import java.util.Properties;
 //
 //@SpringBootTest
 //@Slf4j
@@ -25,18 +28,9 @@
 ////    AuthorizeServiceImpl authorizeService;
 //
 //    @Test
-//    void contextLoads() throws SQLException {
+//    void contextLoads() throws SQLException, MessagingException {
 //
-//        ActivityApi apiInstance = new ActivityApi();
-//        String owner = "GZC201314"; // String | 仓库所属空间地址(企业、组织或个人的地址path)
-//        String repo = "HappyBirthDay"; // String | 仓库路径(path)
-//        String accessToken = "7c43a11a7a56ccf59945cc11f676329f"; // String | 用户授权码
-//        try {
-//            apiInstance.deleteV5UserStarredOwnerRepo(owner, repo, accessToken);
-//        } catch (ApiException e) {
-//            System.err.println("Exception when calling ActivityApi#deleteV5UserStarredOwnerRepo");
-//            e.printStackTrace();
-//        }
+//
 //
 ////        List<Pages> pages = pagesService.list();
 ////        List<String> roles = new ArrayList<>(Arrays.asList("admin", "superAdmin", "guest", "user", "vip"));

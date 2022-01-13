@@ -2,8 +2,9 @@ package org.bsm.service.impl;
 
 import cn.hutool.core.codec.Base64;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.bsm.drive.CustomerWebAppClassLoader;
+import lombok.extern.slf4j.Slf4j;
 import org.bsm.drive.DriverAdpter;
+import org.bsm.drive.ExtDriveClassLoader;
 import org.bsm.drive.MyDriverManager;
 import org.bsm.entity.Datasource;
 import org.bsm.mapper.DatasourceMapper;
@@ -18,8 +19,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.Driver;
@@ -34,6 +33,7 @@ import java.time.LocalDateTime;
  * @author 作者
  * @since 2022-01-06
  */
+@Slf4j
 @Service
 public class DatasourceServiceImpl extends ServiceImpl<DatasourceMapper, Datasource> implements IDatasourceService {
 
@@ -84,14 +84,15 @@ public class DatasourceServiceImpl extends ServiceImpl<DatasourceMapper, Datasou
      */
     @Override
     public boolean testDrive(PageDataSource pageDataSource) {
+        log.info("类加载器======" + getClass().getClassLoader());
         boolean result = false;
         Connection connection = null;
         try {
+            URL url = new URL("jar:" + pageDataSource.getDriveurl() + "!/");
+            ExtDriveClassLoader extDriveClassLoader = new ExtDriveClassLoader(new URL[]{url}, getClass().getClassLoader());
 
-            URL url1 = new URL(pageDataSource.getDriveurl());
-            CustomerWebAppClassLoader myClassLoader1 = new CustomerWebAppClassLoader(new URL[]{url1}, Thread.currentThread().getClass().getClassLoader());
-            Class<?> mysql5Driver = myClassLoader1.findClass(pageDataSource.getDriveclass());
-            Driver driver = (Driver) mysql5Driver.getDeclaredConstructor().newInstance();
+            Class<?> aClass = extDriveClassLoader.loadClass(pageDataSource.getDriveclass());
+            Driver driver = (Driver) aClass.newInstance();
             int majorVersion = driver.getMajorVersion();
             int minorVersion = driver.getMinorVersion();
 
@@ -105,7 +106,7 @@ public class DatasourceServiceImpl extends ServiceImpl<DatasourceMapper, Datasou
 
             result = true;
 
-        } catch (SQLException | ClassNotFoundException | InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException | MalformedURLException e) {
+        } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException | IOException e) {
             log.error(e.getMessage());
             e.printStackTrace();
         } finally {
