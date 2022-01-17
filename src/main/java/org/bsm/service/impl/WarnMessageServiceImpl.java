@@ -148,7 +148,7 @@ public class WarnMessageServiceImpl implements IWarnMessageService {
                     StringBuffer content = new StringBuffer(30);
                     EmailUtil.getMailTextContent(msg, content);
                     pageMessage1.setContent(content.toString());
-                    pageMessage1.setSentDate(new SimpleDateFormat("HH:mm:ss").format(messages[i].getSentDate()));
+                    pageMessage1.setSentDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(messages[i].getSentDate()));
                     messagesList.add(pageMessage1);
                 }
                 total = messages.length;

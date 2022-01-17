@@ -12,12 +12,15 @@ import org.bsm.pagemodel.PageUpload;
 import org.bsm.service.IDatasourceService;
 import org.bsm.utils.Response;
 import org.bsm.utils.ResponseResult;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Arrays;
 
 /**
  * <p>
@@ -42,7 +45,7 @@ public class DatasourceController {
         log.info("获取所有的用户角色(分页),使用的查询条件是 :" + pageDataSource);
         QueryWrapper<Datasource> queryWrapper = new QueryWrapper<>();
         if (StringUtils.hasText(pageDataSource.getPage().getSearch())) {
-            queryWrapper.like("datasourcename", pageDataSource.getPage().getSearch());
+            queryWrapper.like("sourcename", pageDataSource.getPage().getSearch());
         }
 
         if (pageDataSource.getPage() == null) {
@@ -80,6 +83,44 @@ public class DatasourceController {
     public ResponseResult<Object> testDataSource(@RequestBody PageDataSource pageDataSource) {
         log.info("测试数据源配置,使用的查询条件是 :" + pageDataSource);
         return Response.makeOKRsp("测试数据源配置成功").setData(datasourceService.testDrive(pageDataSource));
+    }
+
+
+    @ApiOperation("新增数据源配置接口")
+    @PostMapping("/insertDataSource")
+    public ResponseResult<Object> insertDataSource(@RequestBody PageDataSource pageDataSource) {
+        log.info("新增数据源配置接口,信息是 :" + pageDataSource);
+        if (pageDataSource == null) {
+            return Response.makeErrRsp("新增数据源配置接口错误，参数错误。");
+        }
+        Datasource datasource = new Datasource();
+        BeanUtils.copyProperties(pageDataSource, datasource);
+        boolean result = datasourceService.save(datasource);
+        if (result) {
+            return Response.makeOKRsp("新增数据源配置接口成功");
+        } else {
+            return Response.makeErrRsp("新增数据源配置接口失败");
+        }
+    }
+
+
+    @ApiOperation("删除数据源配置接口，支持批量删除")
+    @PostMapping("/deleteDataSource")
+    public ResponseResult<Object> deleteRoles(@RequestBody PageDataSource pageDataSource) {
+        log.info("删除数据源配置接口,信息是 :" + pageDataSource);
+        if (!StringUtils.hasText(pageDataSource.getDelIds())) {
+            return Response.makeErrRsp("参数错误");
+        }
+
+        String[] delIds = pageDataSource.getDelIds().split(",");
+
+        boolean result = datasourceService.removeByIds(Arrays.asList(delIds));
+
+        if (result) {
+            return Response.makeOKRsp("删除数据源配置接口成功");
+        } else {
+            return Response.makeErrRsp("删除数据源配置接口失败");
+        }
     }
 
 

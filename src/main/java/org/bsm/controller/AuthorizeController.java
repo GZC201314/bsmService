@@ -62,9 +62,9 @@ public class AuthorizeController {
 
         boolean result = authorizeService.updateAuthorizePagesByRoleName(pages);
         if (result) {
-            return Response.makeOKRsp("修改页面成功");
+            return Response.makeOKRsp("修改角色授权页面成功");
         } else {
-            return Response.makeErrRsp("修改页面失败");
+            return Response.makeErrRsp("修改角色授权页面失败");
         }
     }
 
