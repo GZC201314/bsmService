@@ -1,6 +1,7 @@
 package org.bsm.service.impl;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.codec.Base64Encoder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -56,9 +56,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             return 0;
         }
 
-        BASE64Encoder encode = new BASE64Encoder();
         byte[] saltBytes = Md5Util.getSalt(32);
-        String salt = encode.encode(saltBytes);
+        String salt = Base64Encoder.encode(saltBytes);
         /*线程安全的*/
         pageUser.setCreatetime(LocalDateTime.now());
         pageUser.setIsfacevalid(false);
@@ -76,7 +75,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     /**
      * 修改用户头像
      *
-     * @param pageUpload
+     * @param pageUpload 参数
      */
     @Override
     public String editAvatar(PageUpload pageUpload) throws IOException {
@@ -119,14 +118,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         int updateResult = userMapper.update(user, updateWrapper);
 
 
-        return fileUrl;
+        return updateResult == 1 ? fileUrl : "";
     }
 
     /**
      * 修改用户密码
      */
     @Override
-    public boolean editUserPassword(PageUser pageUser) throws IOException {
+    public boolean editUserPassword(PageUser pageUser) {
         String password = pageUser.getPassword();
         String username = pageUser.getUsername();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -136,9 +135,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             return false;
         }
         /*生成盐值*/
-        BASE64Encoder encode = new BASE64Encoder();
         byte[] saltBytes = Md5Util.getSalt(32);
-        String salt = encode.encode(saltBytes);
+        String salt = Base64Encoder.encode(saltBytes);
         user.setSalt(salt);
         /*加密密码*/
         user.setPassword(Md5Util.toPasswd(password, saltBytes));

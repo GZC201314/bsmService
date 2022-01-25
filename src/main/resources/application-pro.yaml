@@ -10,10 +10,9 @@ spring:
   datasource:
     druid:
       db-type: mysql
-      username: BSM:uHqOZVe2JrjJQT7KTCLImA==
-      password: BSM:VMdY+m3qH+xaTIhPNcYkjg==
-      #      url: jdbc:mysql://127.0.0.1:3306/bsm?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
-      url: BSM:xKb8dKZzE7E9xygKB0B7Hwb7PduGnUVtG8hQGJgJEaSd3aeb83+0Ts3ecbpo8cyLgbSp4ot/Big7BWgyL3eQubCiStDaZwuO6Nkk5WfYeVbYyDOWiiIIrR2YBLyEsJq1
+      username: mpw:uHqOZVe2JrjJQT7KTCLImA==
+      password: mpw:dqVDuuSo+lUNSJbK4YRSdg==
+      url: mpw:xKb8dKZzE7E9xygKB0B7HwfWaYUiJQxn9iBphyPR9l4pOURHe870nZ7+Qb9c3y9Q+fSEkbAoFlbaL7UiGnerrWbHYDgZOZGvTFUQuUSEIK+l2tTO8wUhm8cpvdBREZ8S
       driver-class-name: com.mysql.cj.jdbc.Driver
 
       # 连接池配置
@@ -75,12 +74,11 @@ spring:
     # Redis数据库索引（默认为0）
     database: 1
     # Redis服务器地址
-    host: 127.0.0.1
+    host: 124.223.4.131
     # Redis服务器连接端口
     port: 6379
     timeout: 0
-    password: BSM:OHwX2T52VbuzIp4egZ/srQ==
-  #    password: gzcabc123
+    password: BSM:dqVDuuSo+lUNSJbK4YRSdg==
   mail:
     host: smtp.163.com
     username: gzc201314@163.com
@@ -93,3 +91,12 @@ spring:
             enable: true
             required: true
 
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+
+server:
+  port: 8888
+  servlet:
+    application-display-name: BSM

@@ -1,10 +1,10 @@
 package org.bsm.config;
 
+import cn.hutool.core.codec.Base64Decoder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.utils.Md5Util;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import sun.misc.BASE64Decoder;
 
 /**
  * @author GZC
@@ -29,7 +29,6 @@ public class MyPasswordEncoder implements PasswordEncoder {
         }
         String encodePassword = strings[0];
         String salt = strings[1];
-        BASE64Decoder decoder = new BASE64Decoder();
-        return encodePassword.equals(Md5Util.toPasswd((String) rawPassword, decoder.decodeBuffer(salt)));
+        return encodePassword.equals(Md5Util.toPasswd((String) rawPassword, Base64Decoder.decode(salt)));
     }
 }

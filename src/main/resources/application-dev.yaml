@@ -74,12 +74,11 @@ spring:
     # Redis数据库索引（默认为0）
     database: 1
     # Redis服务器地址
-    host: 127.0.0.1
+    host: 124.223.4.131
     # Redis服务器连接端口
     port: 6379
     timeout: 0
-    password: BSM:OHwX2T52VbuzIp4egZ/srQ==
-  #    password: gzcabc123
+    password: BSM:dqVDuuSo+lUNSJbK4YRSdg==
   mail:
     host: smtp.163.com
     username: gzc201314@163.com
@@ -96,3 +95,7 @@ spring:
     multipart:
       max-file-size: -1
       max-request-size: -1
+server:
+  port: 8888
+  servlet:
+    application-display-name: bsmservice

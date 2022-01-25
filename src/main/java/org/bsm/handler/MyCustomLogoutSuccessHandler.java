@@ -27,7 +27,7 @@ public class MyCustomLogoutSuccessHandler implements LogoutSuccessHandler {
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        if (authentication.getPrincipal() == null) {
+        if (authentication == null) {
             responseJsonWriter(response, Response.makeErrRsp("你已经退出了。"));
             return;
         }
