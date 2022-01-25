@@ -4,6 +4,7 @@ package org.bsm.config;
  * @author GZC
  * @create 2021-10-25 15:08
  * @desc security config file
+ * SECURITY
  */
 
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private DataSource dataSource;
 
+
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
@@ -119,8 +121,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 // 授权配置 无需认证的请求路径
-                .antMatchers("/toLogin", "/user/register", "/user/sendRegisterEmail", "/valid/userinfo", "/ai/faceLogin", "/userAdd",
-                        "/login.html", "/code/image", "/code/sms", "/**/login.css", "**/*.js").permitAll()
+                .antMatchers("/toLogin", "/bsmservice/user/register", "/bsmservice/user/sendRegisterEmail", "/bsmservice/valid/userinfo", "/bsmservice/ai/faceLogin",
+                        "/login.html", "/bsmservice/code/image", "/code/sms", "/**/login.css", "**/*.js").permitAll()
                 .anyRequest()  // 所有请求
                 .authenticated() // 都需要认证
                 .and()
