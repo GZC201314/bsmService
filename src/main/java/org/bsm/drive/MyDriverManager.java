@@ -101,7 +101,7 @@ public class MyDriverManager {
             if (isDriverAllowed(aDriver.driver, callerClass)) {
                 try {
                     if (aDriver.driver.acceptsURL(url)) {
-                        log.info("getDriver returning {} {} {} ", aDriver.driver.getDriveType(), aDriver.driver.getMajorVersion(), aDriver.driver.getMinorVersion());
+                        log.info("getDriver  {} {} {} ", aDriver.driver.getDriveType(), aDriver.driver.getMajorVersion(), aDriver.driver.getMinorVersion());
                         return (aDriver.driver);
                     }
 
@@ -298,11 +298,11 @@ public class MyDriverManager {
 //                    在这边通过驱动类型和版本来获取想要的驱动建立连接
                     if (info.get("driverVersion").equals(aDriver.driver.getVersion()) && info.get("driverType").equals(aDriver.driver.getDriveType())) {
                         con = aDriver.driver.connect(url, info);
-                        log.info("getDriver returning {} {} {} ", aDriver.driver.getDriveType(), aDriver.driver.getMajorVersion(), aDriver.driver.getMinorVersion());
+                        log.info("getDriver  {} {} {} ", aDriver.driver.getDriveType(), aDriver.driver.getMajorVersion(), aDriver.driver.getMinorVersion());
 
                     }
                     if (con != null) {
-                        log.info("getDriver returning DriveType: {} Version: {}", aDriver.driver.getDriveType(), aDriver.driver.getVersion());
+                        log.info("getDriver  DriveType: {} Version: {}", aDriver.driver.getDriveType(), aDriver.driver.getVersion());
                         return (con);
                     }
                 } catch (SQLException ex) {
@@ -325,7 +325,7 @@ public class MyDriverManager {
                     log.info("    trying " + aDriver.driver.getClass().getName());
                     Connection con = aDriver.driver.connect(url, info);
                     if (con != null) {
-                        log.info("getConnection returning " + aDriver.driver.getClass().getName());
+                        log.info("getConnection  " + aDriver.driver.getClass().getName());
                         return (con);
                     }
                 } catch (SQLException ex) {
