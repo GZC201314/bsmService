@@ -86,7 +86,7 @@ public class MyDriverManager {
     }
 
     @CallerSensitive
-    public static Driver getDriver(String url)
+    public static Driver getDriver(String url, String driveVersion, String driveType)
             throws SQLException {
 
         log.info("DriverManager.getDriver(\"" + url + "\")");
@@ -101,7 +101,7 @@ public class MyDriverManager {
             if (isDriverAllowed(aDriver.driver, callerClass)) {
                 try {
                     if (aDriver.driver.acceptsURL(url)) {
-                        log.info("getDriver returning " + aDriver.driver.getClass().getName());
+                        log.info("getDriver returning {} {} {} ", aDriver.driver.getDriveType(), aDriver.driver.getMajorVersion(), aDriver.driver.getMinorVersion());
                         return (aDriver.driver);
                     }
 
@@ -131,6 +131,16 @@ public class MyDriverManager {
 
         /* Register the driver if it has not already been added to our list */
         if (driver != null) {
+
+            //判断是否存在
+            for (DriverInfo driverInfo :
+                    registeredDrivers) {
+                if (driverInfo.driver.getDriveType().equals(driver.getDriveType()) && driverInfo.driver.getVersion().equals(driver.getVersion())) {
+                    log.warn("驱动已经注册,DriveType == {} DriveVersion == {}", driver.getDriveType(), driver.getVersion());
+                    return;
+                }
+            }
+
             registeredDrivers.addIfAbsent(new DriverInfo(driver, da));
         } else {
             // This is for compatibility with the original DriverManager
@@ -288,9 +298,11 @@ public class MyDriverManager {
 //                    在这边通过驱动类型和版本来获取想要的驱动建立连接
                     if (info.get("driverVersion").equals(aDriver.driver.getVersion()) && info.get("driverType").equals(aDriver.driver.getDriveType())) {
                         con = aDriver.driver.connect(url, info);
+                        log.info("getDriver returning {} {} {} ", aDriver.driver.getDriveType(), aDriver.driver.getMajorVersion(), aDriver.driver.getMinorVersion());
+
                     }
                     if (con != null) {
-                        log.info("getConnection returning " + aDriver.driver.getClass().getName());
+                        log.info("getDriver returning DriveType: {} Version: {}", aDriver.driver.getDriveType(), aDriver.driver.getVersion());
                         return (con);
                     }
                 } catch (SQLException ex) {

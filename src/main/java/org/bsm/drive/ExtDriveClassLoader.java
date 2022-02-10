@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
@@ -32,13 +31,11 @@ public class ExtDriveClassLoader extends URLClassLoader {
     protected Map<String, byte[]> classBytesMap = new HashMap<>();
 
 
-    static {
-        ClassLoader.registerAsParallelCapable();
-    }
-
     public ExtDriveClassLoader(URL[] urls, ClassLoader parent) throws IOException {
         super(urls, parent);
-        jarFile = ((JarURLConnection) urls[0].openConnection()).getJarFile();
+        URL url = urls[0];
+        String path = url.getPath();
+        jarFile = new JarFile(path);
         init();
     }
 
@@ -59,7 +56,7 @@ public class ExtDriveClassLoader extends URLClassLoader {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     int bufferSize = 4096;
                     byte[] buffer = new byte[bufferSize];
-                    int bytesNumRead = 0;
+                    int bytesNumRead;
                     while ((bytesNumRead = input.read(buffer)) != -1) {
                         baos.write(buffer, 0, bytesNumRead);
                     }
@@ -89,6 +86,9 @@ public class ExtDriveClassLoader extends URLClassLoader {
                 aClass = loadClass(className);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
+            } catch (RuntimeException e) {
+                log.warn("cannot load " + className);
+                continue;
             }
             cacheClassMap.put(className, aClass);
         }
@@ -113,15 +113,18 @@ public class ExtDriveClassLoader extends URLClassLoader {
         }
         /*如果本类加载器有类该，则先加载本类加载器中的类*/
         if (classBytesMap.get(name) == null) {
-            return super.loadClass(name);
+            try {
+                return super.loadClass(name);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
         } else {
             byte[] classBytes = classBytesMap.get(name);
-            /*TODO 如何判断一个类是否被重复加载,findClass*/
+            /*判断一个类是否被重复加载,findClass*/
 
-            log.warn(name);
             Class<?> aClass = findLoadedClass(name);
             if (aClass != null) {
-                log.warn(name + " =====  " + aClass.getName());
                 return aClass;
             }
             return defineClass(name, classBytes, 0, classBytes.length);

@@ -234,6 +234,12 @@
             <version>1.2.76</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.googlecode.sardine</groupId>
+            <artifactId>sardine</artifactId>
+            <version>146</version>
+        </dependency>
+
     </dependencies>
 
     <build>

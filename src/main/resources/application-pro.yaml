@@ -79,6 +79,8 @@ spring:
     port: 6379
     timeout: 0
     password: BSM:dqVDuuSo+lUNSJbK4YRSdg==
+    lettuce:
+      shutdown-timeout: 400
   mail:
     host: smtp.163.com
     username: gzc201314@163.com
