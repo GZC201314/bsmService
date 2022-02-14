@@ -9,10 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.User;
 import org.bsm.mapper.UserMapper;
-import org.bsm.pagemodel.AipFaceResult;
-import org.bsm.pagemodel.PageUpload;
-import org.bsm.pagemodel.Tpsbresult;
-import org.bsm.pagemodel.Words_result;
+import org.bsm.pagemodel.*;
 import org.bsm.service.IAIService;
 import org.bsm.utils.AIInstance;
 import org.bsm.utils.RedisUtil;
@@ -85,7 +82,17 @@ public class AIServiceImpl implements IAIService {
         Encoder encoder = Base64.getEncoder();
         AipFace aipFace = AIInstance.getFaceInstance(FACE_APP_ID, FACE_API_KEY, FACE_SECRET_KEY);
         org.json.JSONObject resultJson = aipFace.search(encoder.encodeToString(pageUpload.getFile().getBytes()), "BASE64", "test", null);
-        return JSONObject.parseObject(resultJson.toString(), AipFaceResult.class);
+        AipFaceResult aipFaceResult = JSONObject.parseObject(resultJson.toString(), AipFaceResult.class);
+
+        if (aipFaceResult.getError_code() == 0) {
+            if (aipFaceResult.getResult() != null && aipFaceResult.getResult().getUser_list() != null && aipFaceResult.getResult().getUser_list().get(0) != null) {
+                User_list user_list = aipFaceResult.getResult().getUser_list().get(0);
+                if (user_list.getScore() >= 80) {
+                    return aipFaceResult;
+                }
+            }
+        }
+        return null;
     }
 
 

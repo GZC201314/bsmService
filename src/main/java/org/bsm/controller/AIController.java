@@ -85,107 +85,110 @@ public class AIController {
         log.info("into the faceLogin function");
         try {
             AipFaceResult aipFaceResult = aiService.facelogin(pageUpload);
-            if (aipFaceResult != null && aipFaceResult.getError_code() == 0) {
+            if (aipFaceResult != null) {
                 // 根据人脸识别的结果查询本地是否有用户记录,如果有的话,直接登录
                 String username = aipFaceResult.getResult().getUser_list().get(0).getUser_id();
                 double score = aipFaceResult.getResult().getUser_list().get(0).getScore();
-                // 如果在人脸库中找到了记录,并且匹配度达到了70%以上,允许该用户登录
-                if (score >= 70) {
-                    final Date expirationDate = new Date(System.currentTimeMillis() + Constants.EXPIRATION * 1000);
-                    String token = Jwts.builder()
-                            .setSubject(username)
-                            .setIssuedAt(new Date())
-                            .setExpiration(expirationDate)
-                            .signWith(SignatureAlgorithm.HS512, Constants.SECRET)
-                            .compact();
-                    response.setHeader("token", token);
-                    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-                    queryWrapper.eq("username", username);
-                    User user = userService.getOne(queryWrapper);
-                    if (user != null) {
-                        /*接入spring security */
-                        SecurityContext context = SecurityContextHolder.getContext();
-                        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                        QueryWrapper<Role> roleWrapper = new QueryWrapper<>();
-                        roleWrapper.eq("roleid", user.getRoleid());
-                        Role role = roleService.getOne(roleWrapper);
-                        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority("ROLE_" + role.getRolename());
-                        authorities.add(simpleGrantedAuthority);
-                        context.setAuthentication(new
-                                UsernamePasswordAuthenticationToken(user, user.getPassword() + "&" + user.getSalt(), authorities));
-                        request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", context);
+                final Date expirationDate = new Date(System.currentTimeMillis() + Constants.EXPIRATION * 1000);
+                String token = Jwts.builder()
+                        .setSubject(username)
+                        .setIssuedAt(new Date())
+                        .setExpiration(expirationDate)
+                        .signWith(SignatureAlgorithm.HS512, Constants.SECRET)
+                        .compact();
+                response.setHeader("token", token);
+                QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("username", username);
+                User user = userService.getOne(queryWrapper);
+                if (user != null) {
+                    /*接入spring security */
+                    SecurityContext context = SecurityContextHolder.getContext();
+                    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                    QueryWrapper<Role> roleWrapper = new QueryWrapper<>();
+                    roleWrapper.eq("roleid", user.getRoleid());
+                    Role role = roleService.getOne(roleWrapper);
+                    SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority("ROLE_" + role.getRolename());
+                    authorities.add(simpleGrantedAuthority);
+                    context.setAuthentication(new
+                            UsernamePasswordAuthenticationToken(user, user.getPassword() + "&" + user.getSalt(), authorities));
+                    request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", context);
 
-                        redisUtil.del(user.getUsername());
-                        redisUtil.hset(user.getUsername(), "token", token, 60 * 10);
-                        redisUtil.hset(user.getUsername(), "role", role.getRolename(), 60 * 10);
-                        redisUtil.hset(user.getUsername(), "isFaceValid", user.getIsfacevalid(), 60 * 10);
+                    String sessionId = request.getSession().getId();
+                    redisUtil.del(sessionId);
+                    redisUtil.hset(sessionId, "token", token, 60 * 300);
+                    redisUtil.hset(sessionId, "username", user.getUsername(), 60 * 300);
+                    redisUtil.hset(sessionId, "role", role.getRolename(), 60 * 300);
+                    redisUtil.hset(sessionId, "isFaceValid", false, 60 * 300);
 
+                    JSONObject reJson = new JSONObject();
+                    List<PageMenu> parentList = new ArrayList<>();
 
-                        User reUser = new User();
-                        reUser.setUsername(username);
-                        reUser.setUsericon(user.getUsericon());
-                        JSONObject reJson = new JSONObject();
-                        reJson.put("userinfo", reUser);
-                        JSONObject menuJson = new JSONObject();
-                        Set<Object> authorizeds = redisUtil.sGet(role.getRolename());
-                        Set<PageMenu> pageMenuSet = new HashSet<>();
-                        List<PageMenu> parentList = new ArrayList<>();
-                        Map<String, List<PageMenu>> map = new HashMap<>();
-                        assert authorizeds != null;
-                        for (Object authorized : authorizeds) {
-                            Authorize authorize = (Authorize) authorized;
-                            if (!StringUtils.hasText(authorize.getPagepath())) {
-                                PageMenu pageMenu = new PageMenu();
-                                QueryWrapper<Pages> queryWrapper1 = new QueryWrapper<>();
-                                queryWrapper1.eq("pageid", authorize.getPageid());
-                                Pages pages = pagesService.getOne(queryWrapper1);
-                                BeanUtils.copyProperties(pages, pageMenu);
-                                pageMenu.setId(pages.getPagekey());
-                                pageMenu.setName(pages.getTitle());
-                                pageMenu.setPath(pages.getPagepath());
-                                pageMenu.setOrderid(pages.getOrderid());
-                                parentList.add(pageMenu);
-                            } else {
-                                /*如果是二级菜单,找到他的父节点*/
-                                PageMenu pageMenu = new PageMenu();
-                                QueryWrapper<Pages> queryWrapper1 = new QueryWrapper<>();
-                                queryWrapper1.eq("pageid", authorize.getPageid());
-                                Pages pages = pagesService.getOne(queryWrapper1);
-                                BeanUtils.copyProperties(pages, pageMenu);
-                                pageMenu.setId(pages.getPagekey());
-                                pageMenu.setName(pages.getTitle());
-                                pageMenu.setPath(pages.getPagepath());
-                                if (map.containsKey(pages.getParentkey())) {
-                                    map.get(pages.getParentkey()).add(pageMenu);
-                                } else {
-                                    List<PageMenu> children = new ArrayList<PageMenu>();
-                                    children.add(pageMenu);
-                                    map.put(pages.getParentkey(), children);
-                                }
-                            }
-                        }
-
-                        for (PageMenu parent : parentList) {
-                            parent.setChildren(map.get(parent.getId()));
-                        }
-                        
-                        parentList.sort((o1, o2) -> o1.getOrderid() - o2.getOrderid());
+                    getAuthPages(username, user, role, reJson, parentList);
 
 
-                        /*在这边拼装menuJson*/
-                        reJson.put("menulist", JSONObject.toJSON(parentList).toString());
-                        return Response.makeOKRsp("人脸识别登录成功").setData(reJson);
-                    } else {
-                        Response.makeErrRsp("没有在数据库中找到你的记录,请先注册!");
-                    }
+                    /*在这边拼装menuJson*/
+                    reJson.put("menulist", JSONObject.toJSON(parentList).toString());
+                    return Response.makeOKRsp("人脸识别登录成功").setData(reJson);
                 } else {
-                    Response.makeErrRsp("没有在人脸库中找到你的记录,请先添加你的记录!");
+                    Response.makeErrRsp("没有在数据库中找到你的记录,请先注册!");
                 }
+            } else {
+                Response.makeErrRsp("没有在人脸库中找到你的记录,请先注册!");
             }
         } catch (Exception e) {
             log.error(e.getMessage());
         }
         return Response.makeErrRsp("人脸识别登录失败");
+    }
+
+    private void getAuthPages(String username, User user, Role role, JSONObject reJson, List<PageMenu> parentList) {
+        User reUser = new User();
+        reUser.setUsername(username);
+        reUser.setUsericon(user.getUsericon());
+        reJson.put("userinfo", reUser);
+        JSONObject menuJson = new JSONObject();
+        Set<Object> authorizeds = redisUtil.sGet(role.getRolename());
+        Set<PageMenu> pageMenuSet = new HashSet<>();
+        Map<String, List<PageMenu>> map = new HashMap<>();
+        assert authorizeds != null;
+        for (Object authorized : authorizeds) {
+            Authorize authorize = (Authorize) authorized;
+            if (!StringUtils.hasText(authorize.getPagepath())) {
+                PageMenu pageMenu = new PageMenu();
+                QueryWrapper<Pages> queryWrapper1 = new QueryWrapper<>();
+                queryWrapper1.eq("pageid", authorize.getPageid());
+                Pages pages = pagesService.getOne(queryWrapper1);
+                BeanUtils.copyProperties(pages, pageMenu);
+                pageMenu.setId(pages.getPagekey());
+                pageMenu.setName(pages.getTitle());
+                pageMenu.setPath(pages.getPagepath());
+                pageMenu.setOrderid(pages.getOrderid());
+                parentList.add(pageMenu);
+            } else {
+                /*如果是二级菜单,找到他的父节点*/
+                PageMenu pageMenu = new PageMenu();
+                QueryWrapper<Pages> queryWrapper1 = new QueryWrapper<>();
+                queryWrapper1.eq("pageid", authorize.getPageid());
+                Pages pages = pagesService.getOne(queryWrapper1);
+                BeanUtils.copyProperties(pages, pageMenu);
+                pageMenu.setId(pages.getPagekey());
+                pageMenu.setName(pages.getTitle());
+                pageMenu.setPath(pages.getPagepath());
+                if (map.containsKey(pages.getParentkey())) {
+                    map.get(pages.getParentkey()).add(pageMenu);
+                } else {
+                    List<PageMenu> children = new ArrayList<PageMenu>();
+                    children.add(pageMenu);
+                    map.put(pages.getParentkey(), children);
+                }
+            }
+        }
+
+        for (PageMenu parent : parentList) {
+            parent.setChildren(map.get(parent.getId()));
+        }
+
+        parentList.sort((o1, o2) -> o1.getOrderid() - o2.getOrderid());
     }
 
     @ApiOperation("人脸识别注册接口")

@@ -43,7 +43,7 @@ public class GenerateCode {
      * 策略配置
      */
     private StrategyConfig.Builder strategyConfig() {
-        return new StrategyConfig.Builder().addInclude("datasource"); // 设置需要生成的表名
+        return new StrategyConfig.Builder().addInclude("doubanbook"); // 设置需要生成的表名
     }
 
     /**

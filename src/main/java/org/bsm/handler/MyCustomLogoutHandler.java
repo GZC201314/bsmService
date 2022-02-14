@@ -33,6 +33,5 @@ public class MyCustomLogoutHandler implements LogoutHandler {
         //清空redis中的session信息
         String sessionId = request.getSession().getId();
         redisUtil.del(sessionId);
-        log.info("username: {}  is offline now", username);
     }
 }
