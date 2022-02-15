@@ -2,6 +2,7 @@ package org.bsm.controller;
 
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.io.FileUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * <p>
@@ -53,12 +55,14 @@ public class GiteeUploadController {
             MultipartFile file = pageUpload.getFile();
             /*生成文件地址*/
             String fileName = file.getOriginalFilename();
+            String suffix = FileUtil.getSuffix(fileName);
             if (!StringUtils.hasText(fileName)) {
                 return Response.makeErrRsp("文件上传失败");
             }
 
+            String uuid = UUID.randomUUID().toString();
             pageGiteeApiCaller.setOwner("GZC201314");
-            pageGiteeApiCaller.setPath("BSM/doubanbook/" + fileName);
+            pageGiteeApiCaller.setPath("BSM/doubanbook/" + uuid + "." + suffix);
             pageGiteeApiCaller.setRepo("tuchuang");
             // 判断gitee 中是否已经存在了该驱动，如果存在了，则直接返回改驱动的url地址
             String fileUrl = giteeService.getFile(pageGiteeApiCaller);
