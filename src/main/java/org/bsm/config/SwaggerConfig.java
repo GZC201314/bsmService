@@ -37,15 +37,15 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         // 作者信息
-        Contact contact = new Contact("GZC", "http://www.bookstoremanager.top", "gzc201314@163.com");
+        Contact contact = new Contact("GZC", "https://www.bookstoremanager.top", "gzc201314@163.com");
         return new ApiInfo(
                 "BSM API 文档",
                 "BSM 是一个集成react和springboot的小项目.麻雀虽小,五脏俱全",
                 "1.0.0",
-                "http://www.bookstoremanager.top",
+                "https://www.bookstoremanager.top",
                 contact,
                 "Apache 2.0",
-                "http://www.apache.org/licenses/LICENSE-2.0",
+                "https://www.apache.org/licenses/LICENSE-2.0",
                 new ArrayList());
     }
 

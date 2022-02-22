@@ -64,4 +64,10 @@ public class Constants {
             this.code = code;
         }
     }
+
+    // 周期任务
+    public static int REPEAT_TASK = 0;
+    //非周期任务
+    public static int NO_REPEAT_TASK = 1;
+
 }

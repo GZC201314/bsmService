@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
+import java.util.Date;
 
 /**
  * @author GZC
@@ -16,6 +16,11 @@ import java.util.Map;
 @NoArgsConstructor
 public class PageTask {
     /**
+     * 任务类型 0 cycleType,1 oneTimeTask
+     */
+    private int taskType;
+
+    /**
      * 定时任务Key
      */
     private String jobKey;
@@ -25,10 +30,20 @@ public class PageTask {
      */
 
     private String group;
+
+    /**
+     * 定时任务全类名
+     */
+
+    private String jobClass;
     /**
      * 定时任务描述
      */
     private String jobDescription;
+    /**
+     * 定时任务触发器描述
+     */
+    private String triggerDescription;
     /**
      * cron 表达式
      */
@@ -38,6 +53,25 @@ public class PageTask {
      */
     private String triggerGroup;
     /**
+     * 任务开始时间
+     */
+
+    /**
+     * 任务重复次数
+     */
+    private int repeatCount;
+    /**
+     * 任务间隔时间
+     */
+    private int intervalTime;
+
+    private Date startDate;
+    /**
+     * 任务开始时间
+     */
+    private Date endDate;
+
+    /**
      * 触发器名字
      */
     private String triggerName;
@@ -46,7 +80,7 @@ public class PageTask {
     /**
      * 任务参数
      */
-    private Map<String, Object> jobDataMap;
+    private Param[] mapData;
 
 
     /**

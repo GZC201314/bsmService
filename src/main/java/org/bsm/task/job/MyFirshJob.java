@@ -2,6 +2,7 @@ package org.bsm.task.job;
 
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -21,8 +22,11 @@ public class MyFirshJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext context) {
         try {
             Thread.sleep(2000);
+            /*获取定时任务的参数*/
+            JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
             log.info(context.getScheduler().getSchedulerInstanceId());
             log.info("taskname= {}", context.getJobDetail().getKey().getName());
+            log.info("taskDataMap= {}", jobDataMap.get("key"));
             log.info("执行时间= {}", new Date());
         } catch (Exception e) {
             log.error(e.getMessage());

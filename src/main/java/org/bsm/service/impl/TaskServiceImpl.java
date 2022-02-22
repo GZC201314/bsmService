@@ -5,19 +5,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.bsm.pagemodel.Page;
 import org.bsm.pagemodel.PageObject;
 import org.bsm.pagemodel.PageTask;
+import org.bsm.pagemodel.Param;
 import org.bsm.service.ITaskService;
-import org.bsm.task.job.MyFirshJob;
+import org.bsm.utils.Constants;
 import org.bsm.utils.MyPageUtil;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author GZC
@@ -30,6 +31,9 @@ public class TaskServiceImpl implements ITaskService {
 
     @Autowired
     private Scheduler scheduler;
+
+    @Autowired
+    private SchedulerFactoryBean schedulerFactoryBean;
 
     /**
      * 获取分页的定时任务信息
@@ -61,8 +65,12 @@ public class TaskServiceImpl implements ITaskService {
                         TriggerKey triggerKey = trigger.getKey();
                         taskInfo.put("triggerName", triggerKey.getName());
                         taskInfo.put("triggerGroup", triggerKey.getGroup());
-                        taskInfo.put("previousFireTime", simpleDateFormat.format(trigger.getPreviousFireTime()));
-                        taskInfo.put("nextFireTime", simpleDateFormat.format(trigger.getNextFireTime()));
+                        if (trigger.getPreviousFireTime() != null) {
+                            taskInfo.put("previousFireTime", simpleDateFormat.format(trigger.getPreviousFireTime()));
+                        }
+                        if (trigger.getNextFireTime() != null) {
+                            taskInfo.put("nextFireTime", simpleDateFormat.format(trigger.getNextFireTime()));
+                        }
                         if (trigger instanceof CronTrigger) {
                             CronTrigger cronTrigger = (CronTrigger) trigger;
                             taskInfo.put("cron", cronTrigger.getCronExpression());
@@ -75,8 +83,9 @@ public class TaskServiceImpl implements ITaskService {
             return MyPageUtil.getPageObject(taskList, pageSize, pageNo);
         } catch (SchedulerException e) {
             log.error(e.getMessage());
+
         }
-        return new PageObject<>();
+        return MyPageUtil.getPageObject(taskList, pageSize, pageNo);
     }
 
     /**
@@ -84,7 +93,25 @@ public class TaskServiceImpl implements ITaskService {
      */
     @Override
     public boolean deleteTasks(PageTask pageTask) {
-        return false;
+        String[] jobKeyArr = pageTask.getDelIds().split(",");
+        boolean result = false;
+        List<JobKey> jobKeyList = new ArrayList<>();
+        for (String jobKeyString :
+                jobKeyArr) {
+            String[] jobKeyInfo = jobKeyString.split("\\.");
+            String jobName = jobKeyInfo[0];
+            String groupName = jobKeyInfo[1];
+            JobKey jobKey = new JobKey(jobKeyString, groupName);
+            jobKeyList.add(jobKey);
+        }
+        try {
+            result = scheduler.deleteJobs(jobKeyList);
+        } catch (SchedulerException e) {
+            log.error(e.getMessage());
+        }
+
+
+        return result;
     }
 
     /**
@@ -134,39 +161,95 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     /**
+     * 校验定时任务Key
+     *
+     * @param pageTask
+     */
+    @Override
+    public boolean validateJobKey(PageTask pageTask) {
+
+
+        String[] jobKey = pageTask.getJobKey().split("\\.");
+
+
+        String jobName = pageTask.getJobKey();
+        String groupKey = jobKey[1];
+        JobKey jobKey1 = new JobKey(jobName, groupKey);
+        boolean checkExists = false;
+        try {
+            checkExists = scheduler.checkExists(jobKey1);
+        } catch (SchedulerException e) {
+            log.error(e.getMessage());
+        }
+
+        return checkExists;
+    }
+
+    /**
      * 新增定时任务
      */
     @Override
     public String addTask(PageTask pageTask) {
-
-        //设置触发器
-        TriggerKey triggerKey = new TriggerKey(pageTask.getTriggerName(), pageTask.getTriggerGroup());
-        JobKey jobKey = new JobKey(pageTask.getJobKey(), pageTask.getGroup());
+        //设置触发器信息，默认和job的key和group一致
+        String[] jobKeyArr = pageTask.getJobKey().split("\\.");
+        String jobName = jobKeyArr[0];
+        String groupName = jobKeyArr[1];
+        TriggerKey triggerKey = new TriggerKey(jobName, groupName);
+        JobKey jobKey = new JobKey(pageTask.getJobKey(), groupName);
         try {
             Trigger trigger = scheduler.getTrigger(triggerKey);
 
             JobDataMap jobDataMap = new JobDataMap();
-            Map<String, Object> jobDataMap1 = pageTask.getJobDataMap();
-            Set<Map.Entry<String, Object>> entries = jobDataMap1.entrySet();
-            for (Map.Entry<String, Object> entry : entries) {
-                jobDataMap.put(entry.getKey(), entry.getValue());
+            Param[] mapData = pageTask.getMapData();
+            if (mapData != null) {
+                for (Param param :
+                        mapData) {
+                    jobDataMap.put(param.getKey(), param.getValue());
+                }
             }
 
+
+            SimpleScheduleBuilder simpleScheduleBuilder = null;
             if (trigger == null) {
-                trigger = TriggerBuilder.newTrigger()
+                TriggerBuilder<Trigger> triggerTriggerBuilder = TriggerBuilder.newTrigger()
                         .withIdentity(triggerKey)
-                        .withDescription("每十秒调度一次")
-                        //设置调度器，每十秒调度一次
-                        .withSchedule(CronScheduleBuilder.cronSchedule("0/10 * * * * ?"))
-                        .build();
+                        .withDescription(pageTask.getTriggerDescription());
+                //如果是周期任务
+                if (pageTask.getTaskType() == Constants.REPEAT_TASK) {
+                    if (StringUtils.hasText(pageTask.getCron())) {
+                        triggerTriggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(pageTask.getCron()));
+                    }
+                } else {//如果是非周期任务
+
+                    /*设置重复执行的次数，重复次数不包括第一次执行的次数*/
+
+                    // 如果任务的执行次数大于1，则需要设置间隔时间
+                    if (pageTask.getRepeatCount() > 0) {
+                        /*前台把时间全部转化成秒*/
+                        simpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withRepeatCount(pageTask.getRepeatCount()).withIntervalInSeconds(pageTask.getIntervalTime());
+                    } else {
+                        simpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withRepeatCount(pageTask.getRepeatCount());
+                    }
+                    triggerTriggerBuilder.withSchedule(simpleScheduleBuilder);
+                }
+
+                // 设置任务的开始时间和结束时间
+                if (pageTask.getStartDate() != null && pageTask.getEndDate() != null) {
+                    trigger = triggerTriggerBuilder.startAt(pageTask.getStartDate()).endAt(pageTask.getEndDate())
+                            .build();
+                } else if (pageTask.getStartDate() != null) {
+                    trigger = triggerTriggerBuilder.startAt(pageTask.getStartDate()).build();
+
+                } else {
+                    trigger = triggerTriggerBuilder.build();
+                }
                 /*设置作业*/
-                JobDetail jobDetail = JobBuilder.newJob(MyFirshJob.class)
+                JobDetail jobDetail = JobBuilder.newJob((Class<? extends Job>) Class.forName(pageTask.getJobClass()))
                         .withIdentity(jobKey)
                         .setJobData(jobDataMap)
-                        .withDescription("This is My First Quartz Job.")
+                        .withDescription(pageTask.getJobDescription())
                         .build();
                 scheduler.scheduleJob(jobDetail, trigger);
-                scheduler.start();
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -180,7 +263,16 @@ public class TaskServiceImpl implements ITaskService {
      */
     @Override
     public boolean stopAllTask(PageTask pageTask) {
-        return false;
+        try {
+            if (scheduler.isStarted()) {
+                scheduler.standby();
+            }
+        } catch (SchedulerException e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -188,6 +280,16 @@ public class TaskServiceImpl implements ITaskService {
      */
     @Override
     public boolean startAllTask(PageTask pageTask) {
-        return false;
+        try {
+            if (scheduler.isShutdown()) {
+                this.scheduler = schedulerFactoryBean.getScheduler();
+                this.scheduler.start();
+            }
+        } catch (SchedulerException e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }

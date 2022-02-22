@@ -23,6 +23,11 @@ public interface ITaskService {
     public JSONObject getTaskInfo(PageTask pageTask);
 
     /**
+     * 校验定时任务Key
+     */
+    public boolean validateJobKey(PageTask pageTask);
+
+    /**
      * 新增定时任务
      */
     public String addTask(PageTask pageTask);
