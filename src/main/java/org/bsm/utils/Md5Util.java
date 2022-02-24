@@ -1,7 +1,10 @@
 package org.bsm.utils;
 
-import sun.misc.BASE64Encoder;
+//import sun.misc.BASE64Encoder;
 
+import cn.hutool.core.codec.Base64Encoder;
+
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Random;
 
@@ -12,12 +15,10 @@ import java.util.Random;
  */
 public class Md5Util {
     private static final MessageDigest md;
-    private static final BASE64Encoder b64Encoder;
 
     static {
         try {
             md = MessageDigest.getInstance("MD5", "SUN");
-            b64Encoder = new BASE64Encoder();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -35,7 +36,7 @@ public class Md5Util {
         boolean ok = false;
 
         try {
-            byte[] saltBys = storePasswd.substring(0, 2).getBytes("UTF-8");
+            byte[] saltBys = storePasswd.substring(0, 2).getBytes(StandardCharsets.UTF_8);
             String inPwd = toPasswd(inputPasswd, saltBys);
             ok = inPwd.equals(storePasswd);
         } catch (Exception ex) {
@@ -70,11 +71,11 @@ public class Md5Util {
         try {
             md.reset();
             md.update(salt);
-            md.update(inputPasswd.getBytes("UTF-8"));
+            md.update(inputPasswd.getBytes(StandardCharsets.UTF_8));
             byte[] bys = md.digest();
             pwd += (char) salt[0];
             pwd += (char) salt[1];
-            pwd += b64Encoder.encode(bys);
+            pwd += Base64Encoder.encode(bys);
         } catch (Exception ex) {
             ex.printStackTrace();
             pwd = "";

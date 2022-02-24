@@ -1,6 +1,7 @@
 package org.bsm.service.impl;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.codec.Base64Decoder;
 import cn.hutool.core.codec.Base64Encoder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -152,8 +152,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      */
     @Override
     public boolean validateUserPassword(PageUser pageUser) throws IOException {
-        String password = pageUser.getPassword();
         String username = pageUser.getUsername();
+        String password = pageUser.getPassword();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", username);
         User user = userMapper.selectOne(queryWrapper);
@@ -161,8 +161,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             return false;
         }
         String salt = user.getSalt();
-        BASE64Decoder decode = new BASE64Decoder();
-        byte[] saltBytes = decode.decodeBuffer(salt);
+        byte[] saltBytes = Base64Decoder.decode(salt);
         String toPasswd = Md5Util.toPasswd(password, saltBytes);
         return toPasswd.equals(user.getPassword());
     }

@@ -120,4 +120,10 @@ server:
         keep-alive: 60
       # 线程池的前缀名称
       thread-name-prefix: BSM-task
-
+# flowable 配置信息
+flowable:
+  datasource:
+    url: mpw:xKb8dKZzE7E9xygKB0B7H2gMQaGfE/+8r6vjkBqN7/ZqmbsI8LafwOK7VYEBA1MpoSW/hazwB1/WJYBuU+XdFZzN55rEcRMyud4mUCCUgIIjoZdZayhVXITIB0FTrQrm
+    username: mpw:uHqOZVe2JrjJQT7KTCLImA==
+    password: mpw:VMdY+m3qH+xaTIhPNcYkjg==
+    driver-class-name: com.mysql.cj.jdbc.Driver

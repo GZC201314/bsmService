@@ -16,6 +16,7 @@ public class MyPasswordEncoder implements PasswordEncoder {
     @Override
     public String encode(CharSequence rawPassword) {
         log.info("开始加密用户密码.");
+
         return Md5Util.toPasswd((String) rawPassword);
     }
 
