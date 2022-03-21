@@ -67,10 +67,10 @@ public class AIController {
 
     @ApiOperation("图像文字识别接口")
     @PostMapping(value = "ocr", consumes = "multipart/*", headers = "content-type=multipart/form-data")
-    public ResponseResult<Object> orc(PageUpload pageUpload) {
+    public ResponseResult<Object> orc(PageUpload pageUpload, HttpServletResponse response) {
         log.info("into the ocr function");
         try {
-            String result = aiService.ocr(pageUpload);
+            String result = aiService.ocr(pageUpload,response);
             return Response.makeOKRsp("图片识别成功").setData(result);
         } catch (Exception e) {
             log.error(e.getMessage());
