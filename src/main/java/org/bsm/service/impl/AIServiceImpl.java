@@ -1,6 +1,7 @@
 package org.bsm.service.impl;
 
 
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baidu.aip.face.AipFace;
 import com.baidu.aip.ocr.AipOcr;
@@ -17,7 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Base64.Encoder;
@@ -39,8 +43,7 @@ public class AIServiceImpl implements IAIService {
     RedisUtil redisUtil;
 
     @Override
-    public String ocr(PageUpload pageUpload) {
-        log.info("ocr 接口开始执行");
+    public String ocr(PageUpload pageUpload, HttpServletResponse response) {
         StringBuilder result = new StringBuilder();
         if (pageUpload.getFile() != null) {
             // 保存
@@ -69,6 +72,36 @@ public class AIServiceImpl implements IAIService {
                 log.error(e.toString());
             }
         }
+
+        /*输出流到前台*/
+//        try {
+//            String fileName = "ocr.txt";
+//
+//            File directory = new File("");//参数为空
+//
+//            String path = directory.getAbsolutePath();
+//            File file=new File(path+"/"+fileName);
+//            FileUtil.writeBytes(result.toString().getBytes(),file);
+//            InputStream inputStream=new BufferedInputStream(new FileInputStream(file));
+//            response.setContentType("application/octet-stream");
+//
+//            response.setHeader("content-disposition","attachment;filename*=UTF-8''" + URLEncoder.encode(fileName, "UTF-8"));
+//            response.addHeader("Access-Control-Expose-Headers","fileName");
+//            response.addHeader("fileName", URLEncoder.encode(fileName, "UTF-8"));
+//            response.setCharacterEncoding("UTF-8");
+//            ServletOutputStream servletOutputStream = response.getOutputStream();
+//            int len;
+//            byte[] buffer = new byte[1024];
+//            while ((len = inputStream.read(buffer)) > 0) {
+//                servletOutputStream.write(buffer, 0, len);
+//            }
+//            servletOutputStream.flush();
+//            inputStream.close();
+//            servletOutputStream.close();
+//            file.delete();
+//        } catch (Exception e) {
+//            log.error(e.getMessage());
+//        }
 
         return result.toString();
     }
