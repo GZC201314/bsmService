@@ -69,5 +69,7 @@ public class Constants {
     public static int REPEAT_TASK = 0;
     //非周期任务
     public static int NO_REPEAT_TASK = 1;
+    /*redis config key*/
+    public static String BSM_CONFIG = "bsm_config";
 
 }
