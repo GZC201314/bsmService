@@ -71,5 +71,13 @@ public class Constants {
     public static int NO_REPEAT_TASK = 1;
     /*redis config key*/
     public static String BSM_CONFIG = "bsm_config";
+    public static String OCR_APP_ID = "OCR_APP_ID";
+    public static String OCR_API_KEY = "OCR_API_KEY";
+    public static String OCR_SECRET_KEY = "OCR_SECRET_KEY";
+    public static String FACE_APP_ID = "FACE_APP_ID";
+    public static String FACE_API_KEY = "FACE_API_KEY";
+    public static String FACE_SECRET_KEY = "FACE_SECRET_KEY";
+
+    public static String GITEE_ACCESS_TOKEN = "GITEE_ACCESS_TOKEN";
 
 }

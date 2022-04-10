@@ -1,7 +1,6 @@
 package org.bsm.service.impl;
 
 
-import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baidu.aip.face.AipFace;
 import com.baidu.aip.ocr.AipOcr;
@@ -13,15 +12,14 @@ import org.bsm.mapper.UserMapper;
 import org.bsm.pagemodel.*;
 import org.bsm.service.IAIService;
 import org.bsm.utils.AIInstance;
+import org.bsm.utils.Constants;
 import org.bsm.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.net.URLEncoder;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Base64.Encoder;
@@ -49,10 +47,13 @@ public class AIServiceImpl implements IAIService {
             // 保存
             try {
                 // 初始化一个AipOcr
-                String OCR_APP_ID = (String) redisUtil.get("OCR_APP_ID");
-                String OCR_API_KEY = (String) redisUtil.get("OCR_API_KEY");
-                String OCR_SECRET_KEY = (String) redisUtil.get("OCR_SECRET_KEY");
-                AipOcr client = AIInstance.getOcrInstance(OCR_APP_ID, OCR_API_KEY, OCR_SECRET_KEY);
+                Map<Object, Object> configMap = redisUtil.hmget(Constants.BSM_CONFIG);
+
+
+                String ocrAppId = (String) configMap.get(Constants.OCR_APP_ID);
+                String ocrApiKey = (String) configMap.get(Constants.OCR_API_KEY);
+                String ocrSecretKey = (String) configMap.get(Constants.OCR_SECRET_KEY);
+                AipOcr client = AIInstance.getOcrInstance(ocrAppId, ocrApiKey, ocrSecretKey);
 
                 if (client != null) {
                     // 调用接口
@@ -109,11 +110,14 @@ public class AIServiceImpl implements IAIService {
 
     @Override
     public AipFaceResult facelogin(PageUpload pageUpload) throws IOException {
-        String FACE_APP_ID = (String) redisUtil.get("FACE_APP_ID");
-        String FACE_API_KEY = (String) redisUtil.get("FACE_API_KEY");
-        String FACE_SECRET_KEY = (String) redisUtil.get("FACE_SECRET_KEY");
+
+        Map<Object, Object> configMap = redisUtil.hmget(Constants.BSM_CONFIG);
+
+        String faceAppId = (String) configMap.get(Constants.FACE_APP_ID);
+        String faceApiKey = (String) configMap.get(Constants.FACE_API_KEY);
+        String faceSecretKey = (String) configMap.get(Constants.FACE_SECRET_KEY);
         Encoder encoder = Base64.getEncoder();
-        AipFace aipFace = AIInstance.getFaceInstance(FACE_APP_ID, FACE_API_KEY, FACE_SECRET_KEY);
+        AipFace aipFace = AIInstance.getFaceInstance(faceAppId, faceApiKey, faceSecretKey);
         org.json.JSONObject resultJson = aipFace.search(encoder.encodeToString(pageUpload.getFile().getBytes()), "BASE64", "test", null);
         AipFaceResult aipFaceResult = JSONObject.parseObject(resultJson.toString(), AipFaceResult.class);
 
@@ -132,11 +136,12 @@ public class AIServiceImpl implements IAIService {
     @Override
     public boolean faceReg(PageUpload pageUpload) throws IOException {
 
-        String FACE_APP_ID = (String) redisUtil.get("FACE_APP_ID");
-        String FACE_API_KEY = (String) redisUtil.get("FACE_API_KEY");
-        String FACE_SECRET_KEY = (String) redisUtil.get("FACE_SECRET_KEY");
+        Map<Object, Object> configMap = redisUtil.hmget(Constants.BSM_CONFIG);
+        String faceAppId = (String) configMap.get(Constants.FACE_APP_ID);
+        String faceApiKey = (String) configMap.get(Constants.FACE_API_KEY);
+        String faceSecretKey = (String) configMap.get(Constants.FACE_SECRET_KEY);
 
-        AipFace aipFace = AIInstance.getFaceInstance(FACE_APP_ID, FACE_API_KEY, FACE_SECRET_KEY);
+        AipFace aipFace = AIInstance.getFaceInstance(faceAppId, faceApiKey, faceSecretKey);
         //获取用户的人脸识别信息
         Map<Object, Object> userInfo = redisUtil.hmget(pageUpload.getSessionId());
         String username = (String) userInfo.get("username");
