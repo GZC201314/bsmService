@@ -71,6 +71,7 @@ public class Constants {
     public static int NO_REPEAT_TASK = 1;
     /*redis config key*/
     public static String BSM_CONFIG = "bsm_config";
+    /*config中对应的name*/
     public static String OCR_APP_ID = "OCR_APP_ID";
     public static String OCR_API_KEY = "OCR_API_KEY";
     public static String OCR_SECRET_KEY = "OCR_SECRET_KEY";
