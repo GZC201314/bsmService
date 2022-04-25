@@ -392,6 +392,20 @@
             </exclusions>
         </dependency>
 
+        <!-- AES 加密 需要的bc库-->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15to18</artifactId>
+            <version>1.68</version>
+        </dependency>
+
+        <!--借助Bouncy Castle库可以支持国密算法-->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.60</version>
+        </dependency>
+
     </dependencies>
 
     <build>
