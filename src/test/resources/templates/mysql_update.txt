@@ -1,0 +1,14 @@
+<%
+var keys = "";
+var values = "";
+for(entry in keyValueMap){
+    if(entryLP.last){
+        keys += entry.key;
+        values += entry.value;
+    }else{
+                keys += entry.key+", ";
+                values += entry.value+", ";
+    }
+}
+%>
+update into ${tablename} (${keys}) value (${values});

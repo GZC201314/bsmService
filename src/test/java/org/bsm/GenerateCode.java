@@ -234,7 +234,7 @@
 //    public void testCustomFile() {
 //        // 设置自定义输出文件
 //        Map<String, String> customFile = new HashMap<>();
-//        customFile.put("test.txt", "/templates/test.vm");
+//        customFile.put("insert.txt.txt", "/templates/insert.txt.vm");
 //        AutoGenerator generator = new AutoGenerator(DATA_SOURCE_CONFIG);
 //        generator.strategy(strategyConfig().build());
 //        generator.injection(injectionConfig().customFile(customFile).build());
