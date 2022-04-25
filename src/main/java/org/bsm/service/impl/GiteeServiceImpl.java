@@ -6,6 +6,7 @@ import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.pagemodel.PageGiteeApiCaller;
 import org.bsm.service.IGiteeService;
+import org.bsm.utils.Constants;
 import org.bsm.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.ApiException;
@@ -44,20 +45,11 @@ public class GiteeServiceImpl implements IGiteeService {
         // String | 提交信息
         String message = pageGiteeApiCaller.getMessage();
         /*为了安全，从redis中获取accessToken*/
-        String accessToken = (String) redisUtil.get("GITEE_ACCESS_TOKEN");
-        // String | 分支名称。默认为仓库对默认分支
-        String branch = pageGiteeApiCaller.getBranch();
-        // String | Committer的名字，默认为当前用户的名字
-        String committerName = pageGiteeApiCaller.getCommitterName();
-        // String | Committer的邮箱，默认为当前用户的邮箱
-        String committerEmail = pageGiteeApiCaller.getCommitterEmail();
-        // String | Author的名字，默认为当前用户的名字
-        String authorName = pageGiteeApiCaller.getAuthorName();
-        // String | Author的邮箱，默认为当前用户的邮箱
-        String authorEmail = pageGiteeApiCaller.getAuthorEmail();
+        Map<Object, Object> configMap = redisUtil.hmget(Constants.BSM_CONFIG);
+        String accessToken = (String) configMap.get(Constants.GITEE_ACCESS_TOKEN);
 
         try {
-            Map<String, Object> paramMap = new HashMap<>();
+            Map<String, Object> paramMap = new HashMap<>(16);
             paramMap.put("access_token", accessToken);
             paramMap.put("message", message);
             paramMap.put("content", content);
@@ -72,10 +64,10 @@ public class GiteeServiceImpl implements IGiteeService {
             JSONObject jsonObject = JSONUtil.parseObj(resultJson);
 
             JSONObject resultContent = jsonObject.getJSONObject("content");
-            String download_url = resultContent.getStr("download_url");
-            if (StringUtils.hasText(download_url)) {
-                log.info("文件上传成功，文件的地址是：" + download_url);
-                return download_url;
+            String downloadUrl = resultContent.getStr("download_url");
+            if (StringUtils.hasText(downloadUrl)) {
+                log.info("文件上传成功，文件的地址是：" + downloadUrl);
+                return downloadUrl;
             }
         } catch (ApiException e) {
             e.printStackTrace();
@@ -86,8 +78,6 @@ public class GiteeServiceImpl implements IGiteeService {
 
     /**
      * 判断gitee 图床上是否有对应的文件，如果存在则返回对应文件的Url
-     *
-     * @param pageGiteeApiCaller
      */
     @Override
     public String getFile(PageGiteeApiCaller pageGiteeApiCaller) {
@@ -100,10 +90,11 @@ public class GiteeServiceImpl implements IGiteeService {
         // String | 文件的路径
         String path = pageGiteeApiCaller.getPath();
         /*为了安全，从redis中获取accessToken*/
-        String accessToken = (String) redisUtil.get("GITEE_ACCESS_TOKEN");
+        Map<Object, Object> configMap = redisUtil.hmget(Constants.BSM_CONFIG);
+        String accessToken = (String) configMap.get(Constants.GITEE_ACCESS_TOKEN);
 
         try {
-            Map<String, Object> paramMap = new HashMap<>();
+            Map<String, Object> paramMap = new HashMap<>(16);
             paramMap.put("access_token", accessToken);
 
 
