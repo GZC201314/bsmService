@@ -13,7 +13,6 @@ import cn.hutool.crypto.symmetric.DES;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import com.baomidou.mybatisplus.core.toolkit.Assert;
-import org.bouncycastle.jcajce.provider.symmetric.AES;
 import org.bsm.entity.User;
 import org.bsm.pagemodel.PageUser;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,6 @@ import org.springframework.beans.BeanUtils;
 
 import java.security.KeyPair;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.UUID;
 
 /**
