@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Pages;
 import org.bsm.pagemodel.PagePages;
 import org.bsm.service.IPagesService;
@@ -38,6 +39,7 @@ public class PagesController {
     @Autowired
     IPagesService pageService;
 
+    @StatisticsQPS
     @ApiOperation("获取所有页面接口")
     @GetMapping("/getAllPages")
     public ResponseResult<Object> getAllPages(PagePages pagePages) {
@@ -52,6 +54,7 @@ public class PagesController {
         return Response.makeOKRsp("获取所有的页面成功").setData(roleList);
     }
 
+    @StatisticsQPS
     @ApiOperation("获取所有页面接口(分页)")
     @PostMapping("/getPagePages")
     public ResponseResult<Object> getPagePages(@RequestBody PagePages pagePages) {
@@ -67,6 +70,7 @@ public class PagesController {
         return Response.makeOKRsp("获取所有页面接口(分页)成功").setData(pagesPage);
     }
 
+    @StatisticsQPS
     @ApiOperation("根据pageid获取页面详细信息接口")
     @GetMapping("/getPagesInfo")
     public ResponseResult<Object> getPagesInfo(PagePages pagePages) {
@@ -81,6 +85,7 @@ public class PagesController {
         return Response.makeOKRsp("根据pageid获取页面详细信息成功").setData(pages);
     }
 
+    @StatisticsQPS
     @ApiOperation("校验pageKey的唯一性接口")
     @GetMapping("/pageKeyUnique")
     public ResponseResult<Object> pageKeyUnique(PagePages pagePages) {
@@ -95,6 +100,7 @@ public class PagesController {
         return Response.makeOKRsp("校验pageKey的唯一性成功").setData(count == 0);
     }
 
+    @StatisticsQPS
     @ApiOperation("获取所有的父节点接口")
     @GetMapping("/getparentNode")
     public ResponseResult<Object> getparentNode() {
@@ -105,6 +111,7 @@ public class PagesController {
         return Response.makeOKRsp("所有的父节点信息成功").setData(list);
     }
 
+    @StatisticsQPS
     @ApiOperation("新增页面接口")
     @PostMapping("/addPages")
     public ResponseResult<Object> addPages(@RequestBody PagePages pages) {
@@ -118,6 +125,7 @@ public class PagesController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("修改页面接口")
     @PostMapping("/updatePages")
     public ResponseResult<Object> updatePages(@RequestBody PagePages pages) {
@@ -148,6 +156,7 @@ public class PagesController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("删除页面接口")
     @PostMapping("/deletePages")
     public ResponseResult<Object> deletePages(@RequestBody PagePages pagePages) {

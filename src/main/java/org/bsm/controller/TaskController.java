@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.StatisticsQPS;
 import org.bsm.pagemodel.PageObject;
 import org.bsm.pagemodel.PageTask;
 import org.bsm.service.ITaskService;
@@ -32,7 +33,7 @@ public class TaskController {
     @Autowired
     private ITaskService taskService;
 
-
+    @StatisticsQPS
     @ApiOperation("获取定时任务分页列表接口")
     @PostMapping("/getTaskPageList")
     public ResponseResult<Object> getTaskPageList(@RequestBody PageTask pageTask) {
@@ -44,6 +45,7 @@ public class TaskController {
         return Response.makeOKRsp("获取定时任务分页列表接口成功").setData(allTaskPage);
     }
 
+    @StatisticsQPS
     @ApiOperation("获取定时任务详细信息接口")
     @GetMapping("/getTaskInfo")
     public ResponseResult<Object> getTaskInfo(PageTask pageTask) {
@@ -55,6 +57,7 @@ public class TaskController {
         return Response.makeOKRsp("获取定时任务详细信息接口成功").setData(taskInfo);
     }
 
+    @StatisticsQPS
     @ApiOperation("新增定时任务接口")
     @PostMapping("/addTask")
     public ResponseResult<Object> addTask(@RequestBody PageTask pageTask) {
@@ -66,6 +69,7 @@ public class TaskController {
         return Response.makeOKRsp("获取定时任务分页列表接口成功").setData(nextFireTime);
     }
 
+    @StatisticsQPS
     @ApiOperation("校验定时任务Key接口")
     @GetMapping("/validateJobKey")
     public ResponseResult<Object> validateJobKey(PageTask pageTask) {
@@ -77,6 +81,7 @@ public class TaskController {
         return Response.makeOKRsp("校验定时任务Key接口成功").setData(!checkExists);
     }
 
+    @StatisticsQPS
     @ApiOperation("删除定时任务接口")
     @GetMapping("/deleteTasks")
     public ResponseResult<Object> deleteTasks(PageTask pageTask) {
@@ -88,6 +93,7 @@ public class TaskController {
         return Response.makeOKRsp("删除定时任务接口成功").setData(checkExists);
     }
 
+    @StatisticsQPS
     @ApiOperation("停止所有定时任务接口")
     @GetMapping("/stopAllTasks")
     public ResponseResult<Object> stopAllTasks(PageTask pageTask) {
@@ -96,6 +102,7 @@ public class TaskController {
         return Response.makeOKRsp("停止所有定时任务接口成功").setData(checkExists);
     }
 
+    @StatisticsQPS
     @ApiOperation("启动所有定时任务接口")
     @GetMapping("/startAllTasks")
     public ResponseResult<Object> startAllTasks(PageTask pageTask) {

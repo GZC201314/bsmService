@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Role;
 import org.bsm.pagemodel.PageRole;
 import org.bsm.service.IRoleService;
@@ -35,6 +36,7 @@ public class RoleController {
     @Autowired
     IRoleService roleService;
 
+    @StatisticsQPS
     @ApiOperation("获取所有用户角色接口")
     @GetMapping("/getAllRole")
     public ResponseResult<Object> getAllRole(PageRole pageRole) {
@@ -49,6 +51,7 @@ public class RoleController {
         return Response.makeOKRsp("获取所有的用户角色成功").setData(roleList);
     }
 
+    @StatisticsQPS
     @ApiOperation("获取所有用户角色接口(分页)")
     @PostMapping("/getPageRole")
     public ResponseResult<Object> getPageRole(@RequestBody PageRole pageRole) {
@@ -69,6 +72,7 @@ public class RoleController {
         return Response.makeOKRsp("获取所有的用户角色(分页)成功").setData(rolePage);
     }
 
+    @StatisticsQPS
     @ApiOperation("获取用户角色详细信息接口")
     @GetMapping("/getRoleInfo")
     public ResponseResult<Object> getRoleInfo(PageRole pageRole) {
@@ -83,6 +87,7 @@ public class RoleController {
         return Response.makeOKRsp("获取用户角色详细信息成功").setData(role);
     }
 
+    @StatisticsQPS
     @ApiOperation("新增用户角色接口")
     @PostMapping("/addRole")
     public ResponseResult<Object> addRole(@RequestBody Role pageRole) {
@@ -95,6 +100,7 @@ public class RoleController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("修改用户角色接口")
     @PostMapping("/updateRole")
     public ResponseResult<Object> updateRole(@RequestBody Role pageRole) {
@@ -107,6 +113,7 @@ public class RoleController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("修改用户角色启用状态接口")
     @PostMapping("/updateRoleStatus")
     public ResponseResult<Object> updateRoleStatus(@RequestBody PageRole pageRole) {
@@ -119,6 +126,7 @@ public class RoleController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("删除用户角色接口(逻辑删除)")
     @PostMapping("/deleteRoles")
     public ResponseResult<Object> deleteRoles(@RequestBody PageRole pageRole) {

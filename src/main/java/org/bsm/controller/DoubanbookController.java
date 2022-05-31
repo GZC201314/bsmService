@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Doubanbook;
 import org.bsm.pagemodel.PageDouBanBook;
 import org.bsm.service.IDoubanbookService;
@@ -34,6 +35,7 @@ public class DoubanbookController {
     @Autowired
     IDoubanbookService doubanbookService;
 
+    @StatisticsQPS
     @ApiOperation("获取豆瓣图书接口(分页)")
     @PostMapping("/getPageDouBanBook")
     public ResponseResult<Object> getPageDouBanBook(@RequestBody PageDouBanBook pageDouBanBook) {
@@ -55,6 +57,7 @@ public class DoubanbookController {
         return Response.makeOKRsp("获取豆瓣图书接口(分页)成功").setData(rolePage);
     }
 
+    @StatisticsQPS
     @ApiOperation("根据ISBN,获取豆瓣图书详细信息接口")
     @GetMapping("/getDouBanBookInfo")
     public ResponseResult<Object> getDouBanBookInfo(PageDouBanBook pageDouBanBook) {
@@ -69,6 +72,7 @@ public class DoubanbookController {
         return Response.makeOKRsp("获取豆瓣图书详细信息成功").setData(doubanbook);
     }
 
+    @StatisticsQPS
     @ApiOperation("新增豆瓣图书接口")
     @PostMapping("/addDoubanBook")
     public ResponseResult<Object> addDoubanBook(@RequestBody Doubanbook doubanbook) {
@@ -81,6 +85,7 @@ public class DoubanbookController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("修改豆瓣图书接口")
     @PostMapping("/updateDoubanBook")
     public ResponseResult<Object> DoubanBook(@RequestBody Doubanbook doubanbook) {
@@ -93,6 +98,7 @@ public class DoubanbookController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("删除豆瓣图书接口")
     @PostMapping("/deleteDouBanBook")
     public ResponseResult<Object> deleteDouBanBook(@RequestBody PageDouBanBook pageDouBanBook) {
@@ -111,6 +117,7 @@ public class DoubanbookController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("校验ISBN号是否唯一")
     @GetMapping("/validISBN")
     public ResponseResult<Object> validISBN(PageDouBanBook pageDouBanBook) {

@@ -6,6 +6,7 @@ import cn.hutool.core.io.FileUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.StatisticsQPS;
 import org.bsm.pagemodel.PageGiteeApiCaller;
 import org.bsm.pagemodel.PageUpload;
 import org.bsm.service.IGiteeService;
@@ -40,7 +41,7 @@ public class GiteeUploadController {
     @Autowired
     private IGiteeService giteeService;
 
-
+    @StatisticsQPS
     @ApiOperation("gitee文件上传接口")
     @PostMapping(value = "uploadFile", consumes = "multipart/*", headers = "content-type=multipart/form-data")
     public ResponseResult<Object> uploadFile(PageUpload pageUpload, HttpServletRequest req) {
