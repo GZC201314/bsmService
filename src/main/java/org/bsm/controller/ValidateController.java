@@ -5,6 +5,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.User;
 import org.bsm.pagemodel.PageUser;
 import org.bsm.service.IUserService;
@@ -50,7 +51,7 @@ public class ValidateController {
     @Autowired
     RedisUtil redisUtil;
 
-
+    @StatisticsQPS
     @ApiOperation("验证码生成接口 ")
     @GetMapping("/code/image")
     public void createCode(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -59,6 +60,7 @@ public class ValidateController {
         ImageIO.write(imageCode.getImage(), "jpeg", response.getOutputStream());
     }
 
+    @StatisticsQPS
     @ApiOperation("短信验证码生成接口")
     @GetMapping("/code/sms")
     public void createSmsCode(HttpServletRequest request, String mobile) {
@@ -68,6 +70,7 @@ public class ValidateController {
         System.out.println("您的登录验证码为：" + smsCode.getCode() + "，有效时间为60秒");
     }
 
+    @StatisticsQPS
     @ApiOperation("校验用户信息接口")
     @GetMapping("/valid/userinfo")
     public ResponseResult<Object> validEmailAddress(PageUser pageUser, HttpServletRequest request) throws IOException {

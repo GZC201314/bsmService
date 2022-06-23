@@ -7,6 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Authorize;
 import org.bsm.entity.Pages;
 import org.bsm.entity.Role;
@@ -65,12 +66,13 @@ public class AIController {
     @Autowired
     PagesServiceImpl pagesService;
 
+    @StatisticsQPS
     @ApiOperation("图像文字识别接口")
     @PostMapping(value = "ocr", consumes = "multipart/*", headers = "content-type=multipart/form-data")
     public ResponseResult<Object> orc(PageUpload pageUpload, HttpServletResponse response) {
         log.info("into the ocr function");
         try {
-            String result = aiService.ocr(pageUpload,response);
+            String result = aiService.ocr(pageUpload, response);
             return Response.makeOKRsp("图片识别成功").setData(result);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -79,6 +81,7 @@ public class AIController {
     }
 
     /*, consumes = "multipart/*", headers = "content-type=multipart/form-data"*/
+    @StatisticsQPS
     @ApiOperation("人脸识别登录接口")
     @PostMapping(value = "faceLogin")
     public ResponseResult<Object> faceLogin(PageUpload pageUpload, HttpServletRequest request, HttpServletResponse response) {
@@ -191,6 +194,7 @@ public class AIController {
         parentList.sort((o1, o2) -> o1.getOrderid() - o2.getOrderid());
     }
 
+    @StatisticsQPS
     @ApiOperation("人脸识别注册接口")
     @PostMapping(value = "faceRegister", consumes = "multipart/*", headers = "content-type=multipart/form-data")
     public ResponseResult<Object> faceRegister(PageUpload pageUpload, HttpServletRequest request) {

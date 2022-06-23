@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Config;
 import org.bsm.pagemodel.PageConfig;
 import org.bsm.service.IConfigService;
@@ -35,6 +36,7 @@ public class ConfigController {
     @Resource
     IConfigService configService;
 
+    @StatisticsQPS
     @ApiOperation("获取所有配置信息接口(分页)")
     @PostMapping("/getConfigList")
     public ResponseResult<Object> getDataSourceList(@RequestBody PageConfig pageConfig) {
@@ -53,6 +55,7 @@ public class ConfigController {
         return Response.makeOKRsp("获取所有配置信息接口(分页)成功").setData(datasourcePage);
     }
 
+    @StatisticsQPS
     @ApiOperation("获取所有配置信息接口")
     @GetMapping("/getAllConfig")
     public ResponseResult<Object> getAllConfig(PageConfig pageConfig) {
@@ -67,7 +70,7 @@ public class ConfigController {
         return Response.makeOKRsp("获取所有配置信息接口成功").setData(configList);
     }
 
-
+    @StatisticsQPS
     @ApiOperation("获取配置信息详细信息接口")
     @GetMapping("/getConfigInfo")
     public ResponseResult<Object> getConfigInfo(PageConfig pageConfig) {
@@ -82,6 +85,7 @@ public class ConfigController {
         return Response.makeOKRsp("获取配置信息详细信息接口成功").setData(config);
     }
 
+    @StatisticsQPS
     @ApiOperation("新增配置信息接口")
     @PostMapping("/addConfig")
     public ResponseResult<Object> addConfig(@RequestBody Config config) {
@@ -94,6 +98,7 @@ public class ConfigController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("修改配置信息接口")
     @PostMapping("/updateConfig")
     public ResponseResult<Object> updateConfig(@RequestBody Config config) {
@@ -106,6 +111,7 @@ public class ConfigController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("删除配置信息接口")
     @GetMapping("/deleteConfigs")
     public ResponseResult<Object> deleteRoles(String delIds) {

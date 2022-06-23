@@ -1,12 +1,11 @@
 package org.bsm.controller;
 
 
-import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.annotation.StatisticsQPS;
-import org.bsm.service.ISystemDetailInfoService;
+import org.bsm.utils.RedisUtil;
 import org.bsm.utils.Response;
 import org.bsm.utils.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,24 +21,23 @@ import org.springframework.web.bind.annotation.RestController;
  * @author 作者
  * @since 2021-10-29
  */
-@Api(tags = "首页控制类")
+@Api(tags = "RSA公钥暴露控制类")
 @Slf4j
 @RestController
-@RequestMapping("/system")
-public class HomeController {
+@RequestMapping("/publicKey")
+public class RSAKeyPairController {
 
 
     @Autowired
-    private ISystemDetailInfoService systemDetailInfoService;
-
+    private RedisUtil redisUtil;
 
     @StatisticsQPS
-    @ApiOperation("获取系统详细信息接口")
-    @GetMapping("/getSystemDetailInfo")
-    public ResponseResult<Object> getSystemDetailInfo() {
-        log.info("获取系统详细信息接口");
-        JSONObject warnMessageList = systemDetailInfoService.getSystemDetailInfo();
-        return Response.makeOKRsp("获取系统详细信息接口成功").setData(warnMessageList);
+    @ApiOperation("获取RSA公钥接口")
+    @GetMapping("/get")
+    public ResponseResult<Object> getPublicKey() {
+        log.info("获取RSA公钥接口");
+        String rsaPublicKey = (String) redisUtil.get("rsaPublicKey");
+        return Response.makeOKRsp("获取RSA公钥接口成功").setData(rsaPublicKey);
     }
 
 }

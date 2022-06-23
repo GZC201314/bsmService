@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Role;
 import org.bsm.entity.User;
 import org.bsm.pagemodel.PageUpload;
@@ -51,6 +52,7 @@ public class UserController {
     @Autowired
     RedisUtil redisUtil;
 
+    @StatisticsQPS
     @ApiOperation("用户注册接口")
     @PostMapping("/register")
     public ResponseResult<String> register(@RequestBody PageUser user) {
@@ -67,6 +69,7 @@ public class UserController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("获取用户分页接口")
     @GetMapping("/getAlluser")
     public ResponseResult<Object> getAlluser(PageUser pageUser) {
@@ -85,6 +88,7 @@ public class UserController {
         return Response.makeOKRsp("获取所有的用户成功").setData(userPage);
     }
 
+    @StatisticsQPS
     @ApiOperation("发送用户注册邮件")
     @GetMapping("/sendRegisterEmail")
     public ResponseResult<String> sendRegisterEmail(String emailaddress) {
@@ -99,7 +103,7 @@ public class UserController {
         }
     }
 
-
+    @StatisticsQPS
     @ApiOperation("查询单个用户的详细信息，根据用户名")
     @GetMapping("/getUserInfo")
     public ResponseResult<Object> getUserInfo(String username) {
@@ -110,6 +114,7 @@ public class UserController {
         return Response.makeOKRsp("查询用户信息成功").setData(user);
     }
 
+    @StatisticsQPS
     @ApiOperation("查询单个用户的信息，根据sessionId")
     @GetMapping("/getUserInfoBySession")
     public ResponseResult<Object> getUserInfoBySessionId(HttpServletRequest request) {
@@ -120,6 +125,7 @@ public class UserController {
         return Response.makeOKRsp("查询用户信息成功").setData(userInfo);
     }
 
+    @StatisticsQPS
     @ApiOperation("查询单个用户的详细信息，根据sessionId")
     @GetMapping("/getUserDetailInfo")
     public ResponseResult<Object> getUserDetailInfo(HttpServletRequest request) {
@@ -145,6 +151,7 @@ public class UserController {
         return Response.makeOKRsp("查询用户详细信息成功").setData(pageUser);
     }
 
+    @StatisticsQPS
     @ApiOperation("删除用户接口(逻辑删除)")
     @DeleteMapping("/deleteUser")
     public ResponseResult<Object> deleteUser(User pageUser) {
@@ -163,7 +170,7 @@ public class UserController {
         }
     }
 
-
+    @StatisticsQPS
     @ApiOperation("用户头像上传接口")
     @PostMapping(value = "editAvatar", consumes = "multipart/*", headers = "content-type=multipart/form-data")
     public ResponseResult<Object> editAvatar(PageUpload pageUpload, HttpServletRequest req) {
@@ -183,6 +190,7 @@ public class UserController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("用户名修改接口")
     @PostMapping("/updateUserName")
     public ResponseResult<Object> updateUserName(PageUser pageUser, HttpServletRequest request) {
@@ -211,6 +219,7 @@ public class UserController {
         }
     }
 
+    @StatisticsQPS
     @ApiOperation("用户密码修改接口")
     @PostMapping("/updateUserPassword")
     public ResponseResult<Object> updateUserPassword(PageUser pageUser, HttpServletRequest request) throws IOException {
