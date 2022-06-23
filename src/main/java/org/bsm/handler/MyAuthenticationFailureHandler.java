@@ -21,7 +21,7 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException {
-        response.setStatus(HttpStatus.FORBIDDEN.value());
+        response.setStatus(HttpStatus.OK.value());
         response.setContentType("application/json;charset=utf-8");
         response.getWriter().write(mapper.writeValueAsString(Response.makeRsp(HttpStatus.FORBIDDEN.value(),exception.getMessage())));
     }

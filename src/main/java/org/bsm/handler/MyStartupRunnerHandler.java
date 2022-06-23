@@ -2,6 +2,7 @@ package org.bsm.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.Config;
+import org.bsm.service.IConfigService;
 import org.bsm.service.impl.ConfigServiceImpl;
 import org.bsm.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class MyStartupRunnerHandler implements CommandLineRunner {
     RedisUtil redisUtil;
 
     @Autowired
-    ConfigServiceImpl configService;
+    IConfigService configService;
 
     @Override
     public void run(String... args) throws Exception {

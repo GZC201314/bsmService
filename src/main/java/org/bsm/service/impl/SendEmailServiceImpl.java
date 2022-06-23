@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import javax.annotation.Resource;
 import javax.mail.internet.MimeMessage;
 
 /**
@@ -25,7 +26,7 @@ public class SendEmailServiceImpl implements ISendEmailService {
     @Value("${spring.mail.username}")
     private String from;
 
-    @Autowired
+    @Resource
     private JavaMailSender javaMailSender;
 
     @Autowired

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>数据库备份成功邮件</title>
+</head>
+<body>
+<div>
+
+    <span>您好，你的数据库备份已经成功，备份时间是<span style="color: #39ED39;font-size: 20px"
+                                    th:text="${#dates}"></span>，附件是备份文件。</span>
+</div>
+</body>
+</html>

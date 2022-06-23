@@ -80,6 +80,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
 
     protected void configure(HttpSecurity http) throws Exception {
+
+        // 获取 noauth 跳转页面
+        String noauthUrl = (String)redisUtil.hget("bsm_config","NOAUTH_URL");
         log.info("进入鉴权配置------");
         /*在这边查询数据库进行角色鉴权,然后把鉴权信息放到redis中*/
         List<Authorize> authorizes = authorizeService.list();
@@ -111,7 +114,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin() // 表单登录
                 // http.httpBasic() // HTTP Basic
                 // 登录跳转 URL
-                .loginPage("http://localhost:3000/#/login")
+                .loginPage(noauthUrl)
                 // 处理表单登录 URL
                 .loginProcessingUrl("/login")
                 // 处理登录成功
@@ -122,7 +125,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 // 授权配置 无需认证的请求路径
                 .antMatchers("/toLogin", "/bsmservice/user/register", "/bsmservice/user/sendRegisterEmail", "/bsmservice/valid/userinfo", "/bsmservice/ai/faceLogin",
-                        "/login.html", "/bsmservice/code/image", "/code/sms", "/**/login.css", "**/*.js").permitAll()
+                        "/login.html", "/bsmservice/code/image", "/bsmservice/code/sms", "/**/login.css", "**/*.js").permitAll()
                 .anyRequest()  // 所有请求
                 .authenticated() // 都需要认证
                 .and()

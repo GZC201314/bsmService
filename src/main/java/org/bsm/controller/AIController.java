@@ -180,7 +180,7 @@ public class AIController {
                 if (map.containsKey(pages.getParentkey())) {
                     map.get(pages.getParentkey()).add(pageMenu);
                 } else {
-                    List<PageMenu> children = new ArrayList<PageMenu>();
+                    List<PageMenu> children = new ArrayList<>();
                     children.add(pageMenu);
                     map.put(pages.getParentkey(), children);
                 }
