@@ -15,6 +15,9 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PageTask {
+
+    private String jobName;
+
     /**
      * 任务类型 0 cycleType,1 oneTimeTask
      */

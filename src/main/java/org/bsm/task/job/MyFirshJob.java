@@ -26,7 +26,7 @@ public class MyFirshJob extends QuartzJobBean {
             JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
             log.info(context.getScheduler().getSchedulerInstanceId());
             log.info("taskname= {}", context.getJobDetail().getKey().getName());
-            log.info("taskDataMap= {}", jobDataMap.get("key"));
+            log.info("taskDataMap= {}", (Object) jobDataMap.getKeys());
             log.info("执行时间= {}", new Date());
         } catch (Exception e) {
             log.error(e.getMessage());

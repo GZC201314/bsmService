@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.common.BsmException;
 import org.bsm.pagemodel.PageObject;
 import org.bsm.pagemodel.PageTask;
 import org.bsm.service.ITaskService;
@@ -38,7 +39,7 @@ public class TaskController {
     public ResponseResult<Object> getTaskPageList(@RequestBody PageTask pageTask) {
         log.info("获取定时任务分页列表接口");
         if (pageTask.getPage() == null) {
-            return Response.makeErrRsp("获取定时任务分页列表接口失败，参数不正确。");
+            throw new BsmException("获取定时任务分页列表接口失败，参数不正确。");
         }
         PageObject<JSONObject> allTaskPage = taskService.getAllTaskPage(pageTask);
         return Response.makeOKRsp("获取定时任务分页列表接口成功").setData(allTaskPage);
@@ -102,6 +103,22 @@ public class TaskController {
         log.info("启动所有定时任务接口");
         boolean checkExists = taskService.startAllTask(pageTask);
         return Response.makeOKRsp("启动所有定时任务接口成功").setData(checkExists);
+    }
+
+    @ApiOperation("停止单个定时任务接口")
+    @GetMapping("/stopTask")
+    public ResponseResult<Object> stopTask(PageTask pageTask) {
+        log.info("停止单个定时任务接口");
+        boolean checkExists = taskService.stopTask(pageTask);
+        return Response.makeOKRsp("停止单个定时任务接口成功").setData(checkExists);
+    }
+
+    @ApiOperation("启动单个定时任务接口")
+    @GetMapping("/startTask")
+    public ResponseResult<Object> startTask(PageTask pageTask) {
+        log.info("启动单个定时任务接口");
+        boolean checkExists = taskService.startTask(pageTask);
+        return Response.makeOKRsp("启动单个定时任务接口成功").setData(checkExists);
     }
 
 }

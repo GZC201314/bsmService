@@ -41,4 +41,14 @@ public interface ITaskService {
      * 启动所有任务
      */
     public boolean startAllTask(PageTask pageUpload);
+
+    /**
+     * 关闭单个任务
+     */
+    public boolean stopTask(PageTask pageTask);
+
+    /**
+     * 启动单个任务
+     */
+    public boolean startTask(PageTask pageUpload);
 }

@@ -1,5 +1,6 @@
 package org.bsm.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.pagemodel.Page;
@@ -63,6 +64,9 @@ public class TaskServiceImpl implements ITaskService {
                     if (triggersOfJob.size() > 0) {
                         Trigger trigger = triggersOfJob.get(0);
                         TriggerKey triggerKey = trigger.getKey();
+                        //获取当前触发器的状态
+                        Trigger.TriggerState triggerState = scheduler.getTriggerState(triggerKey);
+                        taskInfo.put("state", triggerState.name());
                         taskInfo.put("triggerName", triggerKey.getName());
                         taskInfo.put("triggerGroup", triggerKey.getGroup());
                         if (trigger.getPreviousFireTime() != null) {
@@ -264,12 +268,9 @@ public class TaskServiceImpl implements ITaskService {
     @Override
     public boolean stopAllTask(PageTask pageTask) {
         try {
-            if (scheduler.isStarted()) {
-                scheduler.standby();
-            }
+            scheduler.pauseAll();
         } catch (SchedulerException e) {
             log.error(e.getMessage());
-            e.printStackTrace();
             return false;
         }
         return true;
@@ -281,15 +282,45 @@ public class TaskServiceImpl implements ITaskService {
     @Override
     public boolean startAllTask(PageTask pageTask) {
         try {
-            if (scheduler.isShutdown()) {
-                this.scheduler = schedulerFactoryBean.getScheduler();
-                this.scheduler.start();
-            }
+            scheduler.resumeAll();
         } catch (SchedulerException e) {
             log.error(e.getMessage());
             e.printStackTrace();
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean stopTask(PageTask pageTask) {
+
+        if (!StrUtil.isBlankIfStr(pageTask.getJobName())) {
+            String jobName = pageTask.getJobName();
+            String[] jobNameArr = jobName.split("\\.");
+            JobKey jobKey = new JobKey(jobName, jobNameArr[1]);
+            try {
+                scheduler.pauseJob(jobKey);
+                return true;
+            } catch (SchedulerException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean startTask(PageTask pageTask) {
+        if (!StrUtil.isBlankIfStr(pageTask.getJobName())) {
+            String jobName = pageTask.getJobName();
+            String[] jobNameArr = jobName.split("\\.");
+            JobKey jobKey = new JobKey(jobName, jobNameArr[1]);
+            try {
+                scheduler.resumeJob(jobKey);
+                return true;
+            } catch (SchedulerException e) {
+                return false;
+            }
+        }
+        return false;
     }
 }

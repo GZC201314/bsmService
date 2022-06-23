@@ -1,6 +1,7 @@
 package org.bsm.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bsm.utils.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -22,6 +23,6 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
                                         AuthenticationException exception) throws IOException {
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType("application/json;charset=utf-8");
-        response.getWriter().write(mapper.writeValueAsString(exception.getMessage()));
+        response.getWriter().write(mapper.writeValueAsString(Response.makeRsp(HttpStatus.FORBIDDEN.value(),exception.getMessage())));
     }
 }
