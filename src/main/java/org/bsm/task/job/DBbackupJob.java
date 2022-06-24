@@ -1,5 +1,7 @@
 package org.bsm.task.job;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bsm.utils.RedisUtil;
@@ -23,7 +25,8 @@ import javax.mail.Multipart;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import java.io.File;
+import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -49,8 +52,9 @@ public class DBbackupJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
-
-
+        InputStream inputStream = null;
+        InputStreamReader inputStreamReader = null;
+        BufferedReader bf = null;
         try {
             String filePath = (String) redisUtil.hget("bsm_config", "DB_BACKUP_DIR");
             String emailaddress = (String) redisUtil.hget("bsm_config", "DBA_EMAIL");
@@ -65,19 +69,37 @@ public class DBbackupJob extends QuartzJobBean {
             String username = (String) jobDataMap.get("username");//用户名
             String password = (String) jobDataMap.get("password");//密码
             File uploadDir = new File(filePath);
-            if (!uploadDir.exists()){
+            if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
 
             String fileName = dbName + new java.util.Date().getTime() + ".sql";
-            String cmd = "sudo docker exec -it "+containerName+" mysqldump -u" + username + "  -p" + password +" "+ dbName + " -r "
-                    + filePath + fileName;
+            // linux执行定时任务的时候没有终端设备，TTY一词源于Teletypes,或teletypewriters。
+            // 其实出现该错误和我们的一个习惯有关，一般来说我们启动容器后要与容器进行交互操作，
+            // 这是，就要加上"-it"这个参数，而在定时任务中，如果让脚本在后台运行，就没有可交互的终端，
+            // 这就会引发如题所示错误，解决办法就是去掉“-it”这个参数。
+            String cmd = "docker exec -i " + containerName + " mysqldump -u" + username + " -p" + password + " " + dbName;
+            log.info(cmd);
             try {
-                Process process = Runtime.getRuntime().exec(cmd);
+                Process process = Runtime.getRuntime().exec(new String[]{"/bin/bash", "-c", cmd});
                 int result = process.waitFor();
-                if(result ==0){
+                inputStream = process.getInputStream();
+                inputStreamReader = new InputStreamReader(inputStream);
+                bf = new BufferedReader(inputStreamReader);
+                StringBuilder sb = new StringBuilder();
+
+                bf.lines().forEach(str ->{
+                    sb.append(str).append("\n");
+                });
+
+                log.error(sb.toString());
+
+                String path = filePath + dbName + "_" + new Date().getTime() + ".sql";
+                //把备份的数据插入到文件中
+                File file = FileUtil.writeBytes(sb.toString().getBytes(), path);
+
+                if (result == 0 && file.exists()) {
                     log.info("数据库备份成功！");
-                    File file = new File(filePath + fileName);
                     // 给 DBA 发送备份成功的邮件
                     MimeMessage message;
                     try {
@@ -88,6 +110,7 @@ public class DBbackupJob extends QuartzJobBean {
                         helper.setSubject("BSM数据库备份成功邮件");
                         // 处理邮件模板
                         Context emailContext = new Context();
+                        emailContext.setVariable("datetime",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
                         String template = templateEngine.process("mail/DBbackupTemplate", emailContext);
 
                         // 6，设置邮件内容，混合模式
@@ -124,7 +147,7 @@ public class DBbackupJob extends QuartzJobBean {
                         log.error(e.getMessage());
                         e.printStackTrace();
                     }
-                }else {
+                } else {
                     log.error("数据库备份失败！");
                 }
 
@@ -133,6 +156,16 @@ public class DBbackupJob extends QuartzJobBean {
                 // TODO Auto-generated catch block
                 log.error(e.getMessage());
 
+            } finally {
+                if (bf != null) {
+                    bf.close();
+                }
+                if (inputStreamReader != null) {
+                    inputStreamReader.close();
+                }
+                if (inputStream != null) {
+                    inputStream.close();
+                }
             }
 
 

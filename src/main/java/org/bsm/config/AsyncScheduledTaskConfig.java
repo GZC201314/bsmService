@@ -1,7 +1,11 @@
 package org.bsm.config;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.task.Factory.BsmJobFactory;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerFactory;
+import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -26,12 +30,20 @@ public class AsyncScheduledTaskConfig {
 
     @Autowired
     DataSource dataSource;
-    
 
+    @Autowired
+    private BsmJobFactory bsmJobFactory;
+
+    @SneakyThrows
     @Bean
-    public Scheduler scheduler() {
-        return schedulerFactoryBean().getScheduler();
+    public Scheduler scheduler(){
+        Scheduler scheduler = schedulerFactoryBean().getScheduler();
+        // 自定义 JobFactory 使得在 Quartz Job 中可以使用 @Autowired
+        scheduler.setJobFactory(bsmJobFactory);
+//        scheduler.start();
+        return scheduler;
     }
+
 
     /**
      * Details：定义quartz调度工厂

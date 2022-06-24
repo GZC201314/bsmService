@@ -323,4 +323,20 @@ public class TaskServiceImpl implements ITaskService {
         }
         return false;
     }
+
+    @Override
+    public boolean executeNowTask(PageTask pageTask) {
+        if (!StrUtil.isBlankIfStr(pageTask.getJobName())) {
+            String jobName = pageTask.getJobName();
+            String[] jobNameArr = jobName.split("\\.");
+            JobKey jobKey = new JobKey(jobName, jobNameArr[1]);
+            try {
+                scheduler.triggerJob(jobKey);
+                return true;
+            } catch (SchedulerException e) {
+                return false;
+            }
+        }
+        return false;
+    }
 }

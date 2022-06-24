@@ -127,5 +127,14 @@ public class TaskController {
         return Response.makeOKRsp("启动单个定时任务接口成功").setData(checkExists);
     }
 
+    @StatisticsQPS
+    @ApiOperation("立即执行定时任务接口")
+    @GetMapping("/executeNowTask")
+    public ResponseResult<Object> executeNowTask(PageTask pageTask) {
+        log.info("立即执行定时任务接口");
+        boolean checkExists = taskService.executeNowTask(pageTask);
+        return Response.makeOKRsp("立即执行定时任务接口成功").setData(checkExists);
+    }
+
 }
 

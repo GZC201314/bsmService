@@ -50,5 +50,10 @@ public interface ITaskService {
     /**
      * 启动单个任务
      */
-    public boolean startTask(PageTask pageUpload);
+    public boolean startTask(PageTask pageTask);
+
+    /**
+     * 立即执行定时任务
+     */
+    public boolean executeNowTask(PageTask pageTask);
 }
