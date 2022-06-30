@@ -17,8 +17,6 @@ import java.lang.reflect.Method;
 
 /**
  @author GZC
- @create 2022-05-31 20:22
- @desc
  */
 @Aspect
 @Component
@@ -43,13 +41,13 @@ public class StatisticsQPSAspect {
         String functionName = signature.getDeclaringTypeName() + "." + signature.getName() + "()";
         //成功的QPS
 
-        Object qps_success = redisUtil.hget("QPS_success", functionName);
-        int count = 0;
-        if (qps_success != null) {
-            count = (int) qps_success;
-        }
-        redisUtil.hset("QPS_success", functionName, ++count);
+        Object qps_success = redisUtil.getZsetKeyValue("QPS_success", functionName);
 
+        double count = 0;
+        if (qps_success != null) {
+            count = (double) qps_success;
+        }
+        redisUtil.addZsetValue("QPS_success", functionName,(double)count+1);
     }
 
 
@@ -69,12 +67,12 @@ public class StatisticsQPSAspect {
         //成功的QPS
 
         String qps_fail = "QPS_fail";
-        Object qpsFail = redisUtil.hget(qps_fail, functionName);
-        int count = 0;
+        Object qpsFail = redisUtil.getZsetKeyValue(qps_fail, functionName);
+        double count = 0;
         if (qpsFail != null) {
-            count = (int) qpsFail;
+            count = (double) qpsFail;
         }
-        redisUtil.hset(qps_fail, functionName, ++count);
+        redisUtil.addZsetValue(qps_fail,functionName,(double)count+1);
     }
 
     /**

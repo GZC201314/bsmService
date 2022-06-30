@@ -2,6 +2,7 @@ package org.bsm.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -584,6 +585,146 @@ public final class RedisUtil {
             return 0;
         }
 
+    }
+
+    /**
+     * 判断指定zset是否存在
+     *
+     * @param zsetKey
+     * @return
+     */
+    public boolean existZset(String zsetKey){
+        Long num = redisTemplate.opsForZSet().zCard(zsetKey);
+
+        return Long.valueOf(0).equals(num) ? false : true;
+    }
+
+    /**
+     * 往 ZSET 中添加值
+     *
+     * @param zsetKey
+     * @param itemKey
+     * @param value
+     */
+    public void addZsetValue(String zsetKey, String itemKey, Double value){
+        redisTemplate.opsForZSet().add(zsetKey, itemKey, value);
+    }
+
+    /**
+     * 返回指定索引区间内最大的几条记录对应的键
+     *  @param zsetKey   目标zset
+     * @param start     开始位置
+     * @param end       结束位置
+     */
+    public Set<Object> getZsetMaxKeys(String zsetKey, long start, long end){
+        return redisTemplate.opsForZSet().reverseRange(zsetKey, start, end);
+    }
+
+    /**
+     * 返回指定索引区间内最大的几条记录对应的键值对信息
+     *
+     *  @param zsetKey   目标zset
+     * @param start     开始位置
+     * @param end       结束位置
+     */
+    public Set<ZSetOperations.TypedTuple<Object>> getZsetMaxKeysOfScores(String zsetKey, long start, long end){
+        return redisTemplate.opsForZSet().reverseRangeWithScores(zsetKey, start, end);
+    }
+
+    /**
+     * 指定区间内分页查询zset键值信息
+     *
+     * @param zsetKey     目标zset
+     * @param minValue    最小值
+     * @param maxValue    最大值
+     * @param index       开始索引位置
+     * @param count       数量
+     * @return
+     */
+    public Set<Object> getZsetMaxKeysInScoresWithPage(String zsetKey, double minValue, double maxValue, long index, long count){
+        return redisTemplate.opsForZSet().reverseRangeByScore(zsetKey, minValue, maxValue, index, count);
+    }
+
+    /**
+     * 指定区间内分页查询zset键值信息，同时返回键、值信息
+     *
+     * @param zsetKey     目标zset
+     * @param minValue    最小值
+     * @param maxValue    最大值
+     * @param index       开始索引位置
+     * @param count       数量
+     * @return
+     */
+    public Set<ZSetOperations.TypedTuple<Object>> getZsetMaxKeysInScoresOfScoreInfoWithPage(String zsetKey, double minValue, double maxValue, long index, long count){
+        return redisTemplate.opsForZSet().reverseRangeByScoreWithScores(zsetKey, minValue, maxValue, index, count);
+    }
+
+    /**
+     * 指定区间内查询zset键值信息
+     *
+     * @param zsetKey     目标zset
+     * @param minValue    最小值
+     * @param maxValue    最大值
+     */
+    public Set<Object> getZsetMaxKeysInScores(String zsetKey, double minValue, double maxValue){
+        return redisTemplate.opsForZSet().reverseRangeByScore(zsetKey, minValue, maxValue);
+    }
+
+    /**
+     * 指定区间内查询zset键值信息，同时返回键、值信息
+     *
+     * @param zsetKey     目标zset
+     * @param minValue    最小值
+     * @param maxValue    最大值
+     */
+    public Set<ZSetOperations.TypedTuple<Object>> getZsetMaxKeysOfScoreInScores(String zsetKey, double minValue, double maxValue){
+        return redisTemplate.opsForZSet().reverseRangeByScoreWithScores(zsetKey, minValue, maxValue);
+    }
+
+    /**
+     * 指定区间内查询zset键值信息，同时返回键、值信息，由小到大排序
+     *
+     * @param zsetKey     目标zset
+     * @param minValue    最小值
+     * @param maxValue    最大值
+     */
+    public Set<ZSetOperations.TypedTuple<Object>> getZsetMaxKeysOfScoreInScoresBySorted(String zsetKey, double minValue, double maxValue){
+        return redisTemplate.opsForZSet().rangeByScoreWithScores(zsetKey, minValue, maxValue);
+    }
+
+    /**
+     * 获取指定区间zset元素数量
+     *
+     * @param zsetKey   目标zset
+     * @param minValue  最小值
+     * @param maxValue  最大值
+     *
+     * @return  {Long}  元素数量
+     */
+    public Long getZsetCount(String zsetKey, double minValue, double maxValue) {
+        return redisTemplate.opsForZSet().count(zsetKey, minValue, maxValue);
+    }
+
+    /**
+     * 获取指定有序集合中某个key的分值
+     *
+     * @param zsetKey   有序集合键名
+     * @param itemKey   需要查询的子项key
+     * @return
+     */
+    public Double getZsetKeyValue(String zsetKey, String itemKey) {
+        return redisTemplate.opsForZSet().score(zsetKey, itemKey);
+    }
+
+    /**
+     * zset 中指定键的值增加分值
+     *
+     * @param zsetKey   目标zset
+     * @param itemKey   要添加分值的项
+     * @param score     添加的分值
+     */
+    public void increaseZsetScore(String zsetKey, String itemKey, double score){
+        redisTemplate.opsForZSet().incrementScore(zsetKey, itemKey, score);
     }
 
 }
