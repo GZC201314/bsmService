@@ -165,11 +165,11 @@
         </dependency>
 
         <!--ibeetl 模板引擎-->
-        <dependency>
-            <groupId>com.ibeetl</groupId>
-            <artifactId>beetl</artifactId>
-            <version>3.3.2.RELEASE</version>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.ibeetl</groupId>-->
+        <!--            <artifactId>beetl</artifactId>-->
+        <!--            <version>3.3.2.RELEASE</version>-->
+        <!--        </dependency>-->
 
         <!-- orm -->
         <dependency>
