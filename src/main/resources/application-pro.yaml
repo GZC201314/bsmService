@@ -138,3 +138,8 @@ flowable:
     username: mpw:uHqOZVe2JrjJQT7KTCLImA==
     password: mpw:dqVDuuSo+lUNSJbK4YRSdg==
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+config:
+  cache:
+    refresh:
+      timeout: 5
