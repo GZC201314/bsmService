@@ -14,33 +14,9 @@ public class Constants {
 
     public static String GET_REPOSFILE_URL = "https://gitee.com/api/v5/repos/%s/%s/contents/%s";
 
+    public static String GET_FILESBYDIRSHA_URL = "https://gitee.com/api/v5/repos/%s/%s/git/trees/%s";
 
-    /**
-     * 性别
-     */
-    public static enum sex {
-        /*男*/
-        MAN("1", "男"),
-        /*女*/
-        FEMAN("2", "女");
-
-        private final String value;
-        private final String name;
-
-        private sex(String value, String name) {
-            this.value = value;
-            this.name = name;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
+    public static String DELETE_REPOSFILE_URL = "https://gitee.com/api/v5/repos/%s/%s/contents/%s";
     public static enum ResultCode {
 
         // 成功

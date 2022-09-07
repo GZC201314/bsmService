@@ -3,12 +3,14 @@ package org.bsm.pagemodel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * @author GZC
  * @create 2021-11-18 13:10
  * @desc gitee api 调用参数实体类
  */
+@ToString
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,6 +27,12 @@ public class PageGiteeApiCaller {
      * String | 文件的路径
      */
     private String path;
+
+    /**
+     * 可以是分支名(如master)、Commit或者目录Tree的SHA值
+     */
+    private String sha;
+
     /**
      * String | 文件内容, 要用 base64 编码
      */
@@ -57,20 +65,4 @@ public class PageGiteeApiCaller {
      * String | Author的邮箱，默认为当前用户的邮箱
      */
     private String authorEmail;
-
-    @Override
-    public String toString() {
-        return "PageGiteeApiCaller{" +
-                "owner='" + owner + '\'' +
-                ", repo='" + repo + '\'' +
-                ", path='" + path + '\'' +
-                ", message='" + message + '\'' +
-                ", accessToken='" + accessToken + '\'' +
-                ", branch='" + branch + '\'' +
-                ", committerName='" + committerName + '\'' +
-                ", committerEmail='" + committerEmail + '\'' +
-                ", authorName='" + authorName + '\'' +
-                ", authorEmail='" + authorEmail + '\'' +
-                '}';
-    }
 }

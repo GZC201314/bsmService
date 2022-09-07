@@ -81,8 +81,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     protected void configure(HttpSecurity http) throws Exception {
 
-        // 获取 noauth 跳转页面
-        String noauthUrl = (String)redisUtil.hget("bsm_config","NOAUTH_URL");
+
         log.info("进入鉴权配置------");
         /*在这边查询数据库进行角色鉴权,然后把鉴权信息放到redis中*/
         List<Authorize> authorizes = authorizeService.list();
@@ -106,6 +105,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 redisUtil.sSet(key, path);
             }
         }
+
+        // 获取 noauth 跳转页面
+        String noauthUrl = (String)redisUtil.hget("bsm_config","NOAUTH_URL");
+
         http.exceptionHandling().accessDeniedPage("/noauth");
         // 添加验证码校验过滤器
         http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class)

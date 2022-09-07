@@ -1,10 +1,13 @@
 package org.bsm.service.impl;
 
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.pagemodel.PageGiteeApiCaller;
+import org.bsm.pagemodel.PageGiteeFile;
 import org.bsm.service.IGiteeService;
 import org.bsm.utils.Constants;
 import org.bsm.utils.RedisUtil;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.bsm.utils.Constants.CREATE_REPOS_URL;
@@ -118,5 +122,57 @@ public class GiteeServiceImpl implements IGiteeService {
             log.error("Exception when calling RepositoriesApi#postV5ReposOwnerRepoContentsPath Error message is:" + e.getMessage());
         }
         return "";
+    }
+
+    @Override
+    public List<PageGiteeFile> getFilesByDir(PageGiteeApiCaller pageGiteeApiCaller) {
+
+        log.info("根据文件夹地址获取所有的文件信息:{}",pageGiteeApiCaller);
+
+        // String | 仓库所属空间地址(企业、组织或个人的地址path)
+        String owner = pageGiteeApiCaller.getOwner();
+        //String | 仓库路径(path)
+        String repo = pageGiteeApiCaller.getRepo();
+        // String | 文件的路径
+        String pathSha = pageGiteeApiCaller.getSha();
+        /*为了安全，从redis中获取accessToken*/
+        Map<Object, Object> configMap = redisUtil.hmget(Constants.BSM_CONFIG);
+        String accessToken = (String) configMap.get(Constants.GITEE_ACCESS_TOKEN);
+        String requestUrl = String.format(Constants.GET_FILESBYDIRSHA_URL, owner,
+                repo, pathSha);
+        Map<String, Object> paramMap = new HashMap<>(16);
+        paramMap.put("access_token", accessToken);
+        String resultJson = HttpUtil.get(requestUrl, paramMap);
+        JSONObject jsonObject = JSONUtil.parseObj(resultJson);
+        JSONArray tree1 = jsonObject.getJSONArray("tree");
+        List<PageGiteeFile> pageGiteeFiles = tree1.toList(PageGiteeFile.class);
+        // 按照路径信息排序
+        pageGiteeFiles.sort((o1, o2) -> o2.getPath().compareTo(o1.getPath()));
+        return pageGiteeFiles;
+    }
+
+    @Override
+    public boolean deleteFile(PageGiteeApiCaller pageGiteeApiCaller) {
+        log.info("Gitee删除文件:{}",pageGiteeApiCaller);
+
+        // String | 仓库所属空间地址(企业、组织或个人的地址path)
+        String owner = pageGiteeApiCaller.getOwner();
+        //String | 仓库路径(path)
+        String repo = pageGiteeApiCaller.getRepo();
+        // String | 文件的路径
+        String path = pageGiteeApiCaller.getPath();
+        /*为了安全，从redis中获取accessToken*/
+        Map<Object, Object> configMap = redisUtil.hmget(Constants.BSM_CONFIG);
+        String accessToken = (String) configMap.get(Constants.GITEE_ACCESS_TOKEN);
+        String requestUrl = String.format(Constants.DELETE_REPOSFILE_URL, owner,
+                repo, path);
+        Map<String, Object> paramMap = new HashMap<>(8);
+        paramMap.put("access_token", accessToken);
+        paramMap.put("message",StringUtils.hasText(pageGiteeApiCaller.getMessage())?pageGiteeApiCaller.getMessage():"删除文件");
+        paramMap.put("sha",pageGiteeApiCaller.getSha());
+        String resultJson = HttpRequest.delete(requestUrl).form(paramMap).execute().body();
+        JSONObject result = JSONUtil.parseObj(resultJson);
+        JSONObject commit = result.getJSONObject("commit");
+        return StringUtils.hasText(commit==null?"":commit.toString());
     }
 }

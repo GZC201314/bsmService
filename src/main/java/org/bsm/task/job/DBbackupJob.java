@@ -3,6 +3,7 @@ package org.bsm.task.job;
 import cn.hutool.core.codec.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.pagemodel.PageGiteeApiCaller;
+import org.bsm.pagemodel.PageGiteeFile;
 import org.bsm.service.IGiteeService;
 import org.bsm.utils.RedisUtil;
 import org.quartz.DisallowConcurrentExecution;
@@ -22,14 +23,12 @@ import javax.annotation.Resource;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author GZC
@@ -57,9 +56,23 @@ public class DBbackupJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
-        InputStream inputStream = null;
-        InputStreamReader inputStreamReader = null;
-        BufferedReader bf = null;
+
+        // 获取数据库备份文件夹下所有的备份文件
+        PageGiteeApiCaller pageGiteeApiCaller = new PageGiteeApiCaller();
+        pageGiteeApiCaller.setOwner("GZC201314");
+        pageGiteeApiCaller.setSha("88602de9b0ed0036a8d8898e24cec9a6e600aab7");
+        pageGiteeApiCaller.setRepo("tuchuang");
+        List<PageGiteeFile> filesByDir = giteeService.getFilesByDir(pageGiteeApiCaller);
+        if (filesByDir.size()>8){
+            for (int i = 7; i <filesByDir.size() ; i++) {
+                PageGiteeFile pageGiteeFile = filesByDir.get(i);
+                pageGiteeApiCaller.setPath("BSM/DBBackUp/"+pageGiteeFile.getPath());
+                pageGiteeApiCaller.setSha(pageGiteeFile.getSha());
+                giteeService.deleteFile(pageGiteeApiCaller);
+            }
+        }
+
+
         String fileUrl = "";
         try {
             String filePath = (String) redisUtil.hget("bsm_config", "DB_BACKUP_DIR");
@@ -98,14 +111,16 @@ public class DBbackupJob extends QuartzJobBean {
                     int cpResult = cpProcess.waitFor();
                     File file =  new File(filePath+fileName);
                     if(cpResult == 0 && file.exists()){
-                        PageGiteeApiCaller pageGiteeApiCaller = new PageGiteeApiCaller();
-                        pageGiteeApiCaller.setOwner("GZC201314");
-                        pageGiteeApiCaller.setPath("BSM/DBBackUp/"+fileName);
-                        pageGiteeApiCaller.setRepo("tuchuang");
+
+
+                        PageGiteeApiCaller commitpageGiteeApiCaller = new PageGiteeApiCaller();
+                        commitpageGiteeApiCaller.setOwner("GZC201314");
+                        commitpageGiteeApiCaller.setPath("BSM/DBBackUp/"+fileName);
+                        commitpageGiteeApiCaller.setRepo("tuchuang");
                         String fileBase64 = Base64.encode(Files.readAllBytes(file.toPath()));
-                        pageGiteeApiCaller.setContent(fileBase64);
-                        pageGiteeApiCaller.setMessage("数据库备份文件上传 " + LocalDateTime.now());
-                        fileUrl = giteeService.addFile(pageGiteeApiCaller);
+                        commitpageGiteeApiCaller.setContent(fileBase64);
+                        commitpageGiteeApiCaller.setMessage("数据库备份文件上传 " + LocalDateTime.now());
+                        fileUrl = giteeService.addFile(commitpageGiteeApiCaller);
                         //删除备份文件,容器中的备份文件，服务器上的备份文件
                         // 1.删除容器中的备份文件
                         String rmCmd = "docker exec -i " + containerName + " rm "+filePath+fileName;
@@ -120,41 +135,44 @@ public class DBbackupJob extends QuartzJobBean {
                     }
 
                     // 给 DBA 发送备份成功的邮件
-                    MimeMessage message;
-                    try {
-                        message = javaMailSender.createMimeMessage();
-                        MimeMessageHelper helper = new MimeMessageHelper(message, true);
-                        helper.setFrom(from);
-                        helper.setTo(emailaddress);
-                        helper.setSubject("BSM数据库备份成功邮件");
-                        // 处理邮件模板
-                        Context emailContext = new Context();
-                        emailContext.setVariable("datetime",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                        emailContext.setVariable("fileurl",fileUrl);
-                        String template = templateEngine.process("mail/DBbackupTemplate", emailContext);
+                    String enableEmail = (String) redisUtil.hget("bsm_config", "ENABLE_EMAIL");
+                    if ("true".equals(enableEmail)){
+                        MimeMessage message;
+                        try {
+                            message = javaMailSender.createMimeMessage();
+                            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+                            helper.setFrom(from);
+                            helper.setTo(emailaddress);
+                            helper.setSubject("BSM数据库备份成功邮件");
+                            // 处理邮件模板
+                            Context emailContext = new Context();
+                            emailContext.setVariable("datetime",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                            emailContext.setVariable("fileurl",fileUrl);
+                            String template = templateEngine.process("mail/DBbackupTemplate", emailContext);
 
-                        // 6，设置邮件内容，混合模式
-                        MimeMultipart msgMultipart = new MimeMultipart("mixed");
-                        message.setContent(msgMultipart);
+                            // 6，设置邮件内容，混合模式
+                            MimeMultipart msgMultipart = new MimeMultipart("mixed");
+                            message.setContent(msgMultipart);
 
-                        // 7，设置消息正文
-                        MimeBodyPart content = new MimeBodyPart();
-                        msgMultipart.addBodyPart(content);
+                            // 7，设置消息正文
+                            MimeBodyPart content = new MimeBodyPart();
+                            msgMultipart.addBodyPart(content);
 
-                        // 8，设置正文格式
-                        MimeMultipart bodyMultipart = new MimeMultipart("related");
-                        content.setContent(bodyMultipart);
+                            // 8，设置正文格式
+                            MimeMultipart bodyMultipart = new MimeMultipart("related");
+                            content.setContent(bodyMultipart);
 
-                        // 9，设置正文内容
-                        MimeBodyPart htmlPart = new MimeBodyPart();
-                        bodyMultipart.addBodyPart(htmlPart);
-                        htmlPart.setContent(template, "text/html;charset=UTF-8");
+                            // 9，设置正文内容
+                            MimeBodyPart htmlPart = new MimeBodyPart();
+                            bodyMultipart.addBodyPart(htmlPart);
+                            htmlPart.setContent(template, "text/html;charset=UTF-8");
 
 
-                        javaMailSender.send(message);
-                    } catch (Exception e) {
-                        log.error(e.getMessage());
-                        e.printStackTrace();
+                            javaMailSender.send(message);
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                            e.printStackTrace();
+                        }
                     }
                 } else {
                     log.error("数据库备份失败！");
@@ -165,16 +183,6 @@ public class DBbackupJob extends QuartzJobBean {
                 // TODO Auto-generated catch block
                 log.error(e.getMessage());
 
-            } finally {
-                if (bf != null) {
-                    bf.close();
-                }
-                if (inputStreamReader != null) {
-                    inputStreamReader.close();
-                }
-                if (inputStream != null) {
-                    inputStream.close();
-                }
             }
 
 
