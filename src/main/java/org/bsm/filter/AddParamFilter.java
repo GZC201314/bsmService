@@ -1,9 +1,19 @@
 package org.bsm.filter;
 
+import cn.hutool.core.bean.BeanUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.entity.CurUser;
+import org.bsm.utils.RedisUtil;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author GZC
@@ -11,18 +21,35 @@ import java.io.IOException;
  * @desc 添加公共参数过滤器
  */
 @Slf4j
+@Component
+@WebFilter(urlPatterns = "/*", filterName = "AddParamFilter")
 public class AddParamFilter implements Filter {
+
+    @Resource
+    RedisUtil redisUtil;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        //获取 filterRegistrationBean.addInitParameter("XXX","XXXX")设置的参数
         Filter.super.init(filterConfig);
     }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         /*TODO 添加公共的参数是否应该*/
-        log.info("AddParamFilter is running.");
+        HttpServletRequest httpRequest = (HttpServletRequest)servletRequest;
+        HttpSession session = httpRequest.getSession();
+        Map<Object, Object> hmget = new HashMap<>();
+        CurUser curUser = null;
+        if (session != null) {
+            String id = session.getId();
+            hmget = redisUtil.hmget(id);
+            curUser = BeanUtil.fillBeanWithMap(hmget, new CurUser(), false);
+        }
+
+        if (curUser != null) {
+            servletRequest.setAttribute("curUser",curUser);
+        }
+        filterChain.doFilter(servletRequest, servletResponse);
     }
 
 

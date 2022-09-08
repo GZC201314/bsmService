@@ -30,7 +30,6 @@ public class SwaggerConfig {
                 .apiInfo(apiInfo())
                 .enable(flag)
                 .select()
-
                 .apis(RequestHandlerSelectors.basePackage("org.bsm.controller"))
                 .build();
     }
