@@ -1,12 +1,5 @@
 package org.bsm.config;
 
-/**
- * @author GZC
- * @create 2021-10-25 15:08
- * @desc security config file
- * SECURITY
- */
-
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.Authorize;
 import org.bsm.handler.MyAuthenticationFailureHandler;

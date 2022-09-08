@@ -47,7 +47,7 @@ public class StatisticsQPSAspect {
         if (qps_success != null) {
             count = (double) qps_success;
         }
-        redisUtil.addZsetValue("QPS_success", functionName,(double)count+1);
+        redisUtil.addZsetValue("QPS_success", functionName, count +1);
     }
 
 
@@ -72,7 +72,7 @@ public class StatisticsQPSAspect {
         if (qpsFail != null) {
             count = (double) qpsFail;
         }
-        redisUtil.addZsetValue(qps_fail,functionName,(double)count+1);
+        redisUtil.addZsetValue(qps_fail,functionName, count +1);
     }
 
     /**

@@ -4,8 +4,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.task.Factory.BsmJobFactory;
 import org.quartz.Scheduler;
-import org.quartz.SchedulerFactory;
-import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -72,7 +70,6 @@ public class AsyncScheduledTaskConfig {
     /**
      * 读取 quartz 配置文件
      *
-     * @return
      */
     @Bean
     public Properties quartzProperties() {
@@ -91,7 +88,6 @@ public class AsyncScheduledTaskConfig {
     /**
      * quartz 线程池配置
      *
-     * @return
      */
     @Bean
     public Executor schedulerThreadPool() {

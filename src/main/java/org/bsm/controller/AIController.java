@@ -30,8 +30,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,7 +49,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/ai")
 public class AIController {
-    private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
     /**
      * 上传文字识别图像
      */
@@ -93,7 +90,6 @@ public class AIController {
             if (aipFaceResult != null) {
                 // 根据人脸识别的结果查询本地是否有用户记录,如果有的话,直接登录
                 String username = aipFaceResult.getResult().getUser_list().get(0).getUser_id();
-                double score = aipFaceResult.getResult().getUser_list().get(0).getScore();
                 final Date expirationDate = new Date(System.currentTimeMillis() + Constants.EXPIRATION * 1000);
                 String token = Jwts.builder()
                         .setSubject(username)
@@ -151,9 +147,7 @@ public class AIController {
         reUser.setUsername(username);
         reUser.setUsericon(user.getUsericon());
         reJson.put("userinfo", reUser);
-        JSONObject menuJson = new JSONObject();
         Set<Object> authorizeds = redisUtil.sGet(role.getRolename());
-        Set<PageMenu> pageMenuSet = new HashSet<>();
         Map<String, List<PageMenu>> map = new HashMap<>();
         assert authorizeds != null;
         for (Object authorized : authorizeds) {
@@ -193,7 +187,7 @@ public class AIController {
             parent.setChildren(map.get(parent.getId()));
         }
 
-        parentList.sort((o1, o2) -> o1.getOrderid() - o2.getOrderid());
+        parentList.sort(Comparator.comparingInt(PageMenu::getOrderid));
     }
 
     @StatisticsQPS

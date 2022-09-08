@@ -2,7 +2,6 @@ package org.bsm.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +59,6 @@ public class AuthorizeController {
         log.info("修改角色授权页面接口,信息是 :" + pages);
         Pages page = new Pages();
         BeanUtils.copyProperties(pages, page);
-        UpdateWrapper<Pages> pagesUpdateWrapper = new UpdateWrapper<>();
         if (!StringUtils.hasText(pages.getPagesIds()) || !StringUtils.hasText(pages.getRolename())) {
             return Response.makeErrRsp("修改角色授权页面接口参数错误。");
         }
