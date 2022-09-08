@@ -40,8 +40,8 @@ public class HomeController {
     @StatisticsQPS
     @ApiOperation("获取系统详细信息接口")
     @GetMapping("/getSystemDetailInfo")
-    public ResponseResult<Object> getSystemDetailInfo(@RequestAttribute("curUser") CurUser a) {
-        log.info("获取系统详细信息接口,{}",a);
+    public ResponseResult<Object> getSystemDetailInfo() {
+        log.info("获取系统详细信息接口");
         JSONObject warnMessageList = systemDetailInfoService.getSystemDetailInfo();
         return Response.makeOKRsp("获取系统详细信息接口成功").setData(warnMessageList);
     }
