@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Doubanbook;
 import org.bsm.pagemodel.PageDouBanBook;
@@ -35,6 +36,7 @@ public class DoubanbookController {
     @Autowired
     IDoubanbookService doubanbookService;
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取豆瓣图书接口(分页)")
     @PostMapping("/getPageDouBanBook")
@@ -57,6 +59,7 @@ public class DoubanbookController {
         return Response.makeOKRsp("获取豆瓣图书接口(分页)成功").setData(rolePage);
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("根据ISBN,获取豆瓣图书详细信息接口")
     @GetMapping("/getDouBanBookInfo")
@@ -72,6 +75,7 @@ public class DoubanbookController {
         return Response.makeOKRsp("获取豆瓣图书详细信息成功").setData(doubanbook);
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("新增豆瓣图书接口")
     @PostMapping("/addDoubanBook")
@@ -85,6 +89,7 @@ public class DoubanbookController {
         }
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("修改豆瓣图书接口")
     @PostMapping("/updateDoubanBook")
@@ -98,6 +103,7 @@ public class DoubanbookController {
         }
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("删除豆瓣图书接口")
     @PostMapping("/deleteDouBanBook")
@@ -117,6 +123,7 @@ public class DoubanbookController {
         }
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("校验ISBN号是否唯一")
     @GetMapping("/validISBN")

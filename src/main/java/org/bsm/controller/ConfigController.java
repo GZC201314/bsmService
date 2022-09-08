@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Config;
 import org.bsm.pagemodel.PageConfig;
@@ -36,6 +37,7 @@ public class ConfigController {
     @Resource
     IConfigService configService;
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取所有配置信息接口(分页)")
     @PostMapping("/getConfigList")
@@ -55,6 +57,7 @@ public class ConfigController {
         return Response.makeOKRsp("获取所有配置信息接口(分页)成功").setData(datasourcePage);
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取所有配置信息接口")
     @GetMapping("/getAllConfig")
@@ -70,6 +73,7 @@ public class ConfigController {
         return Response.makeOKRsp("获取所有配置信息接口成功").setData(configList);
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取配置信息详细信息接口")
     @GetMapping("/getConfigInfo")
@@ -85,6 +89,7 @@ public class ConfigController {
         return Response.makeOKRsp("获取配置信息详细信息接口成功").setData(config);
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("新增配置信息接口")
     @PostMapping("/addConfig")
@@ -98,6 +103,7 @@ public class ConfigController {
         }
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("修改配置信息接口")
     @PostMapping("/updateConfig")
@@ -111,6 +117,7 @@ public class ConfigController {
         }
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("删除配置信息接口")
     @GetMapping("/deleteConfigs")

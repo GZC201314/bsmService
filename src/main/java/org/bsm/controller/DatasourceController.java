@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Datasource;
 import org.bsm.pagemodel.PageDataSource;
@@ -40,6 +41,7 @@ public class DatasourceController {
     @Autowired
     IDatasourceService datasourceService;
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取所有用户角色接口(分页)")
     @PostMapping("/getDataSourceList")
@@ -59,6 +61,7 @@ public class DatasourceController {
         return Response.makeOKRsp("获取所有的用户角色(分页)成功").setData(datasourcePage);
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("数据源驱动上传")
     @PostMapping(value = "uploadDrive", consumes = "multipart/*", headers = "content-type=multipart/form-data")
@@ -81,6 +84,7 @@ public class DatasourceController {
         }
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("测试数据源配置")
     @PostMapping("/testDataSource")
@@ -89,6 +93,7 @@ public class DatasourceController {
         return Response.makeOKRsp("测试数据源配置成功").setData(datasourceService.testDrive(pageDataSource));
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("新增数据源配置接口")
     @PostMapping("/insertDataSource")

@@ -4,6 +4,7 @@ package org.bsm.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.utils.RedisUtil;
 import org.bsm.utils.Response;
@@ -30,7 +31,7 @@ public class RSAKeyPairController {
 
     @Autowired
     private RedisUtil redisUtil;
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取RSA公钥接口")
     @GetMapping("/get")

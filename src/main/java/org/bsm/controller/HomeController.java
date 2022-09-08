@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.service.ISystemDetailInfoService;
 import org.bsm.utils.Response;
@@ -33,6 +34,7 @@ public class HomeController {
     private ISystemDetailInfoService systemDetailInfoService;
 
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取系统详细信息接口")
     @GetMapping("/getSystemDetailInfo")

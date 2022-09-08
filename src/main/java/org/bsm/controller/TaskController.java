@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.pagemodel.PageObject;
 import org.bsm.pagemodel.PageTask;
@@ -32,7 +33,7 @@ public class TaskController {
 
     @Autowired
     private ITaskService taskService;
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取定时任务分页列表接口")
     @PostMapping("/getTaskPageList")
@@ -44,7 +45,7 @@ public class TaskController {
         PageObject<JSONObject> allTaskPage = taskService.getAllTaskPage(pageTask);
         return Response.makeOKRsp("获取定时任务分页列表接口成功").setData(allTaskPage);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取定时任务详细信息接口")
     @GetMapping("/getTaskInfo")
@@ -56,7 +57,7 @@ public class TaskController {
         JSONObject taskInfo = taskService.getTaskInfo(pageTask);
         return Response.makeOKRsp("获取定时任务详细信息接口成功").setData(taskInfo);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("新增定时任务接口")
     @PostMapping("/addTask")
@@ -68,7 +69,7 @@ public class TaskController {
         String nextFireTime = taskService.addTask(pageTask);
         return Response.makeOKRsp("获取定时任务分页列表接口成功").setData(nextFireTime);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("校验定时任务Key接口")
     @GetMapping("/validateJobKey")
@@ -80,7 +81,7 @@ public class TaskController {
         boolean checkExists = taskService.validateJobKey(pageTask);
         return Response.makeOKRsp("校验定时任务Key接口成功").setData(!checkExists);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("删除定时任务接口")
     @GetMapping("/deleteTasks")
@@ -92,7 +93,7 @@ public class TaskController {
         boolean checkExists = taskService.deleteTasks(pageTask);
         return Response.makeOKRsp("删除定时任务接口成功").setData(checkExists);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("停止所有定时任务接口")
     @GetMapping("/stopAllTasks")
@@ -101,7 +102,7 @@ public class TaskController {
         boolean checkExists = taskService.stopAllTask(pageTask);
         return Response.makeOKRsp("停止所有定时任务接口成功").setData(checkExists);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("启动所有定时任务接口")
     @GetMapping("/startAllTasks")
@@ -110,6 +111,7 @@ public class TaskController {
         boolean checkExists = taskService.startAllTask(pageTask);
         return Response.makeOKRsp("启动所有定时任务接口成功").setData(checkExists);
     }
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("停止单个定时任务接口")
     @GetMapping("/stopTask")
@@ -118,6 +120,7 @@ public class TaskController {
         boolean checkExists = taskService.stopTask(pageTask);
         return Response.makeOKRsp("停止单个定时任务接口成功").setData(checkExists);
     }
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("启动单个定时任务接口")
     @GetMapping("/startTask")
@@ -126,7 +129,7 @@ public class TaskController {
         boolean checkExists = taskService.startTask(pageTask);
         return Response.makeOKRsp("启动单个定时任务接口成功").setData(checkExists);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("立即执行定时任务接口")
     @GetMapping("/executeNowTask")

@@ -7,6 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Authorize;
 import org.bsm.entity.Pages;
@@ -66,6 +67,7 @@ public class AIController {
     @Autowired
     PagesServiceImpl pagesService;
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("图像文字识别接口")
     @PostMapping(value = "ocr", consumes = "multipart/*", headers = "content-type=multipart/form-data")

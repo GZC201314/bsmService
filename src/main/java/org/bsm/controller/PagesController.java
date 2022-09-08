@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Pages;
 import org.bsm.pagemodel.PagePages;
@@ -39,6 +40,7 @@ public class PagesController {
     @Autowired
     IPagesService pageService;
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取所有页面接口")
     @GetMapping("/getAllPages")
@@ -54,6 +56,7 @@ public class PagesController {
         return Response.makeOKRsp("获取所有的页面成功").setData(roleList);
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取所有页面接口(分页)")
     @PostMapping("/getPagePages")
@@ -70,6 +73,7 @@ public class PagesController {
         return Response.makeOKRsp("获取所有页面接口(分页)成功").setData(pagesPage);
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("根据pageid获取页面详细信息接口")
     @GetMapping("/getPagesInfo")
@@ -85,6 +89,7 @@ public class PagesController {
         return Response.makeOKRsp("根据pageid获取页面详细信息成功").setData(pages);
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("校验pageKey的唯一性接口")
     @GetMapping("/pageKeyUnique")
@@ -100,6 +105,7 @@ public class PagesController {
         return Response.makeOKRsp("校验pageKey的唯一性成功").setData(count == 0);
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取所有的父节点接口")
     @GetMapping("/getparentNode")
@@ -111,6 +117,7 @@ public class PagesController {
         return Response.makeOKRsp("所有的父节点信息成功").setData(list);
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("新增页面接口")
     @PostMapping("/addPages")
@@ -125,6 +132,7 @@ public class PagesController {
         }
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("修改页面接口")
     @PostMapping("/updatePages")
@@ -156,6 +164,7 @@ public class PagesController {
         }
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("删除页面接口")
     @PostMapping("/deletePages")

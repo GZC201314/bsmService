@@ -135,6 +135,9 @@ flowable:
 
 
 config:
+  security:
+    noauth:
+      url: http://localhost:3000/#/login
   cache:
     refresh:
       timeout: 5

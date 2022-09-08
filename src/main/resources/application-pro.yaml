@@ -140,6 +140,9 @@ flowable:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 config:
+  security:
+    noauth:
+      url: https://www.bookstoremanager.top
   cache:
     refresh:
       timeout: 5

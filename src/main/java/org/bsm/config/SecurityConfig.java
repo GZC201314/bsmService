@@ -18,6 +18,7 @@ import org.bsm.service.impl.UserDetailServiceImpl;
 import org.bsm.utils.RedisUtil;
 import org.bsm.utils.validateCode.ValidateCodeFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -67,6 +68,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private DataSource dataSource;
 
+    @Value("${config.security.noauth.url}")
+    private String noAuthUrl;
+
 
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
@@ -107,7 +111,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         // 获取 noauth 跳转页面
-        String noauthUrl = (String)redisUtil.hget("bsm_config","NOAUTH_URL");
+        String noauthUrl = StringUtils.hasText((String)redisUtil.hget("bsm_config","NOAUTH_URL")) ?(String)redisUtil.hget("bsm_config","NOAUTH_URL"):noAuthUrl;
 
         http.exceptionHandling().accessDeniedPage("/noauth");
         // 添加验证码校验过滤器

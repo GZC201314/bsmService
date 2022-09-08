@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Pages;
 import org.bsm.pagemodel.PagePages;
@@ -36,6 +37,7 @@ public class AuthorizeController {
     @Autowired
     private IAuthorizeService authorizeService;
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取角色所有授权页面接口")
     @GetMapping("/getAllAuthorizePagesByRoleName")
@@ -50,6 +52,7 @@ public class AuthorizeController {
         return Response.makeOKRsp("获取所有的用户角色成功").setData(allAuthorizePagesByRoleName.toJSONString());
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("修改角色授权页面接口")
     @PostMapping("/updateAuthorizePagesByRoleName")

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Role;
 import org.bsm.entity.User;
@@ -69,6 +70,7 @@ public class UserController {
         }
     }
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取用户分页接口")
     @GetMapping("/getAlluser")
@@ -102,7 +104,7 @@ public class UserController {
             return Response.makeErrRsp("发送邮件失败.");
         }
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("查询单个用户的详细信息，根据用户名")
     @GetMapping("/getUserInfo")
@@ -113,7 +115,7 @@ public class UserController {
         User user = userService.getOne(queryWrapper);
         return Response.makeOKRsp("查询用户信息成功").setData(user);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("查询单个用户的信息，根据sessionId")
     @GetMapping("/getUserInfoBySession")
@@ -124,7 +126,7 @@ public class UserController {
         Map<Object, Object> userInfo = redisUtil.hmget(sessionId);
         return Response.makeOKRsp("查询用户信息成功").setData(userInfo);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("查询单个用户的详细信息，根据sessionId")
     @GetMapping("/getUserDetailInfo")
@@ -150,7 +152,7 @@ public class UserController {
         }
         return Response.makeOKRsp("查询用户详细信息成功").setData(pageUser);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("删除用户接口(逻辑删除)")
     @DeleteMapping("/deleteUser")
@@ -169,7 +171,7 @@ public class UserController {
             return Response.makeOKRsp("删除用户失败");
         }
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("用户头像上传接口")
     @PostMapping(value = "editAvatar", consumes = "multipart/*", headers = "content-type=multipart/form-data")
@@ -189,7 +191,7 @@ public class UserController {
             return Response.makeErrRsp("修改用户头像失败");
         }
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("用户名修改接口")
     @PostMapping("/updateUserName")
@@ -218,7 +220,7 @@ public class UserController {
             return Response.makeErrRsp("用户名修改失败.").setData("");
         }
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("用户密码修改接口")
     @PostMapping("/updateUserPassword")

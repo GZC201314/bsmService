@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.pagemodel.PageMessage;
 import org.bsm.service.IWarnMessageService;
@@ -34,6 +35,7 @@ public class EmailController {
     @Autowired
     private IWarnMessageService warnMessageService;
 
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取告警邮件列表接口")
     @PostMapping("/getWarnMessageList")

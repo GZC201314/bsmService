@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Role;
 import org.bsm.pagemodel.PageRole;
@@ -35,7 +36,7 @@ public class RoleController {
 
     @Autowired
     IRoleService roleService;
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取所有用户角色接口")
     @GetMapping("/getAllRole")
@@ -50,7 +51,7 @@ public class RoleController {
         List<Role> roleList = roleService.list(queryWrapper);
         return Response.makeOKRsp("获取所有的用户角色成功").setData(roleList);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取所有用户角色接口(分页)")
     @PostMapping("/getPageRole")
@@ -71,7 +72,7 @@ public class RoleController {
         Page<Role> rolePage = roleService.page(page, queryWrapper);
         return Response.makeOKRsp("获取所有的用户角色(分页)成功").setData(rolePage);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取用户角色详细信息接口")
     @GetMapping("/getRoleInfo")
@@ -86,7 +87,7 @@ public class RoleController {
         role = roleService.getOne(queryWrapper);
         return Response.makeOKRsp("获取用户角色详细信息成功").setData(role);
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("新增用户角色接口")
     @PostMapping("/addRole")
@@ -99,7 +100,7 @@ public class RoleController {
             return Response.makeOKRsp("新增用户角色失败");
         }
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("修改用户角色接口")
     @PostMapping("/updateRole")
@@ -112,7 +113,7 @@ public class RoleController {
             return Response.makeOKRsp("修改用户角色失败");
         }
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("修改用户角色启用状态接口")
     @PostMapping("/updateRoleStatus")
@@ -125,7 +126,7 @@ public class RoleController {
             return Response.makeOKRsp("修改用户角色状态失败");
         }
     }
-
+    @RefreshSession
     @StatisticsQPS
     @ApiOperation("删除用户角色接口(逻辑删除)")
     @PostMapping("/deleteRoles")
