@@ -249,7 +249,7 @@ public class MyDriverManager {
             try {
                 aClass = Class.forName(driver.getClass().getName(), true, classLoader);
             } catch (Exception ex) {
-                result = false;
+                return false;
             }
 
             result = aClass == driver.getClass();
