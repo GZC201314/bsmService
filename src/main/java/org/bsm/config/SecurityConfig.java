@@ -1,5 +1,6 @@
 package org.bsm.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.Authorize;
 import org.bsm.handler.MyAuthenticationFailureHandler;
@@ -9,10 +10,13 @@ import org.bsm.handler.MyCustomLogoutSuccessHandler;
 import org.bsm.service.impl.AuthorizeServiceImpl;
 import org.bsm.service.impl.UserDetailServiceImpl;
 import org.bsm.utils.RedisUtil;
+import org.bsm.utils.Response;
+import org.bsm.utils.ResponseResult;
 import org.bsm.utils.validateCode.ValidateCodeFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,6 +27,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,7 +84,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
 
-        log.info("进入鉴权配置------");
+        log.info("----------进入鉴权配置-------------");
         /*在这边查询数据库进行角色鉴权,然后把鉴权信息放到redis中*/
         List<Authorize> authorizes = authorizeService.list();
         Map<String, List<Authorize>> authorizationMap = new HashMap<>();
@@ -104,9 +109,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         // 获取 noauth 跳转页面
-        String noauthUrl = StringUtils.hasText((String)redisUtil.hget("bsm_config","NOAUTH_URL")) ?(String)redisUtil.hget("bsm_config","NOAUTH_URL"):noAuthUrl;
+        String noauthUrl = StringUtils.hasText((String) redisUtil.hget("bsm_config", "NOAUTH_URL")) ? (String) redisUtil.hget("bsm_config", "NOAUTH_URL") : noAuthUrl;
 
-        http.exceptionHandling().accessDeniedPage("/noauth");
+        http.exceptionHandling().authenticationEntryPoint((req, resp, authException) -> {
+            resp.setContentType("application/json;charset=utf-8");
+            resp.setStatus(401);
+            PrintWriter out = resp.getWriter();
+            ResponseResult<Object> objectResponseResult = Response.makeErrRsp("访问失败!").setCode(401);
+            if (authException instanceof InsufficientAuthenticationException) {
+                objectResponseResult.setMsg("请求失败，请联系管理员!");
+            }
+            out.write(new ObjectMapper().writeValueAsString(objectResponseResult));
+            out.flush();
+            out.close();
+        });
         // 添加验证码校验过滤器
         http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class)
                 // 添加短信验证码校验过滤器
@@ -124,7 +140,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 // 授权配置 无需认证的请求路径
-                .antMatchers(noauthUrl,"/toLogin", "/bsmservice/user/register", "/bsmservice/user/sendRegisterEmail", "/bsmservice/valid/userinfo", "/bsmservice/ai/faceLogin",
+                .antMatchers(noauthUrl, "/toLogin", "/bsmservice/user/register", "/bsmservice/user/sendRegisterEmail", "/bsmservice/valid/userinfo", "/bsmservice/ai/faceLogin",
                         "/login.html", "/bsmservice/code/image", "/bsmservice/code/sms", "/**/login.css", "**/*.js").permitAll()
                 .anyRequest()  // 所有请求
                 .authenticated() // 都需要认证
