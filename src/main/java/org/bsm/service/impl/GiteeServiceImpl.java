@@ -37,7 +37,7 @@ public class GiteeServiceImpl implements IGiteeService {
 
     @Override
     public String addFile(PageGiteeApiCaller pageGiteeApiCaller) {
-        log.info("开始向gitee图床上传文件：" + pageGiteeApiCaller);
+        log.info("开始向gitee图床上传文件：" + pageGiteeApiCaller.getPath());
         // String | 仓库所属空间地址(企业、组织或个人的地址path)
         String owner = pageGiteeApiCaller.getOwner();
         //String | 仓库路径(path)
