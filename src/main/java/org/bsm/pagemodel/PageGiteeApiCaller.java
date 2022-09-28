@@ -65,4 +65,8 @@ public class PageGiteeApiCaller {
      * String | Author的邮箱，默认为当前用户的邮箱
      */
     private String authorEmail;
+    /**
+     * recursive | 赋值为1递归获取目录
+     */
+    private String  recursive;
 }

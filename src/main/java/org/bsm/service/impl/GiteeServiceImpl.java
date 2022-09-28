@@ -135,13 +135,18 @@ public class GiteeServiceImpl implements IGiteeService {
         String repo = pageGiteeApiCaller.getRepo();
         // String | 文件的路径
         String pathSha = pageGiteeApiCaller.getSha();
+
+        String recursive = pageGiteeApiCaller.getRecursive();
         /*为了安全，从redis中获取accessToken*/
         Map<Object, Object> configMap = redisUtil.hmget(Constants.BSM_CONFIG);
         String accessToken = (String) configMap.get(Constants.GITEE_ACCESS_TOKEN);
         String requestUrl = String.format(Constants.GET_FILESBYDIRSHA_URL, owner,
                 repo, pathSha);
-        Map<String, Object> paramMap = new HashMap<>(16);
+        Map<String, Object> paramMap = new HashMap<>(8);
         paramMap.put("access_token", accessToken);
+        if (StringUtils.hasText(recursive)){
+            paramMap.put("recursive", recursive);
+        }
         String resultJson = HttpUtil.get(requestUrl, paramMap);
         JSONObject jsonObject = JSONUtil.parseObj(resultJson);
         JSONArray tree1 = jsonObject.getJSONArray("tree");
@@ -170,6 +175,7 @@ public class GiteeServiceImpl implements IGiteeService {
         paramMap.put("access_token", accessToken);
         paramMap.put("message",StringUtils.hasText(pageGiteeApiCaller.getMessage())?pageGiteeApiCaller.getMessage():"删除文件");
         paramMap.put("sha",pageGiteeApiCaller.getSha());
+        log.info("删除gitee文件：{}",requestUrl);
         String resultJson = HttpRequest.delete(requestUrl).form(paramMap).execute().body();
         JSONObject result = JSONUtil.parseObj(resultJson);
         JSONObject commit = result.getJSONObject("commit");
