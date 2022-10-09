@@ -89,7 +89,7 @@ public class UserController {
         boolean result = userService.save(user1);
         if (result) {
             log.info("用户新增成功.");
-            return Response.makeOKRsp("");
+            return Response.makeOKRsp("用户新增成功.");
         } else {
             log.error("用户新增失败,用户信息是 :" + user);
             return Response.makeErrRsp("新增用户失败.");
