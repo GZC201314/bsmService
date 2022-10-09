@@ -1,5 +1,6 @@
 package org.bsm.pagemodel;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,10 +37,12 @@ public class PageUser implements Serializable {
 
     @ApiModelProperty(value = "用户创建时间", example = "2020-02-05 13:30:41")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private LocalDateTime createtime;
 
     @ApiModelProperty(value = "最后修改用户时间", example = "2020-02-05 13:30:41")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private LocalDateTime lastmodifytime;
 
     private Integer roleid;
@@ -56,8 +59,7 @@ public class PageUser implements Serializable {
     /**
      * 分页 参数
      */
-    private Integer current;
-    private Integer size;
+    private Page page;
 
     // 上传的头像图像
     private File uploadImg;

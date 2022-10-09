@@ -1,6 +1,7 @@
 package org.bsm.controller;
 
 
+import cn.hutool.core.codec.Base64Encoder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -16,9 +17,7 @@ import org.bsm.pagemodel.PageUser;
 import org.bsm.service.IRoleService;
 import org.bsm.service.ISendEmailService;
 import org.bsm.service.IUserService;
-import org.bsm.utils.RedisUtil;
-import org.bsm.utils.Response;
-import org.bsm.utils.ResponseResult;
+import org.bsm.utils.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -27,7 +26,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * <p>
@@ -70,11 +72,35 @@ public class UserController {
         }
     }
 
+    @StatisticsQPS
+    @ApiOperation("用户新增接口")
+    @PostMapping("/add")
+    public ResponseResult<String> add(@RequestBody PageUser user) {
+        log.info("用户新增,用户信息是 :" + user);
+        user.setCreatetime(LocalDateTime.now());
+        user.setLastmodifytime(LocalDateTime.now());
+        User user1 = new User();
+        BeanUtils.copyProperties(user, user1);
+        byte[] saltBytes = Md5Util.getSalt(32);
+        String salt = Base64Encoder.encode(saltBytes);
+        user1.setSalt(salt);
+        user1.setPassword(Md5Util.toPasswd(user.getPassword(), saltBytes));
+        user1.setEnabled(true);
+        boolean result = userService.save(user1);
+        if (result) {
+            log.info("用户新增成功.");
+            return Response.makeOKRsp("");
+        } else {
+            log.error("用户新增失败,用户信息是 :" + user);
+            return Response.makeErrRsp("新增用户失败.");
+        }
+    }
+
     @RefreshSession
     @StatisticsQPS
     @ApiOperation("获取用户分页接口")
-    @GetMapping("/getAlluser")
-    public ResponseResult<Object> getAlluser(PageUser pageUser) {
+    @PostMapping("/getAlluser")
+    public ResponseResult<Object> getAlluser(@RequestBody PageUser pageUser) {
         log.info("获取所有的用户,使用的查询条件是 :" + pageUser);
         User user = new User();
         BeanUtils.copyProperties(pageUser, user);
@@ -82,10 +108,15 @@ public class UserController {
         if (StringUtils.hasText(pageUser.getUsername())) {
             queryWrapper.like("username", pageUser.getUsername());
         }
+
+        if (Objects.nonNull(pageUser.getRoleid())){
+            queryWrapper.eq("roleid",pageUser.getRoleid());
+        }
+
         if (StringUtils.hasText(pageUser.getEmailaddress())) {
             queryWrapper.like("emailaddress", pageUser.getEmailaddress());
         }
-        Page<User> page = new Page<>(pageUser.getCurrent(), pageUser.getSize());
+        Page<User> page = new Page<>(pageUser.getPage().getPage(), pageUser.getPage().getPageSize());
         Page<User> userPage = userService.page(page, queryWrapper);
         return Response.makeOKRsp("获取所有的用户成功").setData(userPage);
     }
@@ -154,17 +185,14 @@ public class UserController {
     }
     @RefreshSession
     @StatisticsQPS
-    @ApiOperation("删除用户接口(逻辑删除)")
-    @DeleteMapping("/deleteUser")
-    public ResponseResult<Object> deleteUser(User pageUser) {
-        log.info("删除用户角色,角色信息是 :" + pageUser);
-        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        if (StringUtils.hasText(pageUser.getUserid())) {
-            updateWrapper.eq("userid", pageUser.getUserid());
+    @ApiOperation("删除用户接口")
+    @PostMapping("/deleteUser")
+    public ResponseResult<Object> deleteUser(@RequestBody PageUser pageUser) {
+        log.info("删除用户,用户信息是 :" + pageUser);
+        if (!StringUtils.hasText(pageUser.getUserid())) {
+            return Response.makeErrRsp("删除用户参数错误！");
         }
-        pageUser.setEnabled(false);
-        pageUser.setLastmodifytime(LocalDateTime.now());
-        boolean result = userService.update(pageUser, updateWrapper);
+        boolean result = userService.removeByIds(Arrays.asList(pageUser.getUserid().split(",")));
         if (result) {
             return Response.makeOKRsp("删除用户成功");
         } else {
@@ -244,5 +272,23 @@ public class UserController {
             return Response.makeErrRsp("用户密码修改失败.").setData(false);
         }
     }
-
+    @RefreshSession
+    @StatisticsQPS
+    @ApiOperation("用户密码重置接口")
+    @PostMapping("/resetUserPassword")
+    public ResponseResult<Object> resetUserPassword(@RequestBody PageUser pageUser, HttpServletRequest request) throws IOException {
+        if (!StringUtils.hasText(pageUser.getUserid())) {
+            return Response.makeErrRsp("用户密码重置接口,参数错误.").setData(false);
+        }
+        /*重置用户密码*/
+        pageUser.setPassword(Constants.DEFAULT_PASSWORD);
+        boolean result = userService.editUserPassword(pageUser);
+        if (result) {
+            log.info("用户密码重置成功.");
+            return Response.makeOKRsp("用户密码重置成功").setData(true);
+        } else {
+            log.error("用户密码重置失败,用户信息是 :" + pageUser);
+            return Response.makeErrRsp("用户密码重置失败.").setData(false);
+        }
+    }
 }

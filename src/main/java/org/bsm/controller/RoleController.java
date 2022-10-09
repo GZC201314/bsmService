@@ -45,6 +45,7 @@ public class RoleController {
         Role role = new Role();
         BeanUtils.copyProperties(pageRole, role);
         QueryWrapper<Role> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("isdeleted", false);
         if (StringUtils.hasText(pageRole.getRolecname())) {
             queryWrapper.like("rolecname", pageRole.getRolecname());
         }

@@ -10,6 +10,8 @@ public class Constants {
     public static Integer EXPIRATION = 1000 * 3600;
     public static String SECRET = "thisisasecretstringforbsm";
 
+    public static String DEFAULT_PASSWORD = "123456";
+
     public static String CREATE_REPOS_URL = "https://gitee.com/api/v5/repos/%s/%s/contents/%s";
 
     public static String GET_REPOSFILE_URL = "https://gitee.com/api/v5/repos/%s/%s/contents/%s";
