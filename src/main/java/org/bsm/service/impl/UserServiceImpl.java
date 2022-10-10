@@ -1,18 +1,19 @@
 package org.bsm.service.impl;
 
-import cn.hutool.core.codec.Base64;
 import cn.hutool.core.codec.Base64Decoder;
 import cn.hutool.core.codec.Base64Encoder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.bsm.entity.Updateimginfo;
 import org.bsm.entity.User;
 import org.bsm.mapper.UserMapper;
-import org.bsm.pagemodel.PageGiteeApiCaller;
+import org.bsm.pagemodel.PageUpdatePicture;
 import org.bsm.pagemodel.PageUpload;
 import org.bsm.pagemodel.PageUser;
-import org.bsm.service.IGiteeService;
+import org.bsm.service.IUpdateimginfoService;
 import org.bsm.service.IUserService;
+import org.bsm.utils.ImgtuUtil;
 import org.bsm.utils.Md5Util;
 import org.bsm.utils.RedisUtil;
 import org.springframework.beans.BeanUtils;
@@ -43,7 +44,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     RedisUtil redisUtil;
 
     @Autowired
-    IGiteeService giteeService;
+    ImgtuUtil imgtuUtil;
+
+    @Autowired
+    IUpdateimginfoService updateimginfoService;
 
     @Override
     public Integer registerUser(PageUser pageUser) {
@@ -75,49 +79,39 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     /**
      * 修改用户头像
      *
-     * @param pageUpload 参数
+     * @param pageUpdatePicture 参数
      */
     @Override
-    public String editAvatar(PageUpload pageUpload) throws IOException {
-        if (pageUpload == null || pageUpload.getFile() == null) {
+    public String editAvatar(PageUpdatePicture pageUpdatePicture) throws IOException {
+        if (pageUpdatePicture == null || pageUpdatePicture.getFile() == null) {
             return "";
         }
 
         // 向 Gitee 中提交头像
-        PageGiteeApiCaller pageGiteeApiCaller = new PageGiteeApiCaller();
-        MultipartFile avatar = pageUpload.getFile();
+        MultipartFile avatar = pageUpdatePicture.getFile();
         /*生成文件地址*/
         String fileName = avatar.getOriginalFilename();
         if (!StringUtils.hasText(fileName)) {
             return "";
         }
-        String[] fileNames = fileName.split("\\.");
-        String path = "";
-        if (fileNames.length >= 2) {
-            path = UUID.randomUUID().toString().replace("-", "") + "." + fileNames[fileNames.length - 1];
-        }
-        String fileBase64 = Base64.encode(avatar.getBytes());
-        pageGiteeApiCaller.setContent(fileBase64);
-        pageGiteeApiCaller.setOwner("GZC201314");
-        Map<Object, Object> userInfo = redisUtil.hmget(pageUpload.getSessionId());
-        pageGiteeApiCaller.setPath("BSM/" + userInfo.get("username") + "/" + path);
-        pageGiteeApiCaller.setRepo("tuchuang");
-        pageGiteeApiCaller.setMessage("修改用户头像");
-
-        String fileUrl = giteeService.addFile(pageGiteeApiCaller);
-
+        Updateimginfo updateimginfo = imgtuUtil.uploadPicture(pageUpdatePicture);
+        Map<Object, Object> userInfo = redisUtil.hmget(pageUpdatePicture.getSessionId());
         String username = (String) userInfo.get("username");
 
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", username);
         User user = userMapper.selectOne(queryWrapper);
+        String usericon = user.getUsericon();
+        if (StringUtils.hasText(usericon)){
+            // 删除原来的图片
+            imgtuUtil.deletePicture(usericon);
+        }
+        String fileUrl = updateimginfo.getUrl();
         user.setUsericon(fileUrl);
         user.setLastmodifytime(LocalDateTime.now());
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("username", username);
         int updateResult = userMapper.update(user, updateWrapper);
-
-
         return updateResult == 1 ? fileUrl : "";
     }
 

@@ -2,6 +2,7 @@ package org.bsm.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.bsm.entity.User;
+import org.bsm.pagemodel.PageUpdatePicture;
 import org.bsm.pagemodel.PageUpload;
 import org.bsm.pagemodel.PageUser;
 
@@ -22,7 +23,7 @@ public interface IUserService extends IService<User> {
     /**
      * 修改用户头像
      */
-    public String editAvatar(PageUpload pageUpload) throws IOException;
+    public String editAvatar(PageUpdatePicture pageUpload) throws IOException;
 
     /**
      * 修改用户密码

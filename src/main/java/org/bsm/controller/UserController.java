@@ -12,6 +12,7 @@ import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Role;
 import org.bsm.entity.User;
+import org.bsm.pagemodel.PageUpdatePicture;
 import org.bsm.pagemodel.PageUpload;
 import org.bsm.pagemodel.PageUser;
 import org.bsm.service.IRoleService;
@@ -54,6 +55,7 @@ public class UserController {
 
     @Autowired
     RedisUtil redisUtil;
+
 
     @StatisticsQPS
     @ApiOperation("用户注册接口")
@@ -203,12 +205,12 @@ public class UserController {
     @StatisticsQPS
     @ApiOperation("用户头像上传接口")
     @PostMapping(value = "editAvatar", consumes = "multipart/*", headers = "content-type=multipart/form-data")
-    public ResponseResult<Object> editAvatar(PageUpload pageUpload, HttpServletRequest req) {
+    public ResponseResult<Object> editAvatar(PageUpdatePicture pageUpdatePicture, HttpServletRequest req) {
         log.info("into the editAvatar function");
         try {
             String sessionId = req.getSession().getId();
-            pageUpload.setSessionId(sessionId);
-            String newAvatarUrl = userService.editAvatar(pageUpload);
+            pageUpdatePicture.setSessionId(sessionId);
+            String newAvatarUrl = userService.editAvatar(pageUpdatePicture);
             if (StringUtils.hasText(newAvatarUrl)) {
                 return Response.makeOKRsp("修改用户头像成功").setData(newAvatarUrl);
             } else {
@@ -276,7 +278,7 @@ public class UserController {
     @StatisticsQPS
     @ApiOperation("用户密码重置接口")
     @PostMapping("/resetUserPassword")
-    public ResponseResult<Object> resetUserPassword(@RequestBody PageUser pageUser, HttpServletRequest request) throws IOException {
+    public ResponseResult<Object> resetUserPassword(@RequestBody PageUser pageUser) throws IOException {
         if (!StringUtils.hasText(pageUser.getUserid())) {
             return Response.makeErrRsp("用户密码重置接口,参数错误.").setData(false);
         }
