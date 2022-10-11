@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bsm.entity.Updateimginfo;
 import org.bsm.pagemodel.PageUpdatePicture;
 import org.bsm.service.IUpdateimginfoService;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 
 @Component
@@ -43,8 +43,13 @@ public class ImgtuUtil {
             token = (String)bsm_config.get("IMG_TOKEN");
         }
         MultipartFile file = pageUpdatePicture.getFile();
-        String file1 = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("")).getFile();
+        //获取当前jar 的执行路径
+        ApplicationHome home = new ApplicationHome(getClass());
+        File jarFile = home.getSource();
+        String file1 = jarFile.getParent();
+        log.info("file1,{}",file1);
         String fileName = file.getOriginalFilename();
+        log.info("fileName,{}",fileName);
         assert fileName != null;
         File tempFile = new File(file1+fileName);
         file.transferTo(tempFile);
