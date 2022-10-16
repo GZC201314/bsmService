@@ -8,9 +8,9 @@ import org.bsm.mapper.ConfigMapper;
 import org.bsm.service.IConfigService;
 import org.bsm.utils.Constants;
 import org.bsm.utils.RedisUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +26,7 @@ import java.util.Map;
 @Service
 public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> implements IConfigService {
 
-    @Autowired
+    @Resource
     RedisUtil redisUtil;
 
     /**
@@ -83,12 +83,9 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
 
     /**
      * 批量删除配置信息
-     *
-     * @param delIds
      */
     @Override
     public boolean delConfigs(String delIds) {
-        boolean result = false;
         String[] split = delIds.split(",");
         List<String> ids = Arrays.asList(split);
         List<Config> configs = listByIds(ids);

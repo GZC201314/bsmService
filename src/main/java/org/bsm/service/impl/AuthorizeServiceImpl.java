@@ -12,12 +12,12 @@ import org.bsm.pagemodel.PagePages;
 import org.bsm.pagemodel.PageRole;
 import org.bsm.service.IAuthorizeService;
 import org.bsm.utils.RedisUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -32,13 +32,13 @@ import java.util.*;
 public class AuthorizeServiceImpl extends ServiceImpl<AuthorizeMapper, Authorize> implements IAuthorizeService {
 
 
-    @Autowired
+    @Resource
     PagesMapper pagesMapper;
 
-    @Autowired
+    @Resource
     AuthorizeMapper authorizeMapper;
 
-    @Autowired
+    @Resource
     RedisUtil redisUtil;
 
 
@@ -80,7 +80,7 @@ public class AuthorizeServiceImpl extends ServiceImpl<AuthorizeMapper, Authorize
         }
 
 
-        Map<String, List<PageMenu>> pagesList = new HashMap<>();
+        Map<String, List<PageMenu>> pagesList = new HashMap<>(16);
         if (!CollectionUtils.isEmpty(pages)) {
             for (Pages page : pages) {
                 PageMenu pageMenu = new PageMenu();
@@ -89,7 +89,7 @@ public class AuthorizeServiceImpl extends ServiceImpl<AuthorizeMapper, Authorize
                 pageMenu.setKey(page.getPageid());
 
                 if (!pagesList.containsKey(page.getParentkey())) {
-                    pagesList.put(page.getParentkey(), new ArrayList<PageMenu>());
+                    pagesList.put(page.getParentkey(), new ArrayList<>());
                 }
                 pagesList.get(page.getParentkey()).add(pageMenu);
             }
@@ -116,7 +116,7 @@ public class AuthorizeServiceImpl extends ServiceImpl<AuthorizeMapper, Authorize
      * @param pagePages 前台传参
      * @return boolean
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateAuthorizePagesByRoleName(PagePages pagePages) {
         String[] pagesIds = pagePages.getPagesIds().split(",");

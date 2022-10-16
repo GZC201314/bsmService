@@ -13,7 +13,6 @@ import org.bsm.utils.RedisUtil;
 import org.bsm.utils.Response;
 import org.bsm.utils.ResponseResult;
 import org.bsm.utils.validateCode.ValidateCodeFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -26,6 +25,7 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -33,37 +33,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author GZC
+ */
 @Slf4j
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
+    @Resource
     private MyAuthenticationSucessHandler authenticationSucessHandler;
 
-    @Autowired
+    @Resource
     private MyAuthenticationFailureHandler authenticationFailureHandler;
 
-    @Autowired
+    @Resource
     private MyCustomLogoutHandler myCustomLogoutHandler;
 
-    @Autowired
+    @Resource
     private MyCustomLogoutSuccessHandler myCustomLogoutSuccessHandler;
 
-    @Autowired
+    @Resource
     private ValidateCodeFilter validateCodeFilter;
 
 
-    @Autowired
+    @Resource
     private UserDetailServiceImpl userDetailService;
 
-    @Autowired
+    @Resource
     private AuthorizeServiceImpl authorizeService;
 
-    @Autowired
+    @Resource
     private RedisUtil redisUtil;
 
-    /*设置记住密码*/
-    @Autowired
+    @Resource
     private DataSource dataSource;
 
     @Value("${config.security.noauth.url}")
