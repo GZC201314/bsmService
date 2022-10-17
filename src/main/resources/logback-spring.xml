@@ -32,6 +32,7 @@
             <!-- 设置字符集 -->
             <charset>UTF-8</charset>
         </encoder>
+        <filter class="org.bsm.filter.AntiLogRejectFilter"/>
     </appender>
 
     <!--2. 输出到文档-->
@@ -60,6 +61,7 @@
             <onMatch>ACCEPT</onMatch>
             <onMismatch>DENY</onMismatch>
         </filter>
+        <filter class="org.bsm.filter.AntiLogRejectFilter"/>
     </appender>
 
     <!-- 2.2 level为 INFO 日志，时间滚动输出  -->
@@ -87,6 +89,7 @@
             <onMatch>ACCEPT</onMatch>
             <onMismatch>DENY</onMismatch>
         </filter>
+        <filter class="org.bsm.filter.AntiLogRejectFilter"/>
     </appender>
 
     <!-- 2.3 level为 WARN 日志，时间滚动输出  -->
@@ -113,6 +116,7 @@
             <onMatch>ACCEPT</onMatch>
             <onMismatch>DENY</onMismatch>
         </filter>
+        <filter class="org.bsm.filter.AntiLogRejectFilter"/>
     </appender>
 
     <!-- 2.4 level为 ERROR 日志，时间滚动输出  -->
@@ -139,6 +143,7 @@
             <onMatch>ACCEPT</onMatch>
             <onMismatch>DENY</onMismatch>
         </filter>
+        <filter class="org.bsm.filter.AntiLogRejectFilter"/>
     </appender>
 
     <!--
@@ -174,41 +179,41 @@
 
     <!-- 4. 最终的策略 -->
     <!-- 4.1 开发环境:打印控制台-->
-<!--    <logger name="org.bsm.config" level="info">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
-<!--        <appender-ref ref="DEBUG_FILE"/>-->
-<!--        <appender-ref ref="INFO_FILE"/>-->
-<!--        <appender-ref ref="WARN_FILE"/>-->
-<!--        <appender-ref ref="ERROR_FILE"/>-->
-<!--    </logger>-->
-<!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
-<!--    <logger name="org.bsm.mapper" level="info">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
-<!--        <appender-ref ref="DEBUG_FILE"/>-->
-<!--        <appender-ref ref="INFO_FILE"/>-->
-<!--        <appender-ref ref="WARN_FILE"/>-->
-<!--        <appender-ref ref="ERROR_FILE"/>-->
-<!--    </logger>-->
-<!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
-<!--    <logger name="org.bsm.service" level="info">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
-<!--        <appender-ref ref="DEBUG_FILE"/>-->
-<!--        <appender-ref ref="INFO_FILE"/>-->
-<!--        <appender-ref ref="WARN_FILE"/>-->
-<!--        <appender-ref ref="ERROR_FILE"/>-->
-<!--    </logger>-->
-<!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
-<!--    <logger name="org.bsm.controller" level="info">-->
+    <!--    <logger name="org.bsm.config" level="info">-->
+    <!--        <appender-ref ref="CONSOLE"/>-->
+    <!--        <appender-ref ref="DEBUG_FILE"/>-->
+    <!--        <appender-ref ref="INFO_FILE"/>-->
+    <!--        <appender-ref ref="WARN_FILE"/>-->
+    <!--        <appender-ref ref="ERROR_FILE"/>-->
+    <!--    </logger>-->
+    <!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
+    <!--    <logger name="org.bsm.mapper" level="info">-->
+    <!--        <appender-ref ref="CONSOLE"/>-->
+    <!--        <appender-ref ref="DEBUG_FILE"/>-->
+    <!--        <appender-ref ref="INFO_FILE"/>-->
+    <!--        <appender-ref ref="WARN_FILE"/>-->
+    <!--        <appender-ref ref="ERROR_FILE"/>-->
+    <!--    </logger>-->
+    <!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
+    <!--    <logger name="org.bsm.service" level="info">-->
+    <!--        <appender-ref ref="CONSOLE"/>-->
+    <!--        <appender-ref ref="DEBUG_FILE"/>-->
+    <!--        <appender-ref ref="INFO_FILE"/>-->
+    <!--        <appender-ref ref="WARN_FILE"/>-->
+    <!--        <appender-ref ref="ERROR_FILE"/>-->
+    <!--    </logger>-->
+    <!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
+    <!--    <logger name="org.bsm.controller" level="info">-->
 
-<!--    </logger>-->
-<!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
-<!--    <logger name="org.bsm.utils" level="info">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
-<!--        <appender-ref ref="DEBUG_FILE"/>-->
-<!--        <appender-ref ref="INFO_FILE"/>-->
-<!--        <appender-ref ref="WARN_FILE"/>-->
-<!--        <appender-ref ref="ERROR_FILE"/>-->
-<!--    </logger>-->
+    <!--    </logger>-->
+    <!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
+    <!--    <logger name="org.bsm.utils" level="info">-->
+    <!--        <appender-ref ref="CONSOLE"/>-->
+    <!--        <appender-ref ref="DEBUG_FILE"/>-->
+    <!--        <appender-ref ref="INFO_FILE"/>-->
+    <!--        <appender-ref ref="WARN_FILE"/>-->
+    <!--        <appender-ref ref="ERROR_FILE"/>-->
+    <!--    </logger>-->
     <!-- 修改此处扫描包名 -->
 
     <root level="info">
