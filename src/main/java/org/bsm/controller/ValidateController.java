@@ -5,6 +5,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.bsm.annotation.RateLimit;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.User;
 import org.bsm.pagemodel.PageUser;
@@ -50,14 +51,17 @@ public class ValidateController {
 
     @Autowired
     RedisUtil redisUtil;
+
     @StatisticsQPS
     @ApiOperation("验证码生成接口 ")
     @GetMapping("/code/image")
+    @RateLimit
     public void createCode(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ImageCode imageCode = createImageCode();
         sessionStrategy.setAttribute(new ServletWebRequest(request), SESSION_KEY_IMAGE_CODE, imageCode);
         ImageIO.write(imageCode.getImage(), "jpeg", response.getOutputStream());
     }
+
     @StatisticsQPS
     @ApiOperation("短信验证码生成接口")
     @GetMapping("/code/sms")
