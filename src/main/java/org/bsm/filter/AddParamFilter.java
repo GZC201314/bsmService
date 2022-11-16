@@ -38,7 +38,7 @@ public class AddParamFilter implements Filter {
         /*TODO 添加公共的参数是否应该*/
         HttpServletRequest httpRequest = (HttpServletRequest)servletRequest;
         HttpSession session = httpRequest.getSession();
-        Map<Object, Object> hmget = new HashMap<>();
+        Map<Object, Object> hmget;
         CurUser curUser = null;
         if (session != null) {
             String id = session.getId();
