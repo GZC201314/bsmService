@@ -76,23 +76,11 @@ public class SystemMonitorWebSocket {
                 systemDetailInfo.put("curUserCount", ONLINE_COUNT.get());
                 // 获取当前访问成功最频繁的接口
                 Set<ZSetOperations.TypedTuple<Object>> qpsSuccess1 = redisUtil.getZsetMaxKeysOfScores("QPS_success", 0, 9);
-                List<JSONObject> topSuccessRequest = new ArrayList<>();
-                for (ZSetOperations.TypedTuple<Object> qpsSuccess : qpsSuccess1) {
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("value", qpsSuccess.getValue());
-                    jsonObject.put("score", qpsSuccess.getScore());
-                    topSuccessRequest.add(jsonObject);
-                }
+                List<JSONObject> topSuccessRequest = getTopList(qpsSuccess1);
                 systemDetailInfo.put("topSuccessRequest", topSuccessRequest);
 
                 Set<ZSetOperations.TypedTuple<Object>> qpsFail = redisUtil.getZsetMaxKeysOfScores("QPS_fail", 0, 10);
-                List<JSONObject> topFailRequest = new ArrayList<>();
-                for (ZSetOperations.TypedTuple<Object> qpsSuccess : qpsFail) {
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("value", qpsSuccess.getValue());
-                    jsonObject.put("score", qpsSuccess.getScore());
-                    topFailRequest.add(jsonObject);
-                }
+                List<JSONObject> topFailRequest = getTopList(qpsFail);
                 systemDetailInfo.put("topFailRequest", topFailRequest);
 
                 String s = systemDetailInfo.toJSONString();
@@ -105,6 +93,17 @@ public class SystemMonitorWebSocket {
 
         executor.scheduleWithFixedDelay(timerTask, 0, 30, TimeUnit.SECONDS);
 
+    }
+
+    private List<JSONObject> getTopList(Set<ZSetOperations.TypedTuple<Object>> qpsSuccess1) {
+        List<JSONObject> topSuccessRequest = new ArrayList<>();
+        for (ZSetOperations.TypedTuple<Object> qpsSuccess : qpsSuccess1) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("value", qpsSuccess.getValue());
+            jsonObject.put("score", qpsSuccess.getScore());
+            topSuccessRequest.add(jsonObject);
+        }
+        return topSuccessRequest;
     }
 
     /**
