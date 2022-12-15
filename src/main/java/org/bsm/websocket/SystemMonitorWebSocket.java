@@ -1,14 +1,22 @@
 package org.bsm.websocket;
 
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.bsm.service.impl.SystemDetailInfoServiceImpl;
+import org.bsm.utils.RedisUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -27,28 +35,75 @@ public class SystemMonitorWebSocket {
      * 在websocket中来获取SpringBean
      */
 
-    SystemDetailInfoServiceImpl systemDetailInfoService = new SystemDetailInfoServiceImpl();
 
     /**
      * 记录当前在线连接数
      */
-    private static AtomicInteger onlineCount = new AtomicInteger(0);
-
+    private static final AtomicInteger ONLINE_COUNT = new AtomicInteger(0);
     /**
      * 存放所有在线的客户端
      */
-    private static Map<String, Session> clients = new ConcurrentHashMap<>();
+    private static final Map<String, Session> CLIENTS = new ConcurrentHashMap<>();
+
+    private static SystemDetailInfoServiceImpl systemDetailInfoService;
+
+    @Autowired
+    public void setSystemDetailInfoService(SystemDetailInfoServiceImpl systemDetailInfoService) {
+        SystemMonitorWebSocket.systemDetailInfoService = systemDetailInfoService;
+    }
+
+    private static RedisUtil redisUtil;
+
+    @Autowired
+    public void setRedisUtil(RedisUtil redisUtil) {
+        SystemMonitorWebSocket.redisUtil = redisUtil;
+    }
 
     /**
      * 连接建立成功调用的方法
      */
     @OnOpen
     public void onOpen(Session session) {
-        onlineCount.incrementAndGet(); // 在线数加1
-        clients.put(session.getId(), session);
-        log.info("有新连接加入：{}，当前在线人数为：{}", session.getId(), onlineCount.get());
-        String s = systemDetailInfoService.getSystemDetailInfo().toJSONString();
-        this.sendMessage(s, session);
+        ONLINE_COUNT.incrementAndGet(); // 在线数加1
+        CLIENTS.put(session.getId(), session);
+        log.info("有新连接加入：{}，当前在线人数为：{}", session.getId(), ONLINE_COUNT.get());
+
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                JSONObject systemDetailInfo = systemDetailInfoService.getSystemDetailInfo();
+                // 拼装当前在线人物
+                systemDetailInfo.put("curUserCount", ONLINE_COUNT.get());
+                // 获取当前访问成功最频繁的接口
+                Set<ZSetOperations.TypedTuple<Object>> qpsSuccess1 = redisUtil.getZsetMaxKeysOfScores("QPS_success", 0, 9);
+                List<JSONObject> topSuccessRequest = new ArrayList<>();
+                for (ZSetOperations.TypedTuple<Object> qpsSuccess : qpsSuccess1) {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("value", qpsSuccess.getValue());
+                    jsonObject.put("score", qpsSuccess.getScore());
+                    topSuccessRequest.add(jsonObject);
+                }
+                systemDetailInfo.put("topSuccessRequest", topSuccessRequest);
+
+                Set<ZSetOperations.TypedTuple<Object>> qpsFail = redisUtil.getZsetMaxKeysOfScores("QPS_fail", 0, 10);
+                List<JSONObject> topFailRequest = new ArrayList<>();
+                for (ZSetOperations.TypedTuple<Object> qpsSuccess : qpsFail) {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("value", qpsSuccess.getValue());
+                    jsonObject.put("score", qpsSuccess.getScore());
+                    topFailRequest.add(jsonObject);
+                }
+                systemDetailInfo.put("topFailRequest", topFailRequest);
+
+                String s = systemDetailInfo.toJSONString();
+
+                session.getAsyncRemote().sendText(s);
+            }
+        };
+        ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1,
+                new BasicThreadFactory.Builder().namingPattern("systemmonitor-schedule-pool-%d").daemon(true).build());
+
+        executor.scheduleWithFixedDelay(timerTask, 0, 30, TimeUnit.SECONDS);
 
     }
 
@@ -57,9 +112,9 @@ public class SystemMonitorWebSocket {
      */
     @OnClose
     public void onClose(Session session) {
-        onlineCount.decrementAndGet(); // 在线数减1
-        clients.remove(session.getId());
-        log.info("有一连接关闭：{}，当前在线人数为：{}", session.getId(), onlineCount.get());
+        ONLINE_COUNT.decrementAndGet(); // 在线数减1
+        CLIENTS.remove(session.getId());
+        log.info("有一连接关闭：{}，当前在线人数为：{}", session.getId(), ONLINE_COUNT.get());
     }
 
     /**
@@ -69,14 +124,15 @@ public class SystemMonitorWebSocket {
      */
     @OnMessage
     public void onMessage(String message, Session session) {
-        log.info("服务端收到客户端[{}]的消息:{}", session.getId(), message);
+        log.info("服务端收到客户端[{}]的消息[{}]", session.getId(), message);
         String s = systemDetailInfoService.getSystemDetailInfo().toJSONString();
-        this.sendMessage(s, session);
+        sendMessage(s, session);
+
     }
 
     @OnError
     public void onError(Session session, Throwable error) {
-        log.error("发生错误");
+        log.error("客户端[{}]发生错误", session.getId());
         error.printStackTrace();
     }
 
@@ -86,13 +142,11 @@ public class SystemMonitorWebSocket {
      * @param message 消息内容
      */
     private void sendMessage(String message, Session fromSession) {
-        for (Map.Entry<String, Session> sessionEntry : clients.entrySet()) {
+        for (Map.Entry<String, Session> sessionEntry : CLIENTS.entrySet()) {
             Session toSession = sessionEntry.getValue();
             // 排除掉自己
-            log.info("服务端给客户端[{}]发送消息{}", toSession.getId(), message);
+            log.info("服务端[{}]给客户端[{}]发送消息", fromSession.getId(), toSession.getId());
             toSession.getAsyncRemote().sendText(message);
-//            if (!fromSession.getId().equals(toSession.getId())) {
-//            }
         }
     }
 }

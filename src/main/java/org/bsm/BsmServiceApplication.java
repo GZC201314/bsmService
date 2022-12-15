@@ -17,12 +17,6 @@ public class BsmServiceApplication {
     public static void main(String[] args) {
 
         SpringApplication.run(BsmServiceApplication.class, args);
-
-
-//        SpringApplication springApplication = new SpringApplication(BsmServiceApplication.class);
-//
-//        ConfigurableApplicationContext configurableApplicationContext = springApplication.run(args);
-
-
+        //解决WebSocket不能注入的问题
     }
 }

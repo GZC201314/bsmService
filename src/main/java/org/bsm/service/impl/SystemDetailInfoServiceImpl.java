@@ -78,7 +78,7 @@ public class SystemDetailInfoServiceImpl implements ISystemDetailInfoService {
         result.put("garbageCollectorMXBeans", garbageCollectorMXBeans);
         int totalThreadCount = SystemUtil.getTotalThreadCount();
         result.put("totalThreadCount", totalThreadCount);
-
+        
 
         return result;
     }
