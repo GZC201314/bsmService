@@ -14,6 +14,7 @@ import org.bsm.service.IAIService;
 import org.bsm.utils.AIInstance;
 import org.bsm.utils.Constants;
 import org.bsm.utils.RedisUtil;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,11 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Base64;
+import java.util.*;
 import java.util.Base64.Encoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author GZC
@@ -142,6 +140,7 @@ public class AIServiceImpl implements IAIService {
         String faceSecretKey = (String) configMap.get(Constants.FACE_SECRET_KEY);
 
         AipFace aipFace = AIInstance.getFaceInstance(faceAppId, faceApiKey, faceSecretKey);
+
         //获取用户的人脸识别信息
         Map<Object, Object> userInfo = redisUtil.hmget(pageUpload.getSessionId());
         String username = (String) userInfo.get("username");
@@ -164,5 +163,35 @@ public class AIServiceImpl implements IAIService {
             return updateCount > 0;
         }
         return false;
+    }
+
+    @Override
+    public List<FaceLib> getallFaceLib(PageUpload pageUpload) throws IOException {
+        List<FaceLib> ans = new ArrayList<>();
+        Map<Object, Object> configMap = redisUtil.hmget(Constants.BSM_CONFIG);
+        String faceAppId = (String) configMap.get(Constants.FACE_APP_ID);
+        String faceApiKey = (String) configMap.get(Constants.FACE_API_KEY);
+        String faceSecretKey = (String) configMap.get(Constants.FACE_SECRET_KEY);
+
+        AipFace aipFace = AIInstance.getFaceInstance(faceAppId, faceApiKey, faceSecretKey);
+        org.json.JSONObject groupList = aipFace.getGroupList(new HashMap<>());
+        org.json.JSONObject result = groupList.getJSONObject("result");
+        JSONArray groupIdList = result.getJSONArray("group_id_list");
+        int length = groupIdList.length();
+        for (int i = 0; i < length; i++) {
+            String groupId = groupIdList.getString(i);
+            // 根据GroupId获取人脸库信息
+            org.json.JSONObject groupUsers = aipFace.getGroupUsers(groupId, new HashMap<>());
+            org.json.JSONObject groupUsersresult = groupUsers.getJSONObject("result");
+            JSONArray userIdList = groupUsersresult.getJSONArray("user_id_list");
+            int userLen = userIdList.length();
+            for (int j = 0; j < userLen; j++) {
+                String userId = userIdList.getString(j);
+                FaceLib faceLib = new FaceLib(groupId, userId);
+                ans.add(faceLib);
+            }
+        }
+
+        return ans;
     }
 }

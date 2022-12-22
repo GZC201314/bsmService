@@ -14,9 +14,10 @@ import org.bsm.entity.Pages;
 import org.bsm.entity.Role;
 import org.bsm.entity.User;
 import org.bsm.pagemodel.AipFaceResult;
+import org.bsm.pagemodel.FaceLib;
 import org.bsm.pagemodel.PageMenu;
 import org.bsm.pagemodel.PageUpload;
-import org.bsm.service.impl.AIServiceImpl;
+import org.bsm.service.IAIService;
 import org.bsm.service.impl.PagesServiceImpl;
 import org.bsm.service.impl.RoleServiceImpl;
 import org.bsm.service.impl.UserServiceImpl;
@@ -31,6 +32,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,7 +55,7 @@ public class AIController {
      * 上传文字识别图像
      */
     @Autowired
-    AIServiceImpl aiService;
+    IAIService aiService;
     @Autowired
     RedisUtil redisUtil;
     @Autowired
@@ -210,5 +212,22 @@ public class AIController {
             return Response.makeErrRsp("人脸识别注册失败");
         }
         return Response.makeErrRsp("人脸识别注册失败");
+    }
+
+    @StatisticsQPS
+    @ApiOperation("获取人脸库列表接口")
+    @GetMapping(value = "faceLib")
+    public ResponseResult<Object> faceLibList(PageUpload pageUpload) {
+        log.info("into the faceLibList function");
+//        if (pageUpload.getFile() == null) {
+//            return Response.makeErrRsp("获取人脸库列表，参数错误");
+//        }
+        try {
+            List<FaceLib> faceLibs = aiService.getallFaceLib(pageUpload);
+            return Response.makeOKRsp(faceLibs);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Response.makeErrRsp("获取人脸库列表失败");
+        }
     }
 }
