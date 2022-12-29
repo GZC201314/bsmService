@@ -14,7 +14,6 @@ import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,12 +28,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ServerEndpoint(value = "/system/monitor")
 public class SystemMonitorWebSocket {
 
+    private static final ScheduledThreadPoolExecutor EXECUTOR;
+
     /*
      * 解决WebSocket不能注入的问题,原因是SpringBoot的注入对象是单例的，
      * 而websocket的对象会因每次连接而创建，导致注入的对象为null,这边在启动的时候把上下文传进去，
      * 在websocket中来获取SpringBean
      */
 
+    static {
+        EXECUTOR = new ScheduledThreadPoolExecutor(10,
+                new BasicThreadFactory.Builder().namingPattern("systemmonitor-schedule-pool-%d").daemon(true).build());
+    }
 
     /**
      * 记录当前在线连接数
@@ -44,6 +49,7 @@ public class SystemMonitorWebSocket {
      * 存放所有在线的客户端
      */
     private static final Map<String, Session> CLIENTS = new ConcurrentHashMap<>();
+    private static final Map<String, TimerTask> TASKS = new ConcurrentHashMap<>();
 
     private static SystemDetailInfoServiceImpl systemDetailInfoService;
 
@@ -66,8 +72,9 @@ public class SystemMonitorWebSocket {
     public void onOpen(Session session) {
         ONLINE_COUNT.incrementAndGet(); // 在线数加1
         CLIENTS.put(session.getId(), session);
-        log.info("有新连接加入：{}，当前在线人数为：{}", session.getId(), ONLINE_COUNT.get());
 
+        log.info("有新连接加入：{}，当前在线人数为：{}", session.getId(), ONLINE_COUNT.get());
+        log.info("当前的任务数,{}", EXECUTOR.getActiveCount());
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
@@ -88,10 +95,8 @@ public class SystemMonitorWebSocket {
                 session.getAsyncRemote().sendText(s);
             }
         };
-        ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1,
-                new BasicThreadFactory.Builder().namingPattern("systemmonitor-schedule-pool-%d").daemon(true).build());
-
-        executor.scheduleWithFixedDelay(timerTask, 0, 30, TimeUnit.SECONDS);
+        TASKS.put(session.getId(), timerTask);
+        EXECUTOR.scheduleWithFixedDelay(timerTask, 0, 30, TimeUnit.SECONDS);
 
     }
 
@@ -113,6 +118,9 @@ public class SystemMonitorWebSocket {
     public void onClose(Session session) {
         ONLINE_COUNT.decrementAndGet(); // 在线数减1
         CLIENTS.remove(session.getId());
+        TimerTask timerTask = TASKS.get(session.getId());
+        EXECUTOR.remove(timerTask);
+        TASKS.remove(session.getId());
         log.info("有一连接关闭：{}，当前在线人数为：{}", session.getId(), ONLINE_COUNT.get());
     }
 
