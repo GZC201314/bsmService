@@ -4,12 +4,12 @@ spring:
   datasource:
     druid:
       db-type: mysql
-      username: mpw:uHqOZVe2JrjJQT7KTCLImA==
+      username: BSM:uHqOZVe2JrjJQT7KTCLImA==
       #自己机器上面的Mysql密码
-      password: mpw:VMdY+m3qH+xaTIhPNcYkjg==
+      password: BSM:VMdY+m3qH+xaTIhPNcYkjg==
       #我的工作环境密码
       #      password: mpw:dqVDuuSo+lUNSJbK4YRSdg==
-      url: mpw:xKb8dKZzE7E9xygKB0B7Hwb7PduGnUVtG8hQGJgJEaSd3aeb83+0Ts3ecbpo8cyLgbSp4ot/Big7BWgyL3eQubCiStDaZwuO6Nkk5WfYeVbYyDOWiiIIrR2YBLyEsJq1
+      url: BSM:xKb8dKZzE7E9xygKB0B7Hwb7PduGnUVtG8hQGJgJEaSd3aeb83+0Ts3ecbpo8cyLgbSp4ot/Big7BWgyL3eQubCiStDaZwuO6Nkk5WfYeVbYyDOWiiIIrR2YBLyEsJq1
       driver-class-name: com.mysql.cj.jdbc.Driver
 
       # 连接池配置
@@ -125,10 +125,10 @@ server:
 # flowable 配置信息
 flowable:
   datasource:
-    url: mpw:xKb8dKZzE7E9xygKB0B7H2gMQaGfE/+8r6vjkBqN7/ZqmbsI8LafwOK7VYEBA1MpoSW/hazwB1/WJYBuU+XdFZzN55rEcRMyud4mUCCUgIIjoZdZayhVXITIB0FTrQrm
-    username: mpw:uHqOZVe2JrjJQT7KTCLImA==
+    url: BSM:xKb8dKZzE7E9xygKB0B7H2gMQaGfE/+8r6vjkBqN7/ZqmbsI8LafwOK7VYEBA1MpoSW/hazwB1/WJYBuU+XdFZzN55rEcRMyud4mUCCUgIIjoZdZayhVXITIB0FTrQrm
+    username: BSM:uHqOZVe2JrjJQT7KTCLImA==
     #自己机器上面的Mysql密码
-    password: mpw:VMdY+m3qH+xaTIhPNcYkjg==
+    password: BSM:VMdY+m3qH+xaTIhPNcYkjg==
     #    我的工作环境的密码
     #    password: mpw:dqVDuuSo+lUNSJbK4YRSdg==
     driver-class-name: com.mysql.cj.jdbc.Driver

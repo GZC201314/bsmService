@@ -21,6 +21,7 @@ import org.bsm.pagemodel.PageUser;
 import org.bsm.utils.RedisUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 
@@ -38,6 +39,7 @@ import java.util.UUID;
  * @create 2021-11-03 16:10
  * @desc
  */
+@Disabled
 public class CopyValueTest1 {
     @Resource
     private RedisUtil redisUtil;

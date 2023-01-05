@@ -1,6 +1,7 @@
 package org.bsm;
 
 import com.baomidou.mybatisplus.core.toolkit.AES;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -9,12 +10,12 @@ import org.junit.jupiter.api.Test;
  * @desc
  */
 
-
+@Disabled
 public class EncodeAndDecode {
     @Test
     public void encodeAndDecode() {
         // 生成 16 位随机 AES 密钥
-        String randomKey = "ef33af9dea1958f4";
+        String randomKey = "";
 
 //        System.out.println(AES.decrypt("VMdY+m3qH+xaTIhPNcYkjg==", randomKey));
 

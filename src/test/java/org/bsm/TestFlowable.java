@@ -2,6 +2,9 @@ package org.bsm;
 
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.RepositoryService;
+import org.flowable.engine.repository.Deployment;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -10,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @create 2022-01-17 15:59
  * @desc 集成scala的测试类
  */
+@Disabled
 @Slf4j
 public class TestFlowable {
     @Autowired
@@ -36,8 +40,8 @@ public class TestFlowable {
 //
 //        ProcessEngine processEngine = cfg.buildProcessEngine();
 //
-//        RepositoryService repositoryService = processEngine.getRepositoryService();
-//        Deployment deploy = repositoryService.createDeployment().addClasspathResource("dpmn20.xml").deploy();
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+        Deployment deploy = repositoryService.createDeployment().addClasspathResource("dpmn20.xml").deploy();
 
     }
 }

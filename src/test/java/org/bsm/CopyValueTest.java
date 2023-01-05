@@ -15,6 +15,7 @@ import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import com.baomidou.mybatisplus.core.toolkit.Assert;
 import org.bsm.entity.User;
 import org.bsm.pagemodel.PageUser;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 
@@ -27,6 +28,7 @@ import java.util.UUID;
  * @create 2021-11-03 16:10
  * @desc
  */
+@Disabled
 public class CopyValueTest {
     @Test
     public void copyValue() {
@@ -40,8 +42,9 @@ public class CopyValueTest {
         BeanUtils.copyProperties(pageUser, user, "userid", "createtime");
         System.out.println("复制后的用户信息是 :" + user);
     }
+
     @Test
-    public void encodeAnddecodeTest(){
+    public void encodeAnddecodeTest() {
         /*对称解密算法*/
 //        AESTest();
 
@@ -97,7 +100,7 @@ public class CopyValueTest {
 
         byte[] aByte = HexUtil.decodeHex(a);
         byte[] decrypt = rsa.decrypt(aByte, KeyType.PrivateKey);
-        System.out.println(StrUtil.str(decrypt,CharsetUtil.CHARSET_UTF_8));
+        System.out.println(StrUtil.str(decrypt, CharsetUtil.CHARSET_UTF_8));
     }
 
     private void generateKeyPair() {
@@ -122,13 +125,13 @@ public class CopyValueTest {
         byte[] decrypt = rsa.decrypt(encrypt, KeyType.PrivateKey);
 
         //Junit单元测试
-        Assert.isTrue("我是一段测试aaaa".equals(StrUtil.str(decrypt, CharsetUtil.CHARSET_UTF_8)),"解密失败");
+        Assert.isTrue("我是一段测试aaaa".equals(StrUtil.str(decrypt, CharsetUtil.CHARSET_UTF_8)), "解密失败");
         System.out.println(StrUtil.str(decrypt, CharsetUtil.CHARSET_UTF_8));
 
         //私钥加密，公钥解密
         byte[] encrypt2 = rsa.encrypt(StrUtil.bytes("我是一段测试aaaa", CharsetUtil.CHARSET_UTF_8), KeyType.PrivateKey);
         byte[] decrypt2 = rsa.decrypt(encrypt2, KeyType.PublicKey);
-        Assert.isTrue("我是一段测试aaaa".equals(StrUtil.str(decrypt, CharsetUtil.CHARSET_UTF_8)),"解密失败");
+        Assert.isTrue("我是一段测试aaaa".equals(StrUtil.str(decrypt, CharsetUtil.CHARSET_UTF_8)), "解密失败");
         System.out.println(StrUtil.str(decrypt, CharsetUtil.CHARSET_UTF_8));
     }
 

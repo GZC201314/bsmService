@@ -5,6 +5,7 @@ import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.asymmetric.RSA;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.bsm.entity.Config;
 import org.bsm.service.IConfigService;
 import org.bsm.utils.RedisUtil;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.crypto.SecretKey;
 import java.util.List;
+import java.util.TimerTask;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,14 +45,14 @@ public class InitKeyPair {
         return () -> {
             // 要执行的代码
             log.info("开始初始化加密密钥.");
-            if (!redisUtil.hasKey("rsaPublicKey")){
+            if (!redisUtil.hasKey("rsaPublicKey")) {
                 RSA rsa = new RSA();
                 String privateKeyBase64 = rsa.getPrivateKeyBase64();
                 String publicKeyBase64 = rsa.getPublicKeyBase64();
                 redisUtil.set("rsaPublicKey", publicKeyBase64);
                 redisUtil.set("rsaPrivateKey", privateKeyBase64);
             }
-            if (!redisUtil.hasKey("aesKey")){
+            if (!redisUtil.hasKey("aesKey")) {
                 SecretKey secretKey = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue(), 128);
                 byte[] encoded = secretKey.getEncoded();
                 String aesKey = HexUtil.encodeHexStr(encoded);
@@ -69,11 +72,18 @@ public class InitKeyPair {
     ApplicationRunner applicationRunner() {
         return args -> {
             // 要执行的代码
-            while (true) {
-                TimeUnit.MINUTES.sleep(timeout);
-                log.info("开始刷新配置缓存.");
-                refreshConfig();
-            }
+
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    log.info("开始刷新配置缓存.");
+                    refreshConfig();
+                }
+            };
+            ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1,
+                    new BasicThreadFactory.Builder().namingPattern("configautorefresh-schedule-pool-%d").daemon(true).build());
+            scheduledThreadPoolExecutor.scheduleWithFixedDelay(timerTask, 0, 300, TimeUnit.SECONDS);
+
         };
     }
 
