@@ -13,7 +13,6 @@ import org.bsm.utils.MyPageUtil;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -32,9 +31,6 @@ public class TaskServiceImpl implements ITaskService {
 
     @Autowired
     private Scheduler scheduler;
-
-    @Autowired
-    private SchedulerFactoryBean schedulerFactoryBean;
 
     /**
      * 获取分页的定时任务信息
@@ -103,7 +99,6 @@ public class TaskServiceImpl implements ITaskService {
         for (String jobKeyString :
                 jobKeyArr) {
             String[] jobKeyInfo = jobKeyString.split("\\.");
-            String jobName = jobKeyInfo[0];
             String groupName = jobKeyInfo[1];
             JobKey jobKey = new JobKey(jobKeyString, groupName);
             jobKeyList.add(jobKey);
@@ -166,8 +161,6 @@ public class TaskServiceImpl implements ITaskService {
 
     /**
      * 校验定时任务Key
-     *
-     * @param pageTask
      */
     @Override
     public boolean validateJobKey(PageTask pageTask) {
@@ -213,7 +206,7 @@ public class TaskServiceImpl implements ITaskService {
             }
 
 
-            SimpleScheduleBuilder simpleScheduleBuilder = null;
+            SimpleScheduleBuilder simpleScheduleBuilder;
             if (trigger == null) {
                 TriggerBuilder<Trigger> triggerTriggerBuilder = TriggerBuilder.newTrigger()
                         .withIdentity(triggerKey)
