@@ -37,7 +37,7 @@ public class BsmTestAll {
 
     @DisplayName("角色测试")
     @Test
-    public void testRole() throws InterruptedException {
+    public void testRole() {
         Role role = new Role();
         role.setRolename("Junit role");
         role.setRolecname("Junit 角色");
