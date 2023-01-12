@@ -68,11 +68,11 @@ spring:
     # Redis数据库索引（默认为0）
     database: 1
     # Redis服务器地址
-    host: 124.223.4.131
+    host: 127.0.0.1
     # Redis服务器连接端口
     port: 6379
     timeout: 0
-    password: BSM:dqVDuuSo+lUNSJbK4YRSdg==
+    password: BSM:7vWdSL7h8NJCFb/NvTdpfg==
     lettuce:
       shutdown-timeout: 400
   mail:
