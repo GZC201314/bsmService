@@ -146,6 +146,32 @@
         <filter class="org.bsm.filter.AntiLogRejectFilter"/>
     </appender>
 
+    <!-- 2.4 level为 ERROR 日志，时间滚动输出  -->
+    <appender name="SQL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 正在记录的日志文档的路径及文档名 -->
+        <file>${logging.path}/bsm_sql.log</file>
+        <!--日志文档输出格式-->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <charset>UTF-8</charset> <!-- 此处设置字符集 -->
+        </encoder>
+        <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logging.path}/bsm-sql-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!--日志文档保留天数-->
+            <maxHistory>15</maxHistory>
+        </rollingPolicy>
+        <!-- 此日志文档只记录ERROR级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <filter class="org.bsm.filter.AntiLogRejectFilter"/>
+    </appender>
     <!--
         <logger>用来设置某一个包或者具体的某一个类的日志打印级别、
         以及指定<appender>。<logger>仅有一个name属性，
@@ -173,47 +199,23 @@
         可以包含零个或多个元素，标识这个appender将会添加到这个logger。
     -->
     <!--过滤掉spring和mybatis的一些无用的DEBUG信息-->
-    <logger name="org.springframework" level="INFO"/>
-    <logger name="org.mybatis" level="INFO"/>
-    <logger name="org.apache.zookeeper" level="INFO"/>
+<!--    <logger name="org.springframework" level="INFO"/>-->
+<!--    <logger name="org.mybatis" level="INFO"/>-->
+<!--    <logger name="org.apache.zookeeper" level="INFO"/>-->
+    <!--完整SQL语句日志打印-->
 
     <!-- 4. 最终的策略 -->
     <!-- 4.1 开发环境:打印控制台-->
-    <!--    <logger name="org.bsm.config" level="info">-->
-    <!--        <appender-ref ref="CONSOLE"/>-->
-    <!--        <appender-ref ref="DEBUG_FILE"/>-->
-    <!--        <appender-ref ref="INFO_FILE"/>-->
-    <!--        <appender-ref ref="WARN_FILE"/>-->
-    <!--        <appender-ref ref="ERROR_FILE"/>-->
-    <!--    </logger>-->
-    <!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
-    <!--    <logger name="org.bsm.mapper" level="info">-->
-    <!--        <appender-ref ref="CONSOLE"/>-->
-    <!--        <appender-ref ref="DEBUG_FILE"/>-->
-    <!--        <appender-ref ref="INFO_FILE"/>-->
-    <!--        <appender-ref ref="WARN_FILE"/>-->
-    <!--        <appender-ref ref="ERROR_FILE"/>-->
-    <!--    </logger>-->
-    <!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
-    <!--    <logger name="org.bsm.service" level="info">-->
-    <!--        <appender-ref ref="CONSOLE"/>-->
-    <!--        <appender-ref ref="DEBUG_FILE"/>-->
-    <!--        <appender-ref ref="INFO_FILE"/>-->
-    <!--        <appender-ref ref="WARN_FILE"/>-->
-    <!--        <appender-ref ref="ERROR_FILE"/>-->
-    <!--    </logger>-->
-    <!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
-    <!--    <logger name="org.bsm.controller" level="info">-->
-
-    <!--    </logger>-->
-    <!--    &lt;!&ndash; 修改此处扫描包名 &ndash;&gt;-->
-    <!--    <logger name="org.bsm.utils" level="info">-->
-    <!--        <appender-ref ref="CONSOLE"/>-->
-    <!--        <appender-ref ref="DEBUG_FILE"/>-->
-    <!--        <appender-ref ref="INFO_FILE"/>-->
-    <!--        <appender-ref ref="WARN_FILE"/>-->
-    <!--        <appender-ref ref="ERROR_FILE"/>-->
-    <!--    </logger>-->
+    <logger name="org.bsm.interceptor.ParameterInterceptorPlugin" level="info">
+        <appender-ref ref="SQL_FILE"/>
+    </logger>
+<!--    <logger name="org.bsm" level="info">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="DEBUG_FILE"/>-->
+<!--        <appender-ref ref="INFO_FILE"/>-->
+<!--        <appender-ref ref="WARN_FILE"/>-->
+<!--        <appender-ref ref="ERROR_FILE"/>-->
+<!--    </logger>-->
     <!-- 修改此处扫描包名 -->
 
     <root level="info">

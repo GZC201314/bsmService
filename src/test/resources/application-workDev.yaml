@@ -8,9 +8,9 @@ spring:
       db-type: mysql
       username: BSM:uHqOZVe2JrjJQT7KTCLImA==
       #自己机器上面的Mysql密码
-      password: BSM:VMdY+m3qH+xaTIhPNcYkjg==
+#      password: BSM:VMdY+m3qH+xaTIhPNcYkjg==
       #我的工作环境密码
-      #      password: mpw:dqVDuuSo+lUNSJbK4YRSdg==
+      password: BSM:dqVDuuSo+lUNSJbK4YRSdg==
       url: BSM:xKb8dKZzE7E9xygKB0B7Hwb7PduGnUVtG8hQGJgJEaSd3aeb83+0Ts3ecbpo8cyLgbSp4ot/Big7BWgyL3eQubCiStDaZwuO6Nkk5WfYeVbYyDOWiiIIrR2YBLyEsJq1
       driver-class-name: com.mysql.cj.jdbc.Driver
 
@@ -78,9 +78,9 @@ spring:
     port: 6379
     timeout: 0
     #    自己机器上的redis密码
-    password: BSM:OHwX2T52VbuzIp4egZ/srQ==
+#    password: BSM:OHwX2T52VbuzIp4egZ/srQ==
     # 我的工作环境密码
-    #    password: BSM:dqVDuuSo+lUNSJbK4YRSdg==
+    password: BSM:dqVDuuSo+lUNSJbK4YRSdg==
     lettuce:
       shutdown-timeout: 400
   mail:
@@ -130,9 +130,9 @@ flowable:
     url: BSM:xKb8dKZzE7E9xygKB0B7H2gMQaGfE/+8r6vjkBqN7/ZqmbsI8LafwOK7VYEBA1MpoSW/hazwB1/WJYBuU+XdFZzN55rEcRMyud4mUCCUgIIjoZdZayhVXITIB0FTrQrm
     username: BSM:uHqOZVe2JrjJQT7KTCLImA==
     #自己机器上面的Mysql密码
-    password: BSM:VMdY+m3qH+xaTIhPNcYkjg==
+#    password: BSM:VMdY+m3qH+xaTIhPNcYkjg==
     #    我的工作环境的密码
-    #    password: mpw:dqVDuuSo+lUNSJbK4YRSdg==
+    password: BSM:dqVDuuSo+lUNSJbK4YRSdg==
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 

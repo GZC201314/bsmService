@@ -1,5 +1,7 @@
 logging:
   config: classpath:logback-spring.xml
+log:
+  printSql:true
 spring:
   datasource:
     druid:
