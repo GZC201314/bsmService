@@ -3,7 +3,6 @@ package org.bsm;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.bsm.entity.Organization;
 import org.bsm.entity.Role;
-import org.bsm.entity.User;
 import org.bsm.service.IOrganizationService;
 import org.bsm.service.IRoleService;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +13,6 @@ import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 import javax.sql.DataSource;
