@@ -36,13 +36,12 @@ public class ImgtuUtil {
     /**
      * 上传图片
      */
-    public Updateimginfo uploadPicture(PageUpdatePicture pageUpdatePicture) throws IOException {
+    public Updateimginfo uploadPicture(MultipartFile file) throws IOException {
         if (!StringUtils.hasText(uid)||!StringUtils.hasText(token)){
             Map<Object, Object> bsm_config = redisUtil.hmget("bsm_config");
             uid = (String)bsm_config.get("IMG_UID");
             token = (String)bsm_config.get("IMG_TOKEN");
         }
-        MultipartFile file = pageUpdatePicture.getFile();
         //获取当前jar 的执行路径
         ApplicationHome home = new ApplicationHome(getClass());
         File jarFile = home.getSource();

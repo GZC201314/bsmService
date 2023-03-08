@@ -71,9 +71,7 @@ public class ParameterInterceptorPlugin implements Interceptor {
             }
           }
         }
-
-
-        log.warn("====================== ");
+        log.info("====================== ");
         log.info("完整Sql 打印");
         log.info(toStringSql(paramValues, boundSql.getSql()));
         log.info("======================");

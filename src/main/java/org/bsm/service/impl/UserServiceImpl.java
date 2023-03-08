@@ -87,14 +87,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             return "";
         }
 
-        // 向 Gitee 中提交头像
+        // 向 图库 中提交头像
         MultipartFile avatar = pageUpdatePicture.getFile();
         /*生成文件地址*/
         String fileName = avatar.getOriginalFilename();
         if (!StringUtils.hasText(fileName)) {
             return "";
         }
-        Updateimginfo updateimginfo = imgtuUtil.uploadPicture(pageUpdatePicture);
+        Updateimginfo updateimginfo = imgtuUtil.uploadPicture(avatar);
         Map<Object, Object> userInfo = redisUtil.hmget(pageUpdatePicture.getSessionId());
         String username = (String) userInfo.get("username");
 

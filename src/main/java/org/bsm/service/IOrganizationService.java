@@ -1,7 +1,9 @@
 package org.bsm.service;
 
+import org.bsm.entity.CurUser;
 import org.bsm.entity.Organization;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.bsm.pagemodel.PageOrganization;
 
 /**
  * <p>
@@ -13,4 +15,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IOrganizationService extends IService<Organization> {
 
+    boolean updateOrganization(PageOrganization pageOrganization);
+
+    boolean addOrganization(PageOrganization pageOrganization, CurUser curUser);
 }

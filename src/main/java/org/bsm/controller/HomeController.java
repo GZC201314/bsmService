@@ -7,13 +7,11 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
-import org.bsm.entity.CurUser;
 import org.bsm.service.ISystemDetailInfoService;
 import org.bsm.utils.Response;
 import org.bsm.utils.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

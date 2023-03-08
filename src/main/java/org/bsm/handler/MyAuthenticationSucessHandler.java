@@ -63,23 +63,28 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
                 roleName = roleName.replace("ROLE_", "");
             }
         }
-        String sessionId = request.getSession().getId();
-        redisUtil.del(sessionId);
-        redisUtil.hset(sessionId, "token", token, 60 * 300);
-        redisUtil.hset(sessionId, "username", user.getUsername(), 60 * 300);
-        redisUtil.hset(sessionId, "role", roleName, 60 * 300);
-        redisUtil.hset(sessionId, "isFaceValid", false, 60 * 300);
+
 
         org.bsm.entity.User reUser = new org.bsm.entity.User();
         /*获取用户详细信息*/
         QueryWrapper<org.bsm.entity.User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", user.getUsername());
         org.bsm.entity.User userInfo = userService.getOne(queryWrapper);
+
+        String sessionId = request.getSession().getId();
+        redisUtil.del(sessionId);
+        redisUtil.hset(sessionId, "token", token, 60 * 300);
+        redisUtil.hset(sessionId, "username", userInfo.getUsername(), 60 * 300);
+        redisUtil.hset(sessionId, "useremail", userInfo.getEmailaddress(), 60 * 300);
+        redisUtil.hset(sessionId, "userid", userInfo.getUserid(), 60 * 300);
+//        redisUtil.hset(sessionId, "username", user.ge, 60 * 300);
+        redisUtil.hset(sessionId, "role", roleName, 60 * 300);
+        redisUtil.hset(sessionId, "isFaceValid", userInfo.getIsfacevalid(), 60 * 300);
+
         reUser.setUsername(user.getUsername());
         reUser.setUsericon(userInfo.getUsericon());
         JSONObject reJson = new JSONObject();
         reJson.put("userinfo", reUser);
-        JSONObject menuJson = new JSONObject();
         Set<Object> authorizeds = redisUtil.sGet(roleName);
         List<PageMenu> parentList = new ArrayList<>();
         Map<String, List<PageMenu>> map = new HashMap<>();
@@ -120,7 +125,7 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
         for (PageMenu parent : parentList) {
             parent.setChildren(map.get(parent.getId()));
         }
-        parentList.sort((o1, o2) -> o1.getOrderid() - o2.getOrderid());
+        parentList.sort(Comparator.comparingInt(PageMenu::getOrderid));
 
 
         /*在这边拼装menuJson*/

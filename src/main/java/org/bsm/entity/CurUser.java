@@ -8,8 +8,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CurUser {
+    private String userid;
     private String username;
     private boolean isFaceValid;
     private String token;
     private String role;
+    private String emailaddress;
 }

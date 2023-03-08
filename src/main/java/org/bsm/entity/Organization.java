@@ -34,6 +34,8 @@ public class Organization implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+    private Integer parent;
+
     private String name;
 
     private String createBy;
@@ -45,6 +47,4 @@ public class Organization implements Serializable {
     private String icon;
     @TableField("`desc`")
     private String desc;
-
-
 }
