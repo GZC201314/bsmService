@@ -95,7 +95,7 @@ public class OrganizationController {
     @StatisticsQPS
     @ApiOperation("新增组织接口")
     @PostMapping(value = "/add", consumes = "multipart/*", headers = "content-type=multipart/form-data")
-    public ResponseResult<Object> add( PageOrganization pageOrganization,@RequestAttribute("AuthorityParam") CurUser curUser) {
+    public ResponseResult<Object> add( PageOrganization pageOrganization,@RequestAttribute("curUser") CurUser curUser) {
         log.info("新增组织接口");
         boolean result = organizationService.addOrganization(pageOrganization,curUser);
         if (result) {
