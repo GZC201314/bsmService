@@ -1,5 +1,6 @@
 package org.bsm;
 
+import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.bsm.entity.Organization;
 import org.bsm.entity.Role;
@@ -73,6 +74,7 @@ public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
             organization.setModifyDate(LocalDateTime.now());
             organization.setIcon("http://n.sinaimg.cn/sinacn10119/100/w1600h900/20190325/e17c-hutwezf3366889.jpg");
             organization.setDesc("Junit 测试 Organization");
+            organization.setParent(-1);
             boolean save = organizationService.save(organization);
             Assertions.assertTrue(save);
         }
@@ -92,6 +94,13 @@ public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
     public void testTask() throws SchedulerException {
         boolean shutdown = scheduler.isShutdown();
         Assertions.assertFalse(shutdown);
+    }
+    @DisplayName("测试Spring工具类")
+    @Test
+    public void testSpringUtil()  {
+        String property = SpringUtil.getProperty("server.port");
+        System.out.println(SpringUtil.getActiveProfile());
+        Assertions.assertEquals(property, "8888");
     }
 
 
