@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,16 +33,16 @@ import java.time.LocalDateTime;
 @AutoConfigureMockMvc
 public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
 
-    @Autowired
+    @Resource
     IRoleService roleService;
 
-    @Autowired
+    @Resource
     IOrganizationService organizationService;
 
-    @Autowired
+    @Resource
     DataSource dataSource;
 
-    @Autowired
+    @Resource
     private Scheduler scheduler;
 
     @DisplayName("角色测试")
