@@ -4,6 +4,8 @@ import cn.hutool.core.util.HexUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.asymmetric.RSA;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
+import com.baomidou.dynamic.datasource.DynamicRoutingDataSource;
+import com.baomidou.dynamic.datasource.toolkit.DynamicDataSourceContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.bsm.entity.Config;
@@ -72,7 +74,8 @@ public class InitKeyPair {
     ApplicationRunner applicationRunner() {
         return args -> {
             // 要执行的代码
-
+            log.info("强制清空本地线程");
+            DynamicDataSourceContextHolder.clear();
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
