@@ -1,7 +1,7 @@
 logging:
   config: classpath:logback-spring.xml
 log:
-  printSql:true
+  printSql: true
 spring:
   datasource:
     dynamic:
