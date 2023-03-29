@@ -16,13 +16,13 @@ public class DbAspect {
 
 
     @Before("execution(* org.flowable.app.engine.AppEngineConfiguration.buildAppEngine())")
-    public void before(){
+    public void before() {
         log.info("启用工作流数据源");
         DynamicDataSourceContextHolder.push("flowable");
     }
 
     @After("execution(* org.flowable.app.engine.AppEngineConfiguration.buildAppEngine())")
-    public void after(){
+    public void after() {
         log.info("停用工作流数据源");
         DynamicDataSourceContextHolder.poll();
     }

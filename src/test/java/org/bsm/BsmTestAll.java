@@ -6,12 +6,10 @@ import org.bsm.entity.Organization;
 import org.bsm.entity.Role;
 import org.bsm.service.IOrganizationService;
 import org.bsm.service.IRoleService;
-import org.flowable.engine.*;
-import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.RepositoryService;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
-import org.flowable.engine.runtime.ProcessInstance;
-import org.flowable.task.api.Task;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,10 +26,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 
 /**
  * @author GZC
@@ -118,13 +112,6 @@ public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
     }
 
 
-
-
-    /*
-     *
-     *
-     *
-     * */
     @DisplayName("测试Flowable")
     @Test
     public void testFlowableMenthod() {

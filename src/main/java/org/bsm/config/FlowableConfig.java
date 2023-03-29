@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 @Configuration
 public class FlowableConfig implements EngineConfigurator {
-    private static AtomicBoolean initialized = new AtomicBoolean(false);
+    private static final AtomicBoolean initialized = new AtomicBoolean(false);
     @Override
     public void beforeInit(AbstractEngineConfiguration abstractEngineConfiguration) {
         if (initialized.compareAndSet(false, true)){
@@ -33,37 +33,12 @@ public class FlowableConfig implements EngineConfigurator {
             log.info("切换flower数据源！");
         }
     }
-
     @Override
     public void configure(AbstractEngineConfiguration abstractEngineConfiguration) {
 
     }
-
     @Override
     public int getPriority() {
         return 0;
     }
-
-//    @Value("${flowable.datasource.url}")
-//    private String url;
-//
-//    @Value("${flowable.datasource.username}")
-//    private String username;
-//    @Value("${flowable.datasource.password}")
-//    private String password;
-//    @Value("${flowable.datasource.driver-class-name}")
-//    private String driver;
-//
-//    @Bean("processEngine")
-//    public ProcessEngine getProcessEngine() {
-//        ProcessEngineConfiguration cfg = new StandaloneProcessEngineConfiguration()
-//                .setJdbcUrl(url)
-//                .setJdbcUsername(username)
-//                .setJdbcPassword(password)
-//                .setJdbcDriver(driver)
-//                .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
-//
-//        return cfg.buildProcessEngine();
-//    }
-
 }
