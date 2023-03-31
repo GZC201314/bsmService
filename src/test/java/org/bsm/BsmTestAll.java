@@ -8,8 +8,11 @@ import org.bsm.service.IOrganizationService;
 import org.bsm.service.IRoleService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RepositoryService;
+import org.flowable.engine.RuntimeService;
+import org.flowable.engine.TaskService;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +29,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author GZC
@@ -112,15 +117,20 @@ public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
     }
 
 
-    @DisplayName("测试Flowable")
+    @DisplayName("测试Flowable流程查询")
     @Test
-    public void testFlowableMenthod() {
+    public void testFlowableProcessQuery() {
         RepositoryService repositoryService = processEngine.getRepositoryService();
-        Deployment deploy = repositoryService.createDeployment().addClasspathResource("processes/one-task-process.bpmn20.xml").key("oneTaskProcess").name("oneTaskProcess").deploy();
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
-                .deploymentId(deploy.getId())
+                .deploymentId("b18e977e-cf87-11ed-abb6-bab79e792329")
                 .singleResult();
         Assertions.assertNotNull(processDefinition);
+    }
+    @DisplayName("测试Flowable流程实例化")
+    @Test
+    public void testFlowableNewTask() {
+        RuntimeService runtimeService = processEngine.getRuntimeService();
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("oneTaskProcess");
     }
 
 }

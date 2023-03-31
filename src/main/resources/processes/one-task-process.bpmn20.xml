@@ -7,7 +7,7 @@
   <process id="oneTaskProcess" name="The One Task Process">
     <startEvent id="theStart" />
     <sequenceFlow id="flow1" sourceRef="theStart" targetRef="theTask" />
-    <userTask id="theTask" name="my task" flowable:assignee="guozhichao" />
+    <userTask id="theTask" name="my task" flowable:assignee="GZC123" />
     <sequenceFlow id="flow2" sourceRef="theTask" targetRef="theEnd" />
     <endEvent id="theEnd" />
   </process>

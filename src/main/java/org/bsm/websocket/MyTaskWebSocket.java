@@ -41,7 +41,7 @@ public class MyTaskWebSocket {
 
     static {
         EXECUTOR = new ScheduledThreadPoolExecutor(10,
-                new BasicThreadFactory.Builder().namingPattern("mytask-schedule-pool-%d").daemon(true).build());
+                new BasicThreadFactory.Builder().namingPattern("mytaskschedule-pool-%d").daemon(true).build());
     }
 
 
@@ -62,10 +62,27 @@ public class MyTaskWebSocket {
             @Override
             public void run() {
                 log.info("username,{}",username);
-                List<Task> list = processEngine.getTaskService().createTaskQuery().taskAssignee(username).orderByTaskDueDate().asc().list();
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("taskList",list);
-                session.getAsyncRemote().sendText(jsonObject.toJSONString());
+                try {
+                    List<Task> list = processEngine.getTaskService().createTaskQuery().taskAssignee(username).orderByTaskDueDate().asc().list();
+                    JSONObject jsonObject = new JSONObject();
+                    List<JSONObject> taskList = new ArrayList<>();
+                    for (Task task : list) {
+                        JSONObject taskJson = new JSONObject();
+                        taskJson.put("description",task.getDescription());
+                        taskJson.put("dueDate",task.getDueDate());
+                        taskJson.put("assignee",task.getAssignee());
+                        taskJson.put("claimTime",task.getClaimTime());
+                        taskJson.put("createTime",task.getCreateTime());
+                        taskJson.put("parentTaskId",task.getParentTaskId());
+                        taskJson.put("processDefinitionId",task.getProcessDefinitionId());
+                        taskJson.put("processVariables",task.getProcessVariables());
+                        taskList.add(taskJson);
+                    }
+                    jsonObject.put("taskList",taskList);
+                    session.getAsyncRemote().sendText(jsonObject.toJSONString());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         };
         TASKS.put(session.getId(), timerTask);
@@ -82,6 +99,7 @@ public class MyTaskWebSocket {
         TimerTask timerTask = TASKS.get(session.getId());
         EXECUTOR.remove(timerTask);
         TASKS.remove(session.getId());
+        log.info("mytask session.getId() = " + session.getId());
     }
 
     /**
