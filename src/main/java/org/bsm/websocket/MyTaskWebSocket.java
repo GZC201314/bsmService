@@ -3,23 +3,18 @@ package org.bsm.websocket;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
-import org.bsm.service.impl.SystemDetailInfoServiceImpl;
-import org.bsm.utils.RedisUtil;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * @author GZC
@@ -30,20 +25,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 @ServerEndpoint(value = "/mytask/{username}")
 public class MyTaskWebSocket {
-
-    private static final ScheduledThreadPoolExecutor EXECUTOR;
-    private static final Map<String, TimerTask> TASKS = new ConcurrentHashMap<>();
+    private static final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(10);
+    private static final Map<String, ScheduledFuture<?>> TASKS = new ConcurrentHashMap<>();
     /*
      * 解决WebSocket不能注入的问题,原因是SpringBoot的注入对象是单例的，
      * 而websocket的对象会因每次连接而创建，导致注入的对象为null,这边在启动的时候把上下文传进去，
      * 在websocket中来获取SpringBean
      */
-
-    static {
-        EXECUTOR = new ScheduledThreadPoolExecutor(10,
-                new BasicThreadFactory.Builder().namingPattern("mytaskschedule-pool-%d").daemon(true).build());
-    }
-
 
     private static ProcessEngine processEngine;
 
@@ -58,35 +46,35 @@ public class MyTaskWebSocket {
      */
     @OnOpen
     public void onOpen(Session session, @PathParam("username") String username) {
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                log.info("username,{}",username);
-                try {
-                    List<Task> list = processEngine.getTaskService().createTaskQuery().taskAssignee(username).orderByTaskDueDate().asc().list();
-                    JSONObject jsonObject = new JSONObject();
-                    List<JSONObject> taskList = new ArrayList<>();
-                    for (Task task : list) {
-                        JSONObject taskJson = new JSONObject();
-                        taskJson.put("description",task.getDescription());
-                        taskJson.put("dueDate",task.getDueDate());
-                        taskJson.put("assignee",task.getAssignee());
-                        taskJson.put("claimTime",task.getClaimTime());
-                        taskJson.put("createTime",task.getCreateTime());
-                        taskJson.put("parentTaskId",task.getParentTaskId());
-                        taskJson.put("processDefinitionId",task.getProcessDefinitionId());
-                        taskJson.put("processVariables",task.getProcessVariables());
-                        taskList.add(taskJson);
-                    }
-                    jsonObject.put("taskList",taskList);
-                    session.getAsyncRemote().sendText(jsonObject.toJSONString());
-                }catch (Exception e){
-                    e.printStackTrace();
+
+        ScheduledFuture<?> scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(() -> {
+            log.info("username,{}", username);
+            try {
+                List<Task> list = processEngine.getTaskService().createTaskQuery().taskAssignee(username).orderByTaskDueDate().asc().list();
+                JSONObject jsonObject = new JSONObject();
+                List<JSONObject> taskList = new ArrayList<>();
+                for (Task task : list) {
+                    JSONObject taskJson = new JSONObject();
+                    taskJson.put("description", task.getDescription());
+                    taskJson.put("dueDate", task.getDueDate());
+                    taskJson.put("assignee", task.getAssignee());
+                    taskJson.put("claimTime", task.getClaimTime());
+                    taskJson.put("createTime", task.getCreateTime());
+                    taskJson.put("parentTaskId", task.getParentTaskId());
+                    taskJson.put("processDefinitionId", task.getProcessDefinitionId());
+                    taskJson.put("processVariables", task.getProcessVariables());
+                    taskList.add(taskJson);
                 }
+                jsonObject.put("taskList", taskList);
+                if (session.isOpen()) {
+                    session.getAsyncRemote().sendText(jsonObject.toJSONString());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        };
-        TASKS.put(session.getId(), timerTask);
-        EXECUTOR.scheduleWithFixedDelay(timerTask, 0, 30, TimeUnit.SECONDS);
+        }, 0, 30, TimeUnit.SECONDS);
+
+        TASKS.put(session.getId(), scheduledFuture);
 
     }
 
@@ -96,8 +84,8 @@ public class MyTaskWebSocket {
      */
     @OnClose
     public void onClose(Session session) {
-        TimerTask timerTask = TASKS.get(session.getId());
-        EXECUTOR.remove(timerTask);
+        ScheduledFuture<?> scheduledFuture = TASKS.get(session.getId());
+        scheduledFuture.cancel(true);
         TASKS.remove(session.getId());
         log.info("mytask session.getId() = " + session.getId());
     }
