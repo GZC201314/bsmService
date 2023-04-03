@@ -72,7 +72,6 @@ public class FlowableServiceImpl implements IFlowableService {
             jsonObject.put("size", pageSize);
             jsonObject.put("pages", totalPage);
             jsonObject.put("records", records);
-
         }
         return jsonObject;
     }
