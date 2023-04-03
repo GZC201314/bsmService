@@ -1,6 +1,7 @@
 package org.bsm.controller;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -60,7 +61,7 @@ public class FlowableController {
         log.info("查询流程任务列表接口");
         JSONObject jsonObject = flowableService.getFlowList(pageFlow);
         log.info("查询流程任务列表接口结束");
-        return Response.makeOKRsp(jsonObject);
+        return Response.makeOKRsp(JSON.parseObject(JSON.toJSONStringWithDateFormat(jsonObject, "yyyy-MM-dd HH:mm:ss")));
     }
 
 }

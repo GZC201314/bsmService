@@ -8,6 +8,7 @@ import org.bsm.pagemodel.PageFlow;
 import org.bsm.service.IFlowableService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RepositoryService;
+import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -62,6 +63,9 @@ public class FlowableServiceImpl implements IFlowableService {
                     json.put("description", processDefinition.getDescription());
                     json.put("key", processDefinition.getKey());
                     json.put("resourceName", processDefinition.getResourceName());
+                    String deploymentId = processDefinition.getDeploymentId();
+                    Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(deploymentId).singleResult();
+                    json.put("createtime", deployment.getDeploymentTime());
                     records.add(json);
                 }
             }
