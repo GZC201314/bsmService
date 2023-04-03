@@ -1,15 +1,17 @@
 package org.bsm.service;
 
-import org.flowable.engine.repository.ProcessDefinition;
+import com.alibaba.fastjson.JSONObject;
+import org.bsm.pagemodel.PageFlow;
+import org.flowable.spring.SpringProcessEngineConfiguration;
+
+import java.util.List;
 
 public interface IFlowableService {
-
     /**
-     * 获取定时任务的详细信息
+     * 查询流程列表
      */
-    ProcessDefinition getFlowInfo();
+    List<JSONObject> getFlowList();
 
-    boolean startProcess(String name);
-
+    boolean deployFlow(PageFlow pageFlow);
 
 }

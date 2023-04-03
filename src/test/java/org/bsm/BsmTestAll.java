@@ -30,6 +30,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -133,4 +134,13 @@ public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("oneTaskProcess");
     }
 
+    @DisplayName("测试Flowable流程删除")
+    @Test
+    public void testFlowableDelete() {
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+        List<Deployment> list = repositoryService.createDeploymentQuery().list();
+        for (Deployment deployment : list) {
+            repositoryService.deleteDeployment(deployment.getId(),true);
+        }
+    }
 }

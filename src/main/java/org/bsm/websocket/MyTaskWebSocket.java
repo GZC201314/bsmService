@@ -63,6 +63,7 @@ public class MyTaskWebSocket {
                     taskJson.put("parentTaskId", task.getParentTaskId());
                     taskJson.put("processDefinitionId", task.getProcessDefinitionId());
                     taskJson.put("processVariables", task.getProcessVariables());
+                    taskJson.put("executionId",task.getExecutionId());
                     taskList.add(taskJson);
                 }
                 jsonObject.put("taskList", taskList);
