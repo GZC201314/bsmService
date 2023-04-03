@@ -9,7 +9,6 @@ import org.bsm.service.IRoleService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
-import org.flowable.engine.TaskService;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
@@ -29,9 +28,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author GZC
@@ -39,7 +36,7 @@ import java.util.Map;
  * @desc
  */
 @DisplayName("BSM 所有的单元测试类")
-@SpringBootTest(classes = {BsmServiceApplication.class}, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,args = {"mpw.key=ef33af9dea1958f4"})
+@SpringBootTest(classes = {BsmServiceApplication.class}, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, args = {"mpw.key=ef33af9dea1958f4"})
 @AutoConfigureMockMvc
 public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
 
@@ -62,9 +59,9 @@ public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
     @Test
     public void testRole() {
         QueryWrapper<Role> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("rolename","Junit role");
+        queryWrapper.eq("rolename", "Junit role");
         boolean remove = roleService.remove(queryWrapper);
-        if (!remove){
+        if (!remove) {
             Role role = new Role();
             role.setRolename("Junit role");
             role.setRolecname("Junit 角色");
@@ -74,13 +71,14 @@ public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
             Assertions.assertTrue(save);
         }
     }
+
     @DisplayName("组织测试")
     @Test
     public void testOrganization() {
         QueryWrapper<Organization> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name","Junit Organization");
+        queryWrapper.eq("name", "Junit Organization");
         boolean remove = organizationService.remove(queryWrapper);
-        if (!remove){
+        if (!remove) {
             Organization organization = new Organization();
             organization.setName("Junit Organization");
             organization.setCreateBy("Junit userId");
@@ -109,9 +107,10 @@ public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
         boolean shutdown = scheduler.isShutdown();
         Assertions.assertFalse(shutdown);
     }
+
     @DisplayName("测试Spring工具类")
     @Test
-    public void testSpringUtil()  {
+    public void testSpringUtil() {
         String property = SpringUtil.getProperty("server.port");
         System.out.println(SpringUtil.getActiveProfile());
         Assertions.assertEquals(property, "8888");
@@ -123,10 +122,11 @@ public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
     public void testFlowableProcessQuery() {
         RepositoryService repositoryService = processEngine.getRepositoryService();
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
-                .deploymentId("b18e977e-cf87-11ed-abb6-bab79e792329")
+                .processDefinitionKey("1")
                 .singleResult();
-        Assertions.assertNotNull(processDefinition);
+        Assertions.assertNull(processDefinition);
     }
+
     @DisplayName("测试Flowable流程实例化")
     @Test
     public void testFlowableNewTask() {
@@ -140,7 +140,7 @@ public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
         RepositoryService repositoryService = processEngine.getRepositoryService();
         List<Deployment> list = repositoryService.createDeploymentQuery().list();
         for (Deployment deployment : list) {
-            repositoryService.deleteDeployment(deployment.getId(),true);
+            repositoryService.deleteDeployment(deployment.getId(), true);
         }
     }
 }

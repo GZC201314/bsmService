@@ -1,0 +1,89 @@
+logging:
+  config: classpath:logback-spring.xml
+log:
+  printSql: true
+spring:
+  datasource:
+    dynamic:
+      primary: master
+      strict: false
+      datasource:
+        master:
+          username: BSM:uHqOZVe2JrjJQT7KTCLImA==
+          #自己机器上面的Mysql密码
+          password: BSM:VMdY+m3qH+xaTIhPNcYkjg==
+          #我的工作环境密码
+          url: BSM:xKb8dKZzE7E9xygKB0B7Hwb7PduGnUVtG8hQGJgJEaSd3aeb83+0Ts3ecbpo8cyLgbSp4ot/Big7BWgyL3eQubCiStDaZwuO6Nkk5WfYeVbYyDOWiiIIrR2YBLyEsJq1
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        flowable:
+          url: BSM:xKb8dKZzE7E9xygKB0B7H2gMQaGfE/+8r6vjkBqN7/ZqmbsI8LafwOK7VYEBA1MpoSW/hazwB1/WJYBuU+XdFZzN55rEcRMyud4mUCCUgIIjoZdZayhVXITIB0FTrQrm
+          username: BSM:uHqOZVe2JrjJQT7KTCLImA==
+          #自己机器上面的Mysql密码
+          password: BSM:VMdY+m3qH+xaTIhPNcYkjg==
+          #    我的工作环境的密码
+          driver-class-name: com.mysql.cj.jdbc.Driver
+  # redis 配置
+  redis:
+    # Redis数据库索引（默认为0）
+    database: 1
+    # Redis服务器地址
+    host: 127.0.0.1
+    # Redis服务器连接端口
+    port: 6379
+    timeout: 0
+    #    自己机器上的redis密码
+    #    password: BSM:OHwX2T52VbuzIp4egZ/srQ==
+    # 我的工作环境密码
+    password: BSM:OHwX2T52VbuzIp4egZ/srQ==
+    lettuce:
+      shutdown-timeout: 400
+  mail:
+    host: smtp.163.com
+    username: gzc201314@163.com
+    password: BSM:C5n6OyjAGumTB61X5d7ygQ==
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+  jpa:
+    open-in-view: false
+server:
+  port: 8888
+  servlet:
+    application-display-name: bsmservice
+  #jpa 配置
+  jpa:
+    database: mysql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  task:
+    execution:
+      pool:
+        # 核心线程池数
+        core-size: 5
+        # 最大线程池数
+        max-size: 10
+        # 最大线程池数
+        queue-capacity: 5
+        # 非核心线程的存活时间
+        keep-alive: 60
+      # 线程池的前缀名称
+      thread-name-prefix: BSM-task
+
+
+config:
+  security:
+    noauth:
+      url: http://localhost:3000/#/login
+  cache:
+    refresh:
+      timeout: 5
