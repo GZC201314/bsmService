@@ -19,24 +19,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Configuration
 public class FlowableConfig implements EngineConfigurator {
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
+
     @Override
     public void beforeInit(AbstractEngineConfiguration abstractEngineConfiguration) {
-        if (initialized.compareAndSet(false, true)){
+        if (initialized.compareAndSet(false, true)) {
             DataSource dataSource = abstractEngineConfiguration.getDataSource();
-            if (dataSource instanceof TransactionAwareDataSourceProxy){
+            if (dataSource instanceof TransactionAwareDataSourceProxy) {
                 dataSource = ((TransactionAwareDataSourceProxy) dataSource).getTargetDataSource();
             }
-            if (dataSource instanceof DynamicRoutingDataSource){
+            if (dataSource instanceof DynamicRoutingDataSource) {
                 DataSource flowable = ((DynamicRoutingDataSource) dataSource).getDataSource("flowable");
                 abstractEngineConfiguration.setDataSource(flowable);
             }
             log.info("切换flower数据源！");
         }
     }
+
     @Override
-    public void configure(AbstractEngineConfiguration abstractEngineConfiguration) {
+    public void configure(AbstractEngineConfiguration engineConfiguration) {
 
     }
+
     @Override
     public int getPriority() {
         return 0;

@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 /**
  * @author GZC
  * @create 2021-11-05 15:38
@@ -20,6 +18,9 @@ public class PageFlow {
     private String xml;
 
     private String flowName;
+
+    private String key;
+    private String id;
 
 
     /**

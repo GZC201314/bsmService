@@ -9,5 +9,26 @@
       "name": "config.security.noauth.url",
       "type": "java.lang.String",
       "description": "Description for config.security.noauth.url."
+    },
+    {
+      "name": "server.jpa.database",
+      "type": "java.lang.String",
+      "description": "Description for server.jpa.database."
+    },
+    {
+      "name": "spring.datasource.dynamic.druid.filter.stat.log-slow-sql",
+      "type": "java.lang.String",
+      "description": "Description for spring.datasource.dynamic.druid.filter.stat.log-slow-sql."
+    },
+    {
+      "name": "spring.datasource.dynamic.druid.max-open-prepared-statements",
+      "type": "java.lang.String",
+      "description": "Description for spring.datasource.dynamic.druid.max-open-prepared-statements."
+    },
+    {
+      "name": "spring.datasource.dynamic.druid.aop-patterns",
+      "type": "java.lang.String",
+      "description": "Description for spring.datasource.dynamic.druid.aop-patterns."
     }
-  ] }
+  ]
+}

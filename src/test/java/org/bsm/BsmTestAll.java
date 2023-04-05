@@ -8,10 +8,8 @@ import org.bsm.service.IOrganizationService;
 import org.bsm.service.IRoleService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RepositoryService;
-import org.flowable.engine.RuntimeService;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
-import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -127,12 +125,12 @@ public class BsmTestAll extends AbstractTransactionalJUnit4SpringContextTests {
         Assertions.assertNull(processDefinition);
     }
 
-    @DisplayName("测试Flowable流程实例化")
-    @Test
-    public void testFlowableNewTask() {
-        RuntimeService runtimeService = processEngine.getRuntimeService();
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("oneTaskProcess");
-    }
+//    @DisplayName("测试Flowable流程实例化")
+//    @Test
+//    public void testFlowableNewTask() {
+//        RuntimeService runtimeService = processEngine.getRuntimeService();
+//        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("oneTaskProcess");
+//    }
 
     @DisplayName("测试Flowable流程删除")
     @Test

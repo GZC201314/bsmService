@@ -72,14 +72,15 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
         org.bsm.entity.User userInfo = userService.getOne(queryWrapper);
 
         String sessionId = request.getSession().getId();
+        int sessionTimeout = Integer.parseInt((String) redisUtil.hget("bsm_config", "SESSION_TIMEOUT"));
         redisUtil.del(sessionId);
-        redisUtil.hset(sessionId, "token", token, 60 * 300);
-        redisUtil.hset(sessionId, "username", userInfo.getUsername(), 60 * 300);
-        redisUtil.hset(sessionId, "useremail", userInfo.getEmailaddress(), 60 * 300);
-        redisUtil.hset(sessionId, "userid", userInfo.getUserid(), 60 * 300);
+        redisUtil.hset(sessionId, "token", token, sessionTimeout);
+        redisUtil.hset(sessionId, "username", userInfo.getUsername(), sessionTimeout);
+        redisUtil.hset(sessionId, "useremail", userInfo.getEmailaddress(), sessionTimeout);
+        redisUtil.hset(sessionId, "userid", userInfo.getUserid(), sessionTimeout);
 //        redisUtil.hset(sessionId, "username", user.ge, 60 * 300);
-        redisUtil.hset(sessionId, "role", roleName, 60 * 300);
-        redisUtil.hset(sessionId, "isFaceValid", userInfo.getIsfacevalid(), 60 * 300);
+        redisUtil.hset(sessionId, "role", roleName, sessionTimeout);
+        redisUtil.hset(sessionId, "isFaceValid", userInfo.getIsfacevalid(), sessionTimeout);
 
         reUser.setUsername(user.getUsername());
         reUser.setUsericon(userInfo.getUsericon());

@@ -114,6 +114,9 @@ server:
   port: 8888
   servlet:
     application-display-name: bsmservice
+    #设置session过期时间
+    session:
+      timeout: 3600
   #jpa 配置
   jpa:
     database: mysql
@@ -133,7 +136,6 @@ server:
         keep-alive: 60
       # 线程池的前缀名称
       thread-name-prefix: BSM-task
-
 
 
 config:

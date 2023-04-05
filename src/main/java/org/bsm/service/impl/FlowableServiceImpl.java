@@ -12,10 +12,16 @@ import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author GZC
@@ -32,7 +38,7 @@ public class FlowableServiceImpl implements IFlowableService {
     @Override
     public JSONObject getFlowList(PageFlow pageFlow) {
         RepositoryService repositoryService = processEngine.getRepositoryService();
-        List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().orderByProcessDefinitionId().asc().list();
+        List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().active().orderByProcessDefinitionId().asc().list();
 
         JSONObject jsonObject = new JSONObject();
         if (CollectionUtils.isEmpty(list)) {
@@ -63,6 +69,7 @@ public class FlowableServiceImpl implements IFlowableService {
                     json.put("description", processDefinition.getDescription());
                     json.put("key", processDefinition.getKey());
                     json.put("resourceName", processDefinition.getResourceName());
+                    json.put("hasImg", processDefinition.hasGraphicalNotation());
                     String deploymentId = processDefinition.getDeploymentId();
                     Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(deploymentId).singleResult();
                     json.put("createtime", deployment.getDeploymentTime());
@@ -83,8 +90,50 @@ public class FlowableServiceImpl implements IFlowableService {
     @Override
     public boolean deployFlow(PageFlow pageFlow) {
         // 保存流程文件到本地
+        Deployment deployment = processEngine.getRepositoryService().createDeployment().addString(pageFlow.getFlowName() + ".bpmn20.xml", pageFlow.getXml()).deploy();
+        return !Objects.isNull(deployment);
+    }
 
-        return false;
+    @Override
+    public boolean deleteFlows(PageFlow pageFlow) {
+        String delIds = pageFlow.getDelIds();
+        if (!StringUtils.hasText(delIds)) {
+            return false;
+        }
+        String[] flowKeys = delIds.split(",");
+        for (String flowKey : flowKeys) {
+            processEngine.getRepositoryService().suspendProcessDefinitionByKey(flowKey);
+        }
+        return true;
+    }
+
+    @Override
+    public void getFlowImg(String id, HttpServletResponse response) throws IOException {
+        OutputStream os = null;
+        InputStream processDiagram = null;
+        try {
+            RepositoryService repositoryService = processEngine.getRepositoryService();
+            processDiagram = repositoryService.getProcessDiagram(id);
+            response.setContentLength(processDiagram.available());
+            byte[] data = new byte[processDiagram.available()];
+            processDiagram.read(data);
+            String diskfilename = id + ".png";
+            response.setContentType("image/png");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + diskfilename + "\"");
+            os = response.getOutputStream();
+            os.write(data);
+            os.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (!Objects.isNull(os)) {
+                os.close();
+            }
+            if (!Objects.isNull(processDiagram)) {
+                processDiagram.close();
+            }
+        }
+
     }
 
 
