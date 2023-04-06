@@ -5,14 +5,18 @@ import org.bsm.pagemodel.PageFlow;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 public interface IFlowableService {
     /**
      * 查询流程列表
      */
     JSONObject getFlowList(PageFlow pageFlow);
+    List<JSONObject> getAllFlow(PageFlow pageFlow);
 
     boolean deployFlow(PageFlow pageFlow);
+    JSONObject processInstance(PageFlow pageFlow);
+    JSONObject taskDetail(PageFlow pageFlow);
 
     boolean deleteFlows(PageFlow pageFlow);
 

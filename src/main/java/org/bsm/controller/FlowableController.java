@@ -51,6 +51,33 @@ public class FlowableController {
         log.info("部署流程接口结束,结果为{}", result);
         return Response.makeOKRsp(result);
     }
+    @RefreshSession
+    @StatisticsQPS
+    @ApiOperation("流程实例化接口")
+    @PostMapping("/processInstance")
+    public ResponseResult<JSONObject> processInstance(@RequestBody PageFlow pageFlow) {
+        log.info("流程实例化接口");
+        if (Objects.isNull(pageFlow)) {
+            return Response.makeErrRsp("参数错误");
+        }
+        JSONObject jsonObject = flowableService.processInstance(pageFlow);
+        log.info("流程实例化接口结束,结果为{}", jsonObject);
+        return Response.makeOKRsp(jsonObject);
+    }
+
+    @RefreshSession
+    @StatisticsQPS
+    @ApiOperation("任务详情接口")
+    @PostMapping("/taskDetail")
+    public ResponseResult<JSONObject> taskDetail(@RequestBody PageFlow pageFlow) {
+        log.info("流程实例化接口");
+        if (Objects.isNull(pageFlow)) {
+            return Response.makeErrRsp("参数错误");
+        }
+        JSONObject jsonObject = flowableService.taskDetail(pageFlow);
+        log.info("流程实例化接口结束,结果为{}", jsonObject);
+        return Response.makeOKRsp(jsonObject);
+    }
 
     @RefreshSession
     @StatisticsQPS
@@ -84,10 +111,10 @@ public class FlowableController {
     @StatisticsQPS
     @ApiOperation("获取流程图接口")
     @GetMapping("/getFlowImg/{id}")
-    public ResponseResult<Object> getFlowImg(@PathVariable("id") String id, HttpServletResponse response) {
+    public void getFlowImg(@PathVariable("id") String id, HttpServletResponse response) {
         log.info("获取流程图接口");
         if (!StringUtils.hasText(id)) {
-            return Response.makeErrRsp("参数错误");
+            return;
         }
         try {
             flowableService.getFlowImg(id, response);
@@ -95,7 +122,6 @@ public class FlowableController {
             log.error(e.getMessage(), e);
         }
         log.info("获取流程图接口结束");
-        return Response.makeOKRsp(true);
     }
 
 }

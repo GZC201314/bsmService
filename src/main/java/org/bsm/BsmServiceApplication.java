@@ -17,6 +17,5 @@ public class BsmServiceApplication {
     public static void main(String[] args) {
 
         SpringApplication.run(BsmServiceApplication.class, args);
-        //解决WebSocket不能注入的问题
     }
 }
