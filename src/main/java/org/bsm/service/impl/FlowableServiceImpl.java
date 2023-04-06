@@ -8,19 +8,21 @@ import org.bsm.pagemodel.PageFlow;
 import org.bsm.service.IFlowableService;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
-import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.RepositoryService;
-import org.flowable.engine.RuntimeService;
-import org.flowable.engine.TaskService;
+import org.flowable.common.engine.impl.util.IoUtil;
+import org.flowable.engine.*;
+import org.flowable.engine.history.HistoricActivityInstance;
+import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.image.impl.DefaultProcessDiagramGenerator;
 import org.flowable.task.api.Task;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -210,6 +212,7 @@ public class FlowableServiceImpl implements IFlowableService {
         InputStream processDiagram = null;
         try {
             RepositoryService repositoryService = processEngine.getRepositoryService();
+            HistoryService historyService = processEngine.getHistoryService();
             processDiagram = repositoryService.getProcessDiagram(id);
             response.setContentLength(processDiagram.available());
             byte[] data = new byte[processDiagram.available()];
@@ -231,6 +234,75 @@ public class FlowableServiceImpl implements IFlowableService {
             }
         }
 
+    }
+
+    @Override
+    public void getTaskFlowDiagram(String procInsId, HttpServletResponse response) throws IOException {
+
+        RuntimeService runtimeService = processEngine.getRuntimeService();
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+        HistoryService historyService = processEngine.getHistoryService();
+        String procDefId;
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()
+                .processInstanceId(procInsId)
+                .singleResult();
+        if (processInstance == null) {
+            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(procInsId).singleResult();
+            procDefId = historicProcessInstance.getProcessDefinitionId();
+
+        } else {
+            procDefId = processInstance.getProcessDefinitionId();
+        }
+
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(procDefId);
+        // 创建默认的流程图生成器
+        DefaultProcessDiagramGenerator defaultProcessDiagramGenerator = new DefaultProcessDiagramGenerator();
+        // 生成图片的类型
+        String imageType = "png";
+        // 高亮节点集合
+        List<String> highLightedActivities = new ArrayList<>();
+        // 高亮连线集合
+        List<String> highLightedFlows = new ArrayList<>();
+        // 查询所有历史节点信息
+        List<HistoricActivityInstance> hisActInsList = historyService.createHistoricActivityInstanceQuery()
+                .processInstanceId(procInsId)
+                .list();
+        // 遍历
+        hisActInsList.forEach(historicActivityInstance -> {
+            if("sequenceFlow".equals(historicActivityInstance.getActivityType())) {
+                // 添加高亮连线
+                highLightedFlows.add(historicActivityInstance.getActivityId());
+            } else {
+                // 添加高亮节点
+                highLightedActivities.add(historicActivityInstance.getActivityId());
+            }
+        });
+        // 节点字体
+        String activityFontName = "宋体";
+        // 连线标签字体
+        String labelFontName = "宋体";
+        // 连线标签字体
+        String annotationFontName = "宋体";
+        // 类加载器
+        ClassLoader customClassLoader = null;
+        // 比例因子，默认即可
+        double scaleFactor = 1.0d;
+        // 不设置连线标签不会画
+        boolean drawSequenceFlowNameWithNoLabelDI = true;
+        // 生成图片
+        // 获取输入流
+        InputStream inputStream = defaultProcessDiagramGenerator.generateDiagram(bpmnModel, imageType, highLightedActivities
+                , highLightedFlows, activityFontName, labelFontName, annotationFontName, customClassLoader,
+                scaleFactor, drawSequenceFlowNameWithNoLabelDI);
+
+        // 直接写到页面，要先获取HttpServletResponse
+        byte[] bytes = IoUtil.readInputStream(inputStream, "flow diagram");
+        response.setContentType("image/png");
+        ServletOutputStream outputStream = response.getOutputStream();
+        response.reset();
+        outputStream.write(bytes);
+        outputStream.flush();
+        outputStream.close();
     }
 
 

@@ -21,5 +21,6 @@ public interface IFlowableService {
     boolean deleteFlows(PageFlow pageFlow);
 
     void getFlowImg(String id, HttpServletResponse response) throws IOException;
+    void getTaskFlowDiagram(String id, HttpServletResponse response) throws IOException;
 
 }

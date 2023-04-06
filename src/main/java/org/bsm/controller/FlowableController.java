@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -92,6 +93,19 @@ public class FlowableController {
         log.info("查询流程任务列表接口结束");
         return Response.makeOKRsp(JSON.parseObject(JSON.toJSONStringWithDateFormat(jsonObject, "yyyy-MM-dd HH:mm:ss")));
     }
+    @RefreshSession
+    @StatisticsQPS
+    @ApiOperation("查询所有流程接口")
+    @PostMapping("/allFlow")
+    public ResponseResult<JSONObject> getAllFlow(@RequestBody PageFlow pageFlow) {
+        log.info("查询所有流程接口");
+        if (Objects.isNull(pageFlow)) {
+            return Response.makeErrRsp("参数错误");
+        }
+        List<JSONObject> allFlow = flowableService.getAllFlow(pageFlow);
+        log.info("查询所有流程接口结束");
+        return Response.makeOKRsp(JSON.parseObject(JSON.toJSONStringWithDateFormat(allFlow, "yyyy-MM-dd HH:mm:ss")));
+    }
 
     @RefreshSession
     @StatisticsQPS
@@ -122,6 +136,22 @@ public class FlowableController {
             log.error(e.getMessage(), e);
         }
         log.info("获取流程图接口结束");
+    }
+    @RefreshSession
+    @StatisticsQPS
+    @ApiOperation("获取申请流程图接口")
+    @GetMapping("/getTaskFlowDiagram/{id}")
+    public void getTaskFlowDiagram(@PathVariable("id") String id, HttpServletResponse response) {
+        log.info("获取申请流程图接口");
+        if (!StringUtils.hasText(id)) {
+            return;
+        }
+        try {
+            flowableService.getTaskFlowDiagram(id, response);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        log.info("获取申请流程图接口结束");
     }
 
 }
