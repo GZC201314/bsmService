@@ -2,12 +2,14 @@ package org.bsm.controller;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
+import org.bsm.entity.CurUser;
 import org.bsm.pagemodel.PageFlow;
 import org.bsm.service.IFlowableService;
 import org.bsm.utils.Response;
@@ -65,6 +67,19 @@ public class FlowableController {
         log.info("流程实例化接口结束,结果为{}", jsonObject);
         return Response.makeOKRsp(jsonObject);
     }
+    @RefreshSession
+    @StatisticsQPS
+    @ApiOperation("获取流程Form定义接口")
+    @PostMapping("/getFlowFormByFlowId")
+    public ResponseResult<JSONObject> getFlowFormByFlowId(@RequestBody PageFlow pageFlow) {
+        log.info("获取流程Form定义接口");
+        if (Objects.isNull(pageFlow)) {
+            return Response.makeErrRsp("参数错误");
+        }
+        JSONObject jsonObject = flowableService.getFlowFormByFlowId(pageFlow);
+        log.info("获取流程Form定义接口结束,结果为{}", jsonObject);
+        return Response.makeOKRsp(jsonObject);
+    }
 
     @RefreshSession
     @StatisticsQPS
@@ -97,14 +112,14 @@ public class FlowableController {
     @StatisticsQPS
     @ApiOperation("查询所有流程接口")
     @PostMapping("/allFlow")
-    public ResponseResult<JSONObject> getAllFlow(@RequestBody PageFlow pageFlow) {
+    public ResponseResult<JSONArray> getAllFlow(@RequestBody PageFlow pageFlow) {
         log.info("查询所有流程接口");
         if (Objects.isNull(pageFlow)) {
             return Response.makeErrRsp("参数错误");
         }
         List<JSONObject> allFlow = flowableService.getAllFlow(pageFlow);
         log.info("查询所有流程接口结束");
-        return Response.makeOKRsp(JSON.parseObject(JSON.toJSONStringWithDateFormat(allFlow, "yyyy-MM-dd HH:mm:ss")));
+        return Response.makeOKRsp(JSON.parseArray(JSON.toJSONStringWithDateFormat(allFlow, "yyyy-MM-dd HH:mm:ss")));
     }
 
     @RefreshSession
@@ -119,6 +134,19 @@ public class FlowableController {
         Boolean result = flowableService.deleteFlows(pageFlow);
         log.info("删除流程列表接口结束");
         return Response.makeOKRsp(result);
+    }
+    @RefreshSession
+    @StatisticsQPS
+    @ApiOperation("我的申请列表接口")
+    @PostMapping("/myapplicationList")
+    public ResponseResult<JSONObject> myapplicationList(@RequestBody PageFlow pageFlow, @RequestAttribute("curUser") CurUser curUser) {
+        log.info("我的申请列表接口");
+        if (Objects.isNull(pageFlow) || Objects.isNull(curUser)) {
+            return Response.makeErrRsp("参数错误");
+        }
+        JSONObject myApplicationList = flowableService.getMyApplicationList(pageFlow, curUser);
+        log.info("我的申请列表接口结束");
+        return Response.makeOKRsp(myApplicationList);
     }
 
     @RefreshSession

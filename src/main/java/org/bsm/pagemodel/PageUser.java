@@ -56,6 +56,8 @@ public class PageUser implements Serializable {
 
     private Boolean enabled;
 
+    private Integer organizationid;
+
     /**
      * 分页 参数
      */

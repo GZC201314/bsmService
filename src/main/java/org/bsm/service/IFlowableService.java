@@ -1,6 +1,7 @@
 package org.bsm.service;
 
 import com.alibaba.fastjson.JSONObject;
+import org.bsm.entity.CurUser;
 import org.bsm.pagemodel.PageFlow;
 
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +13,9 @@ public interface IFlowableService {
      * 查询流程列表
      */
     JSONObject getFlowList(PageFlow pageFlow);
+    JSONObject getFlowFormByFlowId(PageFlow pageFlow);
+
+    JSONObject getMyApplicationList(PageFlow pageFlow, CurUser curUser);
     List<JSONObject> getAllFlow(PageFlow pageFlow);
 
     boolean deployFlow(PageFlow pageFlow);

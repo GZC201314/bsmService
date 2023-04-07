@@ -4,8 +4,10 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.PageUtil;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.entity.CurUser;
 import org.bsm.pagemodel.PageFlow;
 import org.bsm.service.IFlowableService;
+import org.bsm.utils.ObjectUtils;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
 import org.flowable.common.engine.impl.util.IoUtil;
@@ -81,9 +83,93 @@ public class FlowableServiceImpl implements IFlowableService {
     }
 
     @Override
+    public JSONObject getFlowFormByFlowId(PageFlow pageFlow) {
+        JSONObject flowForm = new JSONObject();
+        BpmnModel bpmnModel = processEngine.getRepositoryService().getBpmnModel(pageFlow.getId());
+        Process mainProcess = bpmnModel.getMainProcess();
+        Collection<FlowElement> flowElements = mainProcess.getFlowElements();
+        for (FlowElement flowElement : flowElements) {
+                Map<String, List<ExtensionElement>> extensionElements = flowElement.getExtensionElements();
+                List<ExtensionElement> formData = extensionElements.get("formData");
+                if (CollUtil.isNotEmpty(formData)) {
+                    ExtensionElement extensionElement = formData.get(0);
+                    Map<String, List<ExtensionElement>> childElements = extensionElement.getChildElements();
+                    for (Map.Entry<String, List<ExtensionElement>> stringListEntry : childElements.entrySet()) {
+                        handleForm(flowForm, stringListEntry);
+                    }
+
+                }
+
+        }
+        return flowForm;
+    }
+
+    private void handleForm(JSONObject flowForm, Map.Entry<String, List<ExtensionElement>> stringListEntry) {
+        if ("formField".equals(stringListEntry.getKey())) {
+            List<ExtensionElement> value = stringListEntry.getValue();
+
+            List<JSONObject> formList = new ArrayList<>();
+            for (ExtensionElement element : value) {
+                Map<String, List<ExtensionAttribute>> attributes = element.getAttributes();
+                JSONObject formDetail = new JSONObject();
+                for (List<ExtensionAttribute> extensionAttributes : attributes.values()) {
+                    for (ExtensionAttribute extensionAttribute : extensionAttributes) {
+                        formDetail.put(extensionAttribute.getName(), extensionAttribute.getValue());
+                    }
+                }
+                formList.add(formDetail);
+            }
+            flowForm.put("form", formList);
+        }
+    }
+
+    @Override
+    public JSONObject getMyApplicationList(PageFlow pageFlow, CurUser curUser) {
+        TaskService taskService = processEngine.getTaskService();
+        List<Task> list = taskService.createTaskQuery().taskOwner(curUser.getUserid()).orderByTaskCreateTime().desc().list();
+        JSONObject jsonObject = new JSONObject();
+        if (CollectionUtils.isEmpty(list)) {
+            jsonObject.put("current", 1);
+            jsonObject.put("total", 0);
+            jsonObject.put("size", 10);
+            jsonObject.put("pages", 1);
+            jsonObject.put("records", new ArrayList<>());
+            return jsonObject;
+        } else {
+            int totalSize;
+            int totalPage;
+            // 计算总页数
+            totalSize = list.size();
+            Integer pageSize = pageFlow.getPage().getPageSize();
+            totalPage = PageUtil.totalPage(totalSize, pageSize);
+            Integer curPage = pageFlow.getPage().getPage();
+            // 分页，索引小于等于总页数，才返回列表.
+            List<JSONObject> records = new ArrayList<>();
+            if (curPage <= totalPage) {
+                // 分页
+                list = CollUtil.page(curPage - 1, pageSize, list);
+                handleMyApplicationList(list, records);
+            }
+            // 返回结果
+
+            jsonObject.put("current", curPage);
+            jsonObject.put("total", totalSize);
+            jsonObject.put("size", pageSize);
+            jsonObject.put("pages", totalPage);
+            jsonObject.put("records", records);
+        }
+        return jsonObject;
+    }
+
+    @Override
     public List<JSONObject> getAllFlow(PageFlow pageFlow) {
         RepositoryService repositoryService = processEngine.getRepositoryService();
-        List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().active().orderByProcessDefinitionId().asc().list();
+        List<ProcessDefinition> list;
+        if (StringUtils.hasText(pageFlow.getKey())){
+            list = repositoryService.createProcessDefinitionQuery().active().processDefinitionKeyLike(ObjectUtils.convertToLike(pageFlow.getKey())).orderByProcessDefinitionId().asc().list();
+        }else {
+            list = repositoryService.createProcessDefinitionQuery().active().orderByProcessDefinitionId().asc().list();
+        }
         List<JSONObject> records = new ArrayList<>();
         handleFlowList(repositoryService, list, records);
         // 返回结果
@@ -106,6 +192,19 @@ public class FlowableServiceImpl implements IFlowableService {
             records.add(json);
         }
     }
+    private void handleMyApplicationList( List<Task> list, List<JSONObject> records) {
+        for (Task task : list) {
+            JSONObject json = new JSONObject();
+            json.put("id", task.getId());
+            json.put("name", task.getName());
+            json.put("taskDefinitionKey",task.getTaskDefinitionKey());
+            json.put("taskLocalVariables",task.getTaskLocalVariables());
+            json.put("createTime",task.getCreateTime());
+            json.put("description", task.getDescription());
+            json.put("processVariables",task.getProcessVariables());
+            records.add(json);
+        }
+    }
 
     @Override
     public boolean deployFlow(PageFlow pageFlow) {
@@ -123,7 +222,7 @@ public class FlowableServiceImpl implements IFlowableService {
             ProcessInstance processInstance = runtimeService.startProcessInstanceById(pageFlow.getId());
             String processInstanceId = processInstance.getProcessInstanceId();
             Task task = taskService.createTaskQuery().processInstanceId(processInstanceId).singleResult();
-            if (getTaskDetail(taskJson, task, processInstance.getProcessDefinitionId())){
+            if (getTaskDetail(taskJson, task, processInstance.getProcessDefinitionId())) {
                 return taskJson;
             }
 
@@ -140,7 +239,7 @@ public class FlowableServiceImpl implements IFlowableService {
         try {
             TaskService taskService = processEngine.getTaskService();
             Task task = taskService.createTaskQuery().taskId(pageFlow.getId()).singleResult();
-            if (getTaskDetail(taskJson, task, task.getProcessDefinitionId())){
+            if (getTaskDetail(taskJson, task, task.getProcessDefinitionId())) {
                 return taskJson;
             }
 
@@ -167,22 +266,7 @@ public class FlowableServiceImpl implements IFlowableService {
                     ExtensionElement extensionElement = formData.get(0);
                     Map<String, List<ExtensionElement>> childElements = extensionElement.getChildElements();
                     for (Map.Entry<String, List<ExtensionElement>> stringListEntry : childElements.entrySet()) {
-                        if ("formField".equals(stringListEntry.getKey())) {
-                            List<ExtensionElement> value = stringListEntry.getValue();
-
-                            List<JSONObject> formList = new ArrayList<>();
-                            for (ExtensionElement element : value) {
-                                Map<String, List<ExtensionAttribute>> attributes = element.getAttributes();
-                                JSONObject formDetail = new JSONObject();
-                                for (List<ExtensionAttribute> extensionAttributes : attributes.values()) {
-                                    for (ExtensionAttribute extensionAttribute : extensionAttributes) {
-                                        formDetail.put(extensionAttribute.getName(), extensionAttribute.getValue());
-                                    }
-                                }
-                                formList.add(formDetail);
-                            }
-                            taskJson.put("form", formList);
-                        }
+                        handleForm(taskJson, stringListEntry);
                         return true;
                     }
 
@@ -212,11 +296,9 @@ public class FlowableServiceImpl implements IFlowableService {
         InputStream processDiagram = null;
         try {
             RepositoryService repositoryService = processEngine.getRepositoryService();
-            HistoryService historyService = processEngine.getHistoryService();
             processDiagram = repositoryService.getProcessDiagram(id);
             response.setContentLength(processDiagram.available());
-            byte[] data = new byte[processDiagram.available()];
-            processDiagram.read(data);
+            byte[] data = IoUtil.readInputStream(processDiagram, "flow diagram");
             String diskfilename = id + ".png";
             response.setContentType("image/png");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + diskfilename + "\"");
@@ -269,7 +351,7 @@ public class FlowableServiceImpl implements IFlowableService {
                 .list();
         // 遍历
         hisActInsList.forEach(historicActivityInstance -> {
-            if("sequenceFlow".equals(historicActivityInstance.getActivityType())) {
+            if ("sequenceFlow".equals(historicActivityInstance.getActivityType())) {
                 // 添加高亮连线
                 highLightedFlows.add(historicActivityInstance.getActivityId());
             } else {

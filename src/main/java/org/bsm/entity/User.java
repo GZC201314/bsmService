@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.TimeZone;
 
 /**
  * <p>
@@ -49,4 +48,6 @@ public class User implements Serializable {
     private String salt;
 
     private Boolean enabled;
+
+    private Integer organizationid;
 }

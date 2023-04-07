@@ -10,9 +10,11 @@ import org.bsm.annotation.RefreshSession;
 import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.CurUser;
 import org.bsm.entity.Organization;
+import org.bsm.entity.User;
 import org.bsm.pagemodel.PageOrganization;
 import org.bsm.pagemodel.PageRole;
 import org.bsm.service.IOrganizationService;
+import org.bsm.service.IUserService;
 import org.bsm.utils.Response;
 import org.bsm.utils.ResponseResult;
 import org.springframework.beans.BeanUtils;
@@ -38,6 +40,9 @@ public class OrganizationController {
 
     @Resource
     IOrganizationService organizationService;
+
+    @Resource
+    IUserService userService;
 
     @RefreshSession
     @StatisticsQPS
@@ -77,6 +82,20 @@ public class OrganizationController {
 
     @RefreshSession
     @StatisticsQPS
+    @ApiOperation("获取组织下所有成员接口")
+    @PostMapping("/getUserListByOrganizationId")
+    public ResponseResult<Object> getUserListByOrganizationId(@RequestBody PageOrganization pageOrganization) {
+        log.info("获取组织下所有成员接口,使用的查询条件是 :" + pageOrganization);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        if (pageOrganization.getId() != null) {
+            queryWrapper.eq("organizationid", pageOrganization.getId());
+        }
+        List<User> list = userService.list(queryWrapper);
+        return Response.makeOKRsp("获取组织下所有成员接口").setData(list);
+    }
+
+    @RefreshSession
+    @StatisticsQPS
     @ApiOperation("校验组织名接口")
     @PostMapping("/validateName")
     public ResponseResult<Object> validateName(@RequestBody PageOrganization pageOrganization) {
@@ -88,7 +107,7 @@ public class OrganizationController {
             queryWrapper.eq("name", pageOrganization.getName());
         }
         organization = organizationService.getOne(queryWrapper);
-        return Response.makeOKRsp("获取用户角色详细信息成功").setData(Objects.isNull(organization));
+        return Response.makeOKRsp("校验组织名接口成功").setData(Objects.isNull(organization));
     }
 
     @RefreshSession
