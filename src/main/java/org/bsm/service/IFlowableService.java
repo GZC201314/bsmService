@@ -13,18 +13,24 @@ public interface IFlowableService {
      * 查询流程列表
      */
     JSONObject getFlowList(PageFlow pageFlow);
+
     JSONObject getFlowFormByFlowId(PageFlow pageFlow);
 
     JSONObject getMyApplicationList(PageFlow pageFlow, CurUser curUser);
+
     List<JSONObject> getAllFlow(PageFlow pageFlow);
 
+
     boolean deployFlow(PageFlow pageFlow);
+
     JSONObject processInstance(PageFlow pageFlow);
+
     JSONObject taskDetail(PageFlow pageFlow);
 
     boolean deleteFlows(PageFlow pageFlow);
 
     void getFlowImg(String id, HttpServletResponse response) throws IOException;
+
     void getTaskFlowDiagram(String id, HttpServletResponse response) throws IOException;
 
 }

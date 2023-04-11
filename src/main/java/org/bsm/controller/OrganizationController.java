@@ -12,7 +12,6 @@ import org.bsm.entity.CurUser;
 import org.bsm.entity.Organization;
 import org.bsm.entity.User;
 import org.bsm.pagemodel.PageOrganization;
-import org.bsm.pagemodel.PageRole;
 import org.bsm.service.IOrganizationService;
 import org.bsm.service.IUserService;
 import org.bsm.utils.Response;
@@ -22,7 +21,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -114,9 +116,9 @@ public class OrganizationController {
     @StatisticsQPS
     @ApiOperation("新增组织接口")
     @PostMapping(value = "/add", consumes = "multipart/*", headers = "content-type=multipart/form-data")
-    public ResponseResult<Object> add( PageOrganization pageOrganization,@RequestAttribute("curUser") CurUser curUser) {
+    public ResponseResult<Object> add(PageOrganization pageOrganization, @RequestAttribute("curUser") CurUser curUser) {
         log.info("新增组织接口");
-        boolean result = organizationService.addOrganization(pageOrganization,curUser);
+        boolean result = organizationService.addOrganization(pageOrganization, curUser);
         if (result) {
             return Response.makeOKRsp("新增组织成功");
         } else {

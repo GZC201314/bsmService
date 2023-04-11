@@ -89,18 +89,20 @@ public class FlowableServiceImpl implements IFlowableService {
         Process mainProcess = bpmnModel.getMainProcess();
         Collection<FlowElement> flowElements = mainProcess.getFlowElements();
         for (FlowElement flowElement : flowElements) {
-                Map<String, List<ExtensionElement>> extensionElements = flowElement.getExtensionElements();
-                List<ExtensionElement> formData = extensionElements.get("formData");
-                if (CollUtil.isNotEmpty(formData)) {
-                    ExtensionElement extensionElement = formData.get(0);
-                    Map<String, List<ExtensionElement>> childElements = extensionElement.getChildElements();
-                    for (Map.Entry<String, List<ExtensionElement>> stringListEntry : childElements.entrySet()) {
-                        handleForm(flowForm, stringListEntry);
-                    }
-
+            Map<String, List<ExtensionElement>> extensionElements = flowElement.getExtensionElements();
+            List<ExtensionElement> formData = extensionElements.get("formData");
+            if (CollUtil.isNotEmpty(formData)) {
+                ExtensionElement extensionElement = formData.get(0);
+                Map<String, List<ExtensionElement>> childElements = extensionElement.getChildElements();
+                for (Map.Entry<String, List<ExtensionElement>> stringListEntry : childElements.entrySet()) {
+                    handleForm(flowForm, stringListEntry);
                 }
 
+            }
+
         }
+        // 获取预选组
+//        processEngine.getTaskService().
         return flowForm;
     }
 
@@ -165,9 +167,9 @@ public class FlowableServiceImpl implements IFlowableService {
     public List<JSONObject> getAllFlow(PageFlow pageFlow) {
         RepositoryService repositoryService = processEngine.getRepositoryService();
         List<ProcessDefinition> list;
-        if (StringUtils.hasText(pageFlow.getKey())){
+        if (StringUtils.hasText(pageFlow.getKey())) {
             list = repositoryService.createProcessDefinitionQuery().active().processDefinitionKeyLike(ObjectUtils.convertToLike(pageFlow.getKey())).orderByProcessDefinitionId().asc().list();
-        }else {
+        } else {
             list = repositoryService.createProcessDefinitionQuery().active().orderByProcessDefinitionId().asc().list();
         }
         List<JSONObject> records = new ArrayList<>();
@@ -175,6 +177,7 @@ public class FlowableServiceImpl implements IFlowableService {
         // 返回结果
         return records;
     }
+
 
     private void handleFlowList(RepositoryService repositoryService, List<ProcessDefinition> list, List<JSONObject> records) {
         for (ProcessDefinition processDefinition : list) {
@@ -192,16 +195,17 @@ public class FlowableServiceImpl implements IFlowableService {
             records.add(json);
         }
     }
-    private void handleMyApplicationList( List<Task> list, List<JSONObject> records) {
+
+    private void handleMyApplicationList(List<Task> list, List<JSONObject> records) {
         for (Task task : list) {
             JSONObject json = new JSONObject();
             json.put("id", task.getId());
             json.put("name", task.getName());
-            json.put("taskDefinitionKey",task.getTaskDefinitionKey());
-            json.put("taskLocalVariables",task.getTaskLocalVariables());
-            json.put("createTime",task.getCreateTime());
+            json.put("taskDefinitionKey", task.getTaskDefinitionKey());
+            json.put("taskLocalVariables", task.getTaskLocalVariables());
+            json.put("createTime", task.getCreateTime());
             json.put("description", task.getDescription());
-            json.put("processVariables",task.getProcessVariables());
+            json.put("processVariables", task.getProcessVariables());
             records.add(json);
         }
     }
