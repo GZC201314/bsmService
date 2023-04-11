@@ -72,7 +72,6 @@ public class FlowableServiceImpl implements IFlowableService {
                 handleFlowList(repositoryService, list, records);
             }
             // 返回结果
-
             jsonObject.put("current", curPage);
             jsonObject.put("total", totalSize);
             jsonObject.put("size", pageSize);
@@ -97,12 +96,8 @@ public class FlowableServiceImpl implements IFlowableService {
                 for (Map.Entry<String, List<ExtensionElement>> stringListEntry : childElements.entrySet()) {
                     handleForm(flowForm, stringListEntry);
                 }
-
             }
-
         }
-        // 获取预选组
-//        processEngine.getTaskService().
         return flowForm;
     }
 

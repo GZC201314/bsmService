@@ -8,6 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * @author GZC
+ */
 public interface IFlowableService {
     /**
      * 查询流程列表

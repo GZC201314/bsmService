@@ -2,6 +2,7 @@ package org.bsm.service.impl;
 
 import cn.hutool.core.codec.Base64Decoder;
 import cn.hutool.core.codec.Base64Encoder;
+import cn.hutool.core.lang.Pair;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -9,7 +10,6 @@ import org.bsm.entity.Updateimginfo;
 import org.bsm.entity.User;
 import org.bsm.mapper.UserMapper;
 import org.bsm.pagemodel.PageUpdatePicture;
-import org.bsm.pagemodel.PageUpload;
 import org.bsm.pagemodel.PageUser;
 import org.bsm.service.IUpdateimginfoService;
 import org.bsm.service.IUserService;
@@ -24,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -102,7 +104,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         queryWrapper.eq("username", username);
         User user = userMapper.selectOne(queryWrapper);
         String usericon = user.getUsericon();
-        if (StringUtils.hasText(usericon)){
+        if (StringUtils.hasText(usericon)) {
             // 删除原来的图片
             imgtuUtil.deletePicture(usericon);
         }
@@ -158,5 +160,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         byte[] saltBytes = Base64Decoder.decode(salt);
         String toPasswd = Md5Util.toPasswd(password, saltBytes);
         return toPasswd.equals(user.getPassword());
+    }
+
+    /**
+     * 根据用户名查询用户列表
+     *
+     * @param userName
+     */
+    @Override
+    public List<Pair<String, String>> getUserListByUserName(String userName) {
+
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.like("username", userName);
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        List<Pair<String, String>> result = new ArrayList<>();
+        for (User user : userList) {
+            result.add(new Pair<>(user.getUserid(), user.getUsername()));
+        }
+        return result;
     }
 }

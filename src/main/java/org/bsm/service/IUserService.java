@@ -1,12 +1,13 @@
 package org.bsm.service;
 
+import cn.hutool.core.lang.Pair;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.bsm.entity.User;
 import org.bsm.pagemodel.PageUpdatePicture;
-import org.bsm.pagemodel.PageUpload;
 import org.bsm.pagemodel.PageUser;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * <p>
@@ -18,21 +19,26 @@ import java.io.IOException;
  */
 public interface IUserService extends IService<User> {
 
-    public Integer registerUser(PageUser pageUser);
+    Integer registerUser(PageUser pageUser);
 
     /**
      * 修改用户头像
      */
-    public String editAvatar(PageUpdatePicture pageUpload) throws IOException;
+    String editAvatar(PageUpdatePicture pageUpload) throws IOException;
 
     /**
      * 修改用户密码
      */
-    public boolean editUserPassword(PageUser pageUser) throws IOException;
+    boolean editUserPassword(PageUser pageUser) throws IOException;
 
     /**
      * 修改用户密码
      */
-    public boolean validateUserPassword(PageUser pageUser) throws IOException;
+    boolean validateUserPassword(PageUser pageUser) throws IOException;
+
+    /**
+     * 根据用户名查询用户列表
+     */
+    List<Pair<String, String>> getUserListByUserName(String userName);
 
 }

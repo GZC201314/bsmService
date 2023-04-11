@@ -2,8 +2,8 @@ package org.bsm.controller;
 
 
 import cn.hutool.core.codec.Base64Encoder;
+import cn.hutool.core.lang.Pair;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -13,24 +13,23 @@ import org.bsm.annotation.StatisticsQPS;
 import org.bsm.entity.Role;
 import org.bsm.entity.User;
 import org.bsm.pagemodel.PageUpdatePicture;
-import org.bsm.pagemodel.PageUpload;
 import org.bsm.pagemodel.PageUser;
 import org.bsm.service.IRoleService;
 import org.bsm.service.ISendEmailService;
 import org.bsm.service.IUserService;
 import org.bsm.utils.*;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * <p>
@@ -45,15 +44,15 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    @Autowired
+    @Resource
     IUserService userService;
-    @Autowired
+    @Resource
     ISendEmailService sendEmailService;
 
-    @Autowired
+    @Resource
     IRoleService roleService;
 
-    @Autowired
+    @Resource
     RedisUtil redisUtil;
 
 
@@ -111,8 +110,8 @@ public class UserController {
             queryWrapper.like("username", pageUser.getUsername());
         }
 
-        if (Objects.nonNull(pageUser.getRoleid())){
-            queryWrapper.eq("roleid",pageUser.getRoleid());
+        if (Objects.nonNull(pageUser.getRoleid())) {
+            queryWrapper.eq("roleid", pageUser.getRoleid());
         }
 
         if (StringUtils.hasText(pageUser.getEmailaddress())) {
@@ -137,6 +136,7 @@ public class UserController {
             return Response.makeErrRsp("发送邮件失败.");
         }
     }
+
     @RefreshSession
     @StatisticsQPS
     @ApiOperation("查询单个用户的详细信息，根据用户名")
@@ -148,6 +148,21 @@ public class UserController {
         User user = userService.getOne(queryWrapper);
         return Response.makeOKRsp("查询用户信息成功").setData(user);
     }
+
+    @RefreshSession
+    @StatisticsQPS
+    @ApiOperation("根据用户名查询用户列表")
+    @GetMapping("/getUserListByUserName")
+    public ResponseResult<Object> getUserListByUserName(String username) {
+        if (!StringUtils.hasText(username)) {
+            return Response.makeErrRsp("参数错误");
+        }
+        log.info("根据用户名查询用户列表,查询的用户名是:  " + username);
+        List<Pair<String, String>> userListByUserName = userService.getUserListByUserName(username);
+        return Response.makeOKRsp("根据用户名查询用户列表成功").setData(userListByUserName);
+    }
+
+
     @RefreshSession
     @StatisticsQPS
     @ApiOperation("查询单个用户的信息，根据sessionId")
@@ -159,6 +174,7 @@ public class UserController {
         Map<Object, Object> userInfo = redisUtil.hmget(sessionId);
         return Response.makeOKRsp("查询用户信息成功").setData(userInfo);
     }
+
     @RefreshSession
     @StatisticsQPS
     @ApiOperation("查询单个用户的详细信息，根据sessionId")
@@ -185,6 +201,7 @@ public class UserController {
         }
         return Response.makeOKRsp("查询用户详细信息成功").setData(pageUser);
     }
+
     @RefreshSession
     @StatisticsQPS
     @ApiOperation("删除用户接口")
@@ -201,6 +218,7 @@ public class UserController {
             return Response.makeOKRsp("删除用户失败");
         }
     }
+
     @RefreshSession
     @StatisticsQPS
     @ApiOperation("用户头像上传接口")
@@ -221,6 +239,7 @@ public class UserController {
             return Response.makeErrRsp("修改用户头像失败");
         }
     }
+
     @RefreshSession
     @StatisticsQPS
     @ApiOperation("用户名修改接口")
@@ -250,6 +269,7 @@ public class UserController {
             return Response.makeErrRsp("用户名修改失败.").setData("");
         }
     }
+
     @RefreshSession
     @StatisticsQPS
     @ApiOperation("用户密码修改接口")
@@ -274,6 +294,7 @@ public class UserController {
             return Response.makeErrRsp("用户密码修改失败.").setData(false);
         }
     }
+
     @RefreshSession
     @StatisticsQPS
     @ApiOperation("用户密码重置接口")
