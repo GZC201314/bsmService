@@ -10,7 +10,6 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.PersistJobDataAfterExecution;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -93,7 +92,7 @@ public class DBbackupJob extends QuartzJobBean {
             JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
             log.info(context.getScheduler().getSchedulerInstanceId());
             log.info("taskname= {}", context.getJobDetail().getKey().getName());
-            log.info("执行时间= {}", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            log.info("执行时间= {}", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
             String containerName = (String) jobDataMap.get("containerName");
             String dbName = (String) jobDataMap.get("dbname");
