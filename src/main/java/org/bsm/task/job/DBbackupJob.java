@@ -27,6 +27,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -130,7 +131,7 @@ public class DBbackupJob extends QuartzJobBean {
                         commitpageGiteeApiCaller.setRepo("tuchuang");
                         String fileBase64 = Base64.encode(Files.readAllBytes(file.toPath()));
                         commitpageGiteeApiCaller.setContent(fileBase64);
-                        commitpageGiteeApiCaller.setMessage("数据库备份文件上传 " + LocalDateTime.now());
+                        commitpageGiteeApiCaller.setMessage("数据库备份文件上传 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                         fileUrl = giteeService.addFile(commitpageGiteeApiCaller);
                         //删除备份文件,容器中的备份文件，服务器上的备份文件
                         // 1.删除容器中的备份文件
@@ -191,7 +192,7 @@ public class DBbackupJob extends QuartzJobBean {
 
 
             } catch (Exception e) {
-                // TODO Auto-generated catch block
+                //Auto-generated catch block
                 log.error(e.getMessage());
 
             }
