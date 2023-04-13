@@ -47,13 +47,13 @@ public class DBbackupJob extends QuartzJobBean {
     @Resource
     private JavaMailSender javaMailSender;
 
-    @Autowired
+    @Resource
     private TemplateEngine templateEngine;
 
     @Resource
     private IGiteeService giteeService;
 
-    @Autowired
+    @Resource
     RedisUtil redisUtil;
 
     @Override
