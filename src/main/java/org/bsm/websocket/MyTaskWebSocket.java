@@ -3,7 +3,12 @@ package org.bsm.websocket;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.entity.User;
+import org.bsm.mapper.UserMapper;
 import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.RuntimeService;
+import org.flowable.engine.TaskService;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,6 +16,7 @@ import org.springframework.stereotype.Component;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +41,18 @@ public class MyTaskWebSocket {
 
     private static ProcessEngine processEngine;
 
+    private static UserMapper userMapper;
+
+    private static final Map<String, User> USER_CACHE = new ConcurrentHashMap<>();
+
     @Autowired
     public void setProcessEngine(ProcessEngine processEngine) {
         MyTaskWebSocket.processEngine = processEngine;
+    }
+
+    @Autowired
+    public void setUserMapper(UserMapper userMapper) {
+        MyTaskWebSocket.userMapper = userMapper;
     }
 
     /**
@@ -47,22 +62,56 @@ public class MyTaskWebSocket {
     public void onOpen(Session session, @PathParam("username") String username) {
 
         ScheduledFuture<?> scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(() -> {
-            log.info("username,{}", username);
+            TaskService taskService = processEngine.getTaskService();
+            RuntimeService runtimeService = processEngine.getRuntimeService();
             try {
-                List<Task> list = processEngine.getTaskService().createTaskQuery().taskAssignee(username).orderByTaskDueDate().asc().list();
+                List<Task> list = taskService.createTaskQuery().taskAssignee(username).orderByTaskDueDate().asc().list();
                 JSONObject jsonObject = new JSONObject();
                 List<JSONObject> taskList = new ArrayList<>();
                 for (Task task : list) {
                     JSONObject taskJson = new JSONObject();
                     taskJson.put("description", task.getDescription());
-                    taskJson.put("dueDate", task.getDueDate());
+                    if (task.getDueDate() != null) {
+                        taskJson.put("dueDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(task.getDueDate()));
+                    }
+                    String processInstanceId = task.getProcessInstanceId();
+                    ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+                    String startUserId = processInstance.getStartUserId();
+
+                    if (USER_CACHE.containsKey(startUserId)) {
+
+                        taskJson.put("startUser", USER_CACHE.get(startUserId).getUsername());
+                        taskJson.put("startUserIcon", USER_CACHE.get(startUserId).getUsericon());
+                    } else {
+                        User user = userMapper.selectById(startUserId);
+                        taskJson.put("startUser", user.getUsername());
+                        taskJson.put("startUserIcon", user.getUsericon());
+                        USER_CACHE.put(startUserId, user);
+                    }
+
                     taskJson.put("assignee", task.getAssignee());
+
+                    if (USER_CACHE.containsKey(task.getAssignee())) {
+
+                        taskJson.put("assignee", USER_CACHE.get(task.getAssignee()).getUsername());
+
+                    } else {
+                        User user = userMapper.selectById(task.getAssignee());
+                        taskJson.put("assignee", user.getUsername());
+                        USER_CACHE.put(task.getAssignee(), user);
+                    }
+
                     taskJson.put("claimTime", task.getClaimTime());
-                    taskJson.put("createTime", task.getCreateTime());
+                    if (task.getCreateTime() != null) {
+                        taskJson.put("createTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(task.getCreateTime()));
+                    }
                     taskJson.put("parentTaskId", task.getParentTaskId());
                     taskJson.put("processDefinitionId", task.getProcessDefinitionId());
                     taskJson.put("processVariables", task.getProcessVariables());
+                    taskJson.put("taskLocalVariables", task.getTaskLocalVariables());
                     taskJson.put("executionId", task.getExecutionId());
+                    Map<String, Object> variables = taskService.getVariables(task.getId());
+                    taskJson.put("variables", variables);
                     taskList.add(taskJson);
                 }
                 jsonObject.put("taskList", taskList);
