@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 /**
  * @author GZC
  * @create 2021-11-05 15:38
@@ -21,6 +23,9 @@ public class PageFlow {
 
     private String key;
     private String id;
+
+    private Map<String, Object> params;
+    private String assignee;
 
 
     /**

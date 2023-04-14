@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
- @author GZC
+ * @author GZC
  */
 @Aspect
 @Component
@@ -43,11 +43,12 @@ public class RefreshSessionAspect {
         }
         String id = session.getId();
         Map<Object, Object> hmget = redisUtil.hmget(id);
-        log.info("用户sessionID = {}",id);
-        if (hmget.isEmpty()){
+        log.info("用户sessionID = {}", id);
+        if (hmget.isEmpty()) {
             throw new RuntimeException("没有查询到当前用户的登录状态，请重新登录。");
         }
-        redisUtil.expire(id,15*60);
+        int sessionTimeout = Integer.parseInt((String) redisUtil.hget("bsm_config", "SESSION_TIMEOUT"));
+        redisUtil.expire(id, sessionTimeout);
     }
 
 
@@ -61,12 +62,13 @@ public class RefreshSessionAspect {
             return;
         }
         String id = session.getId();
-        log.info("用户sessionID = {}",id);
+        log.info("用户sessionID = {}", id);
         Map<Object, Object> hmget = redisUtil.hmget(id);
-        if (hmget.isEmpty()){
+        if (hmget.isEmpty()) {
             throw new RuntimeException("没有查询到当前用户的登录状态，请重新登录。");
         }
-        redisUtil.expire(id,15*60);
+        int sessionTimeout = Integer.parseInt((String) redisUtil.hget("bsm_config", "SESSION_TIMEOUT"));
+        redisUtil.expire(id, sessionTimeout);
     }
 
     /**

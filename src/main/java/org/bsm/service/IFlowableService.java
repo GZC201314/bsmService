@@ -21,6 +21,8 @@ public interface IFlowableService {
 
     JSONObject getMyApplicationList(PageFlow pageFlow, CurUser curUser);
 
+    JSONObject commitFlow(PageFlow pageFlow, CurUser curUser);
+
     List<JSONObject> getAllFlow(PageFlow pageFlow);
 
 

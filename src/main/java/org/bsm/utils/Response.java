@@ -12,6 +12,7 @@ import org.bsm.utils.Constants.ResultCode;
 public class Response {
 
     private final static String SUCCESS = "success";
+    private final static String FAIL = "fail";
 
     public static <T> ResponseResult<T> makeOKRsp() {
         return new ResponseResult<T>().setCode(Constants.ResultCode.SUCCESS).setMsg(SUCCESS);
@@ -27,6 +28,10 @@ public class Response {
 
     public static <T> ResponseResult<T> makeErrRsp(String message) {
         return new ResponseResult<T>().setCode(ResultCode.INTERNAL_SERVER_ERROR).setMsg(message);
+    }
+
+    public static <T> ResponseResult<T> makeErrRsp(T data) {
+        return new ResponseResult<T>().setCode(ResultCode.INTERNAL_SERVER_ERROR).setMsg(FAIL).setData(data);
     }
 
     public static <T> ResponseResult<T> makeRsp(int code, String msg) {

@@ -4,15 +4,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.bsm.entity.Authorize;
-import org.bsm.entity.Pages;
+import org.bsm.controller.AIController;
 import org.bsm.pagemodel.PageMenu;
 import org.bsm.service.impl.PagesServiceImpl;
 import org.bsm.service.impl.RoleServiceImpl;
 import org.bsm.service.impl.UserServiceImpl;
 import org.bsm.utils.Constants;
 import org.bsm.utils.RedisUtil;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -78,55 +76,19 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
         redisUtil.hset(sessionId, "username", userInfo.getUsername(), sessionTimeout);
         redisUtil.hset(sessionId, "useremail", userInfo.getEmailaddress(), sessionTimeout);
         redisUtil.hset(sessionId, "userid", userInfo.getUserid(), sessionTimeout);
-//        redisUtil.hset(sessionId, "username", user.ge, 60 * 300);
         redisUtil.hset(sessionId, "role", roleName, sessionTimeout);
         redisUtil.hset(sessionId, "isFaceValid", userInfo.getIsfacevalid(), sessionTimeout);
 
         reUser.setUsername(user.getUsername());
         reUser.setUsericon(userInfo.getUsericon());
+        reUser.setUserid(userInfo.getUserid());
         JSONObject reJson = new JSONObject();
         reJson.put("userinfo", reUser);
         Set<Object> authorizeds = redisUtil.sGet(roleName);
         List<PageMenu> parentList = new ArrayList<>();
         Map<String, List<PageMenu>> map = new HashMap<>();
         assert authorizeds != null;
-        for (Object authorized : authorizeds) {
-            Authorize authorize = (Authorize) authorized;
-            if (!StringUtils.hasText(authorize.getPagepath())) {
-                PageMenu pageMenu = new PageMenu();
-                QueryWrapper<Pages> queryWrapper1 = new QueryWrapper<>();
-                queryWrapper1.eq("pageid", authorize.getPageid());
-                Pages pages = pagesService.getOne(queryWrapper1);
-                BeanUtils.copyProperties(pages, pageMenu);
-                pageMenu.setId(pages.getPagekey());
-                pageMenu.setName(pages.getTitle());
-                pageMenu.setPath(pages.getPagepath());
-                pageMenu.setOrderid(pages.getOrderid());
-                parentList.add(pageMenu);
-            } else {
-                /*如果是二级菜单,找到他的父节点*/
-                PageMenu pageMenu = new PageMenu();
-                QueryWrapper<Pages> queryWrapper1 = new QueryWrapper<>();
-                queryWrapper1.eq("pageid", authorize.getPageid());
-                Pages pages = pagesService.getOne(queryWrapper1);
-                BeanUtils.copyProperties(pages, pageMenu);
-                pageMenu.setId(pages.getPagekey());
-                pageMenu.setName(pages.getTitle());
-                pageMenu.setPath(pages.getPagepath());
-                if (map.containsKey(pages.getParentkey())) {
-                    map.get(pages.getParentkey()).add(pageMenu);
-                } else {
-                    List<PageMenu> children = new ArrayList<>();
-                    children.add(pageMenu);
-                    map.put(pages.getParentkey(), children);
-                }
-            }
-        }
-
-        for (PageMenu parent : parentList) {
-            parent.setChildren(map.get(parent.getId()));
-        }
-        parentList.sort(Comparator.comparingInt(PageMenu::getOrderid));
+        AIController.handleAuthorizedList(parentList, authorizeds, map, pagesService);
 
 
         /*在这边拼装menuJson*/

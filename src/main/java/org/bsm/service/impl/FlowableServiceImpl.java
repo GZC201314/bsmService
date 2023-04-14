@@ -10,6 +10,7 @@ import org.bsm.service.IFlowableService;
 import org.bsm.utils.ObjectUtils;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
+import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.common.engine.impl.util.IoUtil;
 import org.flowable.engine.*;
 import org.flowable.engine.history.HistoricActivityInstance;
@@ -122,8 +123,9 @@ public class FlowableServiceImpl implements IFlowableService {
 
     @Override
     public JSONObject getMyApplicationList(PageFlow pageFlow, CurUser curUser) {
-        TaskService taskService = processEngine.getTaskService();
-        List<Task> list = taskService.createTaskQuery().taskOwner(curUser.getUserid()).orderByTaskCreateTime().desc().list();
+        RuntimeService runtimeService = processEngine.getRuntimeService();
+        List<ProcessInstance> list = runtimeService.createProcessInstanceQuery().startedBy(curUser.getUserid()).orderByStartTime().asc().list();
+
         JSONObject jsonObject = new JSONObject();
         if (CollectionUtils.isEmpty(list)) {
             jsonObject.put("current", 1);
@@ -159,6 +161,32 @@ public class FlowableServiceImpl implements IFlowableService {
     }
 
     @Override
+    public JSONObject commitFlow(PageFlow pageFlow, CurUser curUser) {
+        JSONObject taskJson = new JSONObject();
+        TaskService taskService = processEngine.getTaskService();
+        RuntimeService runtimeService = processEngine.getRuntimeService();
+        try {
+            //设置流程发起人id 流程引擎会对应到变量：INITIATOR
+            Authentication.setAuthenticatedUserId(curUser.getUserid());
+            ProcessInstance processInstance = runtimeService.startProcessInstanceById(pageFlow.getId());
+            //这个方法最终使用一个ThreadLocal类型的变量进行存储，也就是与当前的线程绑定，所以流程实例启动完毕之后，需要设置为null，防止多线程的时候出问题。
+            Authentication.setAuthenticatedUserId(null);
+
+            String processInstanceId = processInstance.getProcessInstanceId();
+            Task task = taskService.createTaskQuery().processInstanceId(processInstanceId).singleResult();
+            taskService.complete(task.getId(), pageFlow.getParams());
+            Task nextTask = taskService.createTaskQuery().processInstanceId(processInstanceId).singleResult();
+            taskService.setAssignee(nextTask.getId(), pageFlow.getAssignee());
+            log.info("nextTask.getName(),{}", nextTask.getName());
+            taskJson.put("nextTask", nextTask.getName());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return taskJson;
+        }
+        return taskJson;
+    }
+
+    @Override
     public List<JSONObject> getAllFlow(PageFlow pageFlow) {
         RepositoryService repositoryService = processEngine.getRepositoryService();
         List<ProcessDefinition> list;
@@ -191,16 +219,22 @@ public class FlowableServiceImpl implements IFlowableService {
         }
     }
 
-    private void handleMyApplicationList(List<Task> list, List<JSONObject> records) {
-        for (Task task : list) {
+    private void handleMyApplicationList(List<ProcessInstance> list, List<JSONObject> records) {
+        TaskService taskService = processEngine.getTaskService();
+        for (ProcessInstance processInstance : list) {
+            log.info("processInstance,{}", processInstance);
             JSONObject json = new JSONObject();
-            json.put("id", task.getId());
-            json.put("name", task.getName());
-            json.put("taskDefinitionKey", task.getTaskDefinitionKey());
-            json.put("taskLocalVariables", task.getTaskLocalVariables());
-            json.put("createTime", task.getCreateTime());
-            json.put("description", task.getDescription());
-            json.put("processVariables", task.getProcessVariables());
+            json.put("id", processInstance.getId());
+            json.put("name", processInstance.getProcessDefinitionName());
+            json.put("processDefinitionKey", processInstance.getProcessDefinitionKey());
+            json.put("taskLocalVariables", processInstance.getProcessVariables());
+            json.put("createTime", processInstance.getStartTime());
+            json.put("description", processInstance.getDescription());
+            json.put("processVariables", processInstance.getProcessVariables());
+            json.put("isSuspended", processInstance.isSuspended());
+            Task task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
+            json.put("curState", task.getName());
+
             records.add(json);
         }
     }

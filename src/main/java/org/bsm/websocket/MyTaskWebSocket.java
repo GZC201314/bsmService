@@ -40,7 +40,6 @@ public class MyTaskWebSocket {
         MyTaskWebSocket.processEngine = processEngine;
     }
 
-
     /**
      * 连接建立成功调用的方法
      */
@@ -63,7 +62,7 @@ public class MyTaskWebSocket {
                     taskJson.put("parentTaskId", task.getParentTaskId());
                     taskJson.put("processDefinitionId", task.getProcessDefinitionId());
                     taskJson.put("processVariables", task.getProcessVariables());
-                    taskJson.put("executionId",task.getExecutionId());
+                    taskJson.put("executionId", task.getExecutionId());
                     taskList.add(taskJson);
                 }
                 jsonObject.put("taskList", taskList);

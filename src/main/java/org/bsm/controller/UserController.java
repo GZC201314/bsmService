@@ -152,13 +152,11 @@ public class UserController {
     @RefreshSession
     @StatisticsQPS
     @ApiOperation("根据用户名查询用户列表")
-    @GetMapping("/getUserListByUserName")
-    public ResponseResult<Object> getUserListByUserName(String username) {
-        if (!StringUtils.hasText(username)) {
-            return Response.makeErrRsp("参数错误");
-        }
-        log.info("根据用户名查询用户列表,查询的用户名是:  " + username);
-        List<Pair<String, String>> userListByUserName = userService.getUserListByUserName(username);
+    @PostMapping("/getUserListByUserName")
+    public ResponseResult<Object> getUserListByUserName(@RequestBody PageUser pageUser) {
+        
+        log.info("根据用户名查询用户列表,查询的用户名是:  " + pageUser.getUsername());
+        List<Pair<String, String>> userListByUserName = userService.getUserListByUserName(pageUser.getUsername());
         return Response.makeOKRsp("根据用户名查询用户列表成功").setData(userListByUserName);
     }
 

@@ -6,8 +6,10 @@ import cn.hutool.core.lang.Pair;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.bsm.entity.Organization;
 import org.bsm.entity.Updateimginfo;
 import org.bsm.entity.User;
+import org.bsm.mapper.OrganizationMapper;
 import org.bsm.mapper.UserMapper;
 import org.bsm.pagemodel.PageUpdatePicture;
 import org.bsm.pagemodel.PageUser;
@@ -17,17 +19,14 @@ import org.bsm.utils.ImgtuUtil;
 import org.bsm.utils.Md5Util;
 import org.bsm.utils.RedisUtil;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * <p>
@@ -39,16 +38,19 @@ import java.util.UUID;
  */
 @Service("userService")
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
-    @Autowired
+    @Resource
     UserMapper userMapper;
 
-    @Autowired
+    @Resource
     RedisUtil redisUtil;
 
-    @Autowired
+    @Resource
     ImgtuUtil imgtuUtil;
 
-    @Autowired
+    @Resource
+    OrganizationMapper organizationMapper;
+
+    @Resource
     IUpdateimginfoService updateimginfoService;
 
     @Override
@@ -174,8 +176,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         userQueryWrapper.like("username", userName);
         List<User> userList = userMapper.selectList(userQueryWrapper);
         List<Pair<String, String>> result = new ArrayList<>();
+
+        Map<Integer, String> cache = new HashMap<>();
         for (User user : userList) {
-            result.add(new Pair<>(user.getUserid(), user.getUsername()));
+            Integer organizationid = user.getOrganizationid();
+            String organizationName = "";
+            if (cache.containsKey(organizationid)) {
+                organizationName = cache.get(organizationid);
+            } else {
+                Organization organization = organizationMapper.selectById(organizationid);
+                if (organization != null) {
+                    organizationName = organization.getName();
+                }
+            }
+
+            result.add(new Pair<>(user.getUserid(), organizationName + " " + user.getUsername()));
         }
         return result;
     }

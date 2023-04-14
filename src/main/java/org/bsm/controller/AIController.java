@@ -26,7 +26,6 @@ import org.bsm.utils.RedisUtil;
 import org.bsm.utils.Response;
 import org.bsm.utils.ResponseResult;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -37,6 +36,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -51,19 +51,16 @@ import java.util.*;
 @RestController
 @RequestMapping("/ai")
 public class AIController {
-    /**
-     * 上传文字识别图像
-     */
-    @Autowired
+    @Resource
     IAIService aiService;
-    @Autowired
+    @Resource
     RedisUtil redisUtil;
-    @Autowired
+    @Resource
     UserServiceImpl userService;
-    @Autowired
+    @Resource
     RoleServiceImpl roleService;
 
-    @Autowired
+    @Resource
     PagesServiceImpl pagesService;
 
     @RefreshSession
@@ -81,7 +78,6 @@ public class AIController {
         }
     }
 
-    /*, consumes = "multipart/*", headers = "content-type=multipart/form-data"*/
     @StatisticsQPS
     @ApiOperation("人脸识别登录接口")
     @PostMapping(value = "faceLogin")
@@ -116,13 +112,15 @@ public class AIController {
                             UsernamePasswordAuthenticationToken(user, user.getPassword() + "&" + user.getSalt(), authorities));
                     request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", context);
 
+                    int sessionTimeout = Integer.parseInt((String) redisUtil.hget("bsm_config", "SESSION_TIMEOUT"));
                     String sessionId = request.getSession().getId();
                     redisUtil.del(sessionId);
-                    redisUtil.hset(sessionId, "token", token, 60 * 300);
-                    redisUtil.hset(sessionId, "username", user.getUsername(), 60 * 300);
-                    redisUtil.hset(sessionId, "role", role.getRolename(), 60 * 300);
-                    redisUtil.hset(sessionId, "isFaceValid", false, 60 * 300);
-
+                    redisUtil.hset(sessionId, "token", token, sessionTimeout);
+                    redisUtil.hset(sessionId, "username", user.getUsername(), sessionTimeout);
+                    redisUtil.hset(sessionId, "role", role.getRolename(), sessionTimeout);
+                    redisUtil.hset(sessionId, "isFaceValid", false, sessionTimeout);
+                    redisUtil.hset(sessionId, "useremail", user.getEmailaddress(), sessionTimeout);
+                    redisUtil.hset(sessionId, "userid", user.getUserid(), sessionTimeout);
                     JSONObject reJson = new JSONObject();
                     List<PageMenu> parentList = new ArrayList<>();
 
@@ -148,10 +146,15 @@ public class AIController {
         User reUser = new User();
         reUser.setUsername(username);
         reUser.setUsericon(user.getUsericon());
+        reUser.setUserid(user.getUserid());
         reJson.put("userinfo", reUser);
         Set<Object> authorizeds = redisUtil.sGet(role.getRolename());
-        Map<String, List<PageMenu>> map = new HashMap<>();
         assert authorizeds != null;
+        Map<String, List<PageMenu>> map = new HashMap<>();
+        handleAuthorizedList(parentList, authorizeds, map, pagesService);
+    }
+
+    public static void handleAuthorizedList(List<PageMenu> parentList, Set<Object> authorizeds, Map<String, List<PageMenu>> map, PagesServiceImpl pagesService) {
         for (Object authorized : authorizeds) {
             Authorize authorize = (Authorize) authorized;
             if (!StringUtils.hasText(authorize.getPagepath())) {
