@@ -30,4 +30,7 @@ public interface IGiteeService {
      * 删除指定的文件
      */
     boolean deleteFile(PageGiteeApiCaller pageGiteeApiCaller);
+
+
+    String oAuthLogin(String code);
 }

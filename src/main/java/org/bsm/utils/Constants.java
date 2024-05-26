@@ -15,6 +15,7 @@ public class Constants {
     public static String CREATE_REPOS_URL = "https://gitee.com/api/v5/repos/%s/%s/contents/%s";
 
     public static String GET_REPOSFILE_URL = "https://gitee.com/api/v5/repos/%s/%s/contents/%s";
+    public static String GET_USERINFO_URL = "https://gitee.com/api/v5/user?access_token=%s";
 
     public static String GET_FILESBYDIRSHA_URL = "https://gitee.com/api/v5/repos/%s/%s/git/trees/%s";
 
@@ -58,5 +59,9 @@ public class Constants {
     public static String FACE_SECRET_KEY = "FACE_SECRET_KEY";
 
     public static String GITEE_ACCESS_TOKEN = "GITEE_ACCESS_TOKEN";
+    public static String GITEE_CLIENT_ID = "GITEE_CLIENT_ID";
+    public static String GITEE_CLIENT_SECRET = "GITEE_CLIENT_SECRET";
+    public static String REDIRECT_URI = "REDIRECT_URI";
+    public static String OAUTH_TOKEN_URL = "https://gitee.com/oauth/token";
 
 }

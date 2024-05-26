@@ -1,11 +1,15 @@
 package org.bsm.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.bsm.common.BsmException;
+import org.bsm.pagemodel.GiteeToken;
 import org.bsm.pagemodel.PageGiteeApiCaller;
 import org.bsm.pagemodel.PageGiteeFile;
 import org.bsm.service.IGiteeService;
@@ -180,5 +184,40 @@ public class GiteeServiceImpl implements IGiteeService {
         JSONObject result = JSONUtil.parseObj(resultJson);
         JSONObject commit = result.getJSONObject("commit");
         return StringUtils.hasText(commit==null?"":commit.toString());
+    }
+
+    @Override
+    public String oAuthLogin(String code) {
+
+        if (StrUtil.isBlank(code)){
+            throw new BsmException("未获取到gitee 授权码信息！");
+        }
+
+        Map<Object, Object> configMap = redisUtil.hmget(Constants.BSM_CONFIG);
+        String clientId = (String) configMap.get(Constants.GITEE_CLIENT_ID);
+        String clientSecret = (String) configMap.get(Constants.GITEE_CLIENT_SECRET);
+        String redirectUrl = (String) configMap.get(Constants.REDIRECT_URI);
+        String grantType = "authorization_code";
+        String content = String.format("grant_type=%s&code=%s&client_id=%s&client_secret=%s&redirect_uri=%s",grantType,code,clientId,clientSecret,redirectUrl);
+
+        String body = HttpUtil.createPost(Constants.OAUTH_TOKEN_URL).body(content, ContentType.FORM_URLENCODED.getValue()).execute().body();
+
+        GiteeToken giteeToken = com.alibaba.fastjson.JSONObject.parseObject(body, GiteeToken.class);
+        // 获取返回值中的token
+        String accessToken = giteeToken.getAccessToken();
+        if (StrUtil.isNotBlank(accessToken)){
+            String getUserinfoUrl = Constants.GET_USERINFO_URL;
+            String userInfoStr = HttpUtil.get(String.format(getUserinfoUrl, accessToken));
+            // 解析用户信息
+            JSONObject userInfo = JSONUtil.parseObj(userInfoStr);
+            String name = userInfo.getStr("name");
+//            String name = userInfo.getStr("name");
+//            String name = userInfo.getStr("name");
+
+
+        }
+
+
+        return null;
     }
 }

@@ -143,7 +143,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 // 授权配置 无需认证的请求路径
                 .antMatchers(noauthUrl,"/mytask/*", "/system/monitor", "/toLogin", "/bsmservice/user/register", "/bsmservice/user/sendRegisterEmail", "/bsmservice/valid/userinfo", "/bsmservice/ai/faceLogin",
-                        "/login.html", "/bsmservice/code/image", "/bsmservice/code/sms", "/**/login.css", "**/*.js").permitAll()
+                        "/login.html", "/bsmservice/code/image","/bsmservice/gitee/oAuthLogin", "/bsmservice/code/sms", "/**/login.css", "**/*.js").permitAll()
                 .anyRequest()  // 所有请求
                 .authenticated() // 都需要认证
                 .and()

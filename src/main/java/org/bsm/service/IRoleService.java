@@ -13,8 +13,8 @@ import org.bsm.pagemodel.PageRole;
  * @since 2021-10-29
  */
 public interface IRoleService extends IService<Role> {
-    public boolean editRoleStatus(PageRole pageRole);
+    boolean editRoleStatus(PageRole pageRole);
 
-    public boolean delRoles(PageRole pageRole);
+    boolean delRoles(PageRole pageRole);
 
 }

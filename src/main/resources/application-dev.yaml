@@ -87,7 +87,7 @@ spring:
     port: 6379
     timeout: 0
     #    自己机器上的redis密码
-    password: BSM:OHwX2T52VbuzIp4egZ/srQ==
+    password: BSM:dqVDuuSo+lUNSJbK4YRSdg==
     # 我的工作环境密码
     #    password: BSM:dqVDuuSo+lUNSJbK4YRSdg==
     lettuce:
